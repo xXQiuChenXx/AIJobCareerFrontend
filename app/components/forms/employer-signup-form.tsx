@@ -23,85 +23,97 @@ export const EmployerSignupForm = () => {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="companyName">Company name</Label>
-          <Input id="companyName" placeholder="Acme Inc." required />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First name</Label>
-            <Input id="firstName" placeholder="John" required />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Personal Information Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Personal Information</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First name</Label>
+              <Input id="firstName" placeholder="John" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last name</Label>
+              <Input id="lastName" placeholder="Doe" required />
+            </div>
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last name</Label>
-            <Input id="lastName" placeholder="Doe" required />
+            <Label htmlFor="workEmail">Work email</Label>
+            <Input id="workEmail" type="email" placeholder="john.doe@company.com" required />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" required />
+            <p className="text-xs text-muted-foreground">
+              Must be at least 8 characters with a number and a special character
+            </p>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="workEmail">Work email</Label>
-          <Input
-            id="workEmail"
-            type="email"
-            placeholder="john.doe@company.com"
-            required
-          />
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Company Details</span>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" required />
-          <p className="text-xs text-muted-foreground">
-            Must be at least 8 characters with a number and a special character
-          </p>
-        </div>
+        {/* Company Details Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Company Information</h3>
+          <div className="space-y-2">
+            <Label htmlFor="companyName">Company name</Label>
+            <Input id="companyName" placeholder="Acme Inc." required />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="companySize">Company size</Label>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Select company size" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1-10">1-10 employees</SelectItem>
-              <SelectItem value="11-50">11-50 employees</SelectItem>
-              <SelectItem value="51-200">51-200 employees</SelectItem>
-              <SelectItem value="201-500">201-500 employees</SelectItem>
-              <SelectItem value="501-1000">501-1000 employees</SelectItem>
-              <SelectItem value="1000+">1000+ employees</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="companySize">Company size</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select company size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1-10">1-10 employees</SelectItem>
+                <SelectItem value="11-50">11-50 employees</SelectItem>
+                <SelectItem value="51-200">51-200 employees</SelectItem>
+                <SelectItem value="201-500">201-500 employees</SelectItem>
+                <SelectItem value="501-1000">501-1000 employees</SelectItem>
+                <SelectItem value="1000+">1000+ employees</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="industry">Industry</Label>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Select industry" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="tech">Technology</SelectItem>
-              <SelectItem value="finance">Finance</SelectItem>
-              <SelectItem value="healthcare">Healthcare</SelectItem>
-              <SelectItem value="education">Education</SelectItem>
-              <SelectItem value="manufacturing">Manufacturing</SelectItem>
-              <SelectItem value="retail">Retail</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="space-y-2">
+            <Label htmlFor="industry">Industry</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select industry" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="tech">Technology</SelectItem>
+                <SelectItem value="finance">Finance</SelectItem>
+                <SelectItem value="healthcare">Healthcare</SelectItem>
+                <SelectItem value="education">Education</SelectItem>
+                <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                <SelectItem value="retail">Retail</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* <div className="space-y-2">
+            <Label htmlFor="hiringNeeds">Hiring needs</Label>
+            <Textarea
+              id="hiringNeeds"
+              placeholder="Tell us about your AI talent needs"
+              className="resize-none"
+              rows={3}
+            />
+          </div> */}
         </div>
-{/* 
-        <div className="space-y-2">
-          <Label htmlFor="hiringNeeds">Hiring needs</Label>
-          <Textarea
-            id="hiringNeeds"
-            placeholder="Tell us about your AI talent needs"
-            className="resize-none"
-            rows={3}
-          />
-        </div> */}
 
         <div className="flex items-center space-x-2">
           <Checkbox id="terms" required />
@@ -143,5 +155,5 @@ export const EmployerSignupForm = () => {
         </a>
       </p>
     </div>
-  );
+  )
 };
