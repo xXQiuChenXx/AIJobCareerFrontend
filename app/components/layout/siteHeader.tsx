@@ -32,8 +32,8 @@ export const SiteHeader = () => {
               SarawakID
             </span>
           </div>
-          <NavLink to="#" className="text-sm font-medium inline-flex">
-            <Button variant="outline">Sign In</Button>
+          <NavLink to="/sign-up" className="text-sm font-medium inline-flex hover:cursor-pointer">
+            <Button className="cursor-pointer" variant="outline">Sign Up</Button>
           </NavLink>
           <NavLink
             to="#sign-up"
