@@ -1,11 +1,17 @@
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 // import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Building2 } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Building2 } from "lucide-react";
 
 export const EmployerSignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,15 +46,25 @@ export const EmployerSignupForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="workEmail">Work email</Label>
-            <Input id="workEmail" type="email" placeholder="john.doe@company.com" required />
+            <Input
+              id="workEmail"
+              type="email"
+              placeholder="john.doe@company.com"
+              required
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" required />
             <p className="text-xs text-muted-foreground">
-              Must be at least 8 characters with a number and a special character
+              Must be at least 8 characters with a number and a special
+              character
             </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirm Password</Label>
+            <Input id="confirm-password" type="password" required />
           </div>
         </div>
 
@@ -57,7 +73,9 @@ export const EmployerSignupForm = () => {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Company Details</span>
+            <span className="bg-background px-2 text-muted-foreground">
+              Company Details
+            </span>
           </div>
         </div>
 
@@ -103,16 +121,6 @@ export const EmployerSignupForm = () => {
               </SelectContent>
             </Select>
           </div>
-
-          {/* <div className="space-y-2">
-            <Label htmlFor="hiringNeeds">Hiring needs</Label>
-            <Textarea
-              id="hiringNeeds"
-              placeholder="Tell us about your AI talent needs"
-              className="resize-none"
-              rows={3}
-            />
-          </div> */}
         </div>
 
         <div className="flex items-center space-x-2">
@@ -155,5 +163,5 @@ export const EmployerSignupForm = () => {
         </a>
       </p>
     </div>
-  )
+  );
 };
