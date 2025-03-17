@@ -6,7 +6,7 @@ export default [
   route("companies", "routes/companies.tsx"),
   route("plan", "routes/plan.tsx"),
   route("aichat", "routes/aiChat.tsx"),
-  route("careers", "routes/careers.tsx"),
   route("sign-up", "routes/sign-up.tsx"),
-  route("careers/details/:id", "routes/job-details.tsx"),
+  route("careers", "routes/careers/index.tsx"),
+  route("careers/details/:id", "routes/careers/career-details.tsx"),
 ] satisfies RouteConfig;
