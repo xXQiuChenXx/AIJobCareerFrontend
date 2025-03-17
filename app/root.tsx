@@ -5,11 +5,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import { SiteHeader } from "@/components/layout/siteHeader";
+import SiteFooter from "./components/layout/siteFooter";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -25,9 +27,11 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+
   return (
     <html lang="en">
-      <head>
+      <head>  
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
@@ -37,6 +41,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="min-h-screen flex flex-col">
           <SiteHeader />
           {children}
+          {location.pathname !== '/login' && <SiteFooter />}
         </div>
         <ScrollRestoration />
         <Scripts />
