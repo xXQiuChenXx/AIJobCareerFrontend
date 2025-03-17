@@ -8,4 +8,5 @@ export default [
   route("aichat", "routes/aiChat.tsx"),
   route("careers", "routes/careers.tsx"),
   route("sign-up", "routes/sign-up.tsx"),
+  route("careers/details/:id", "routes/job-details.tsx"),
 ] satisfies RouteConfig;

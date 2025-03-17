@@ -41,7 +41,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="min-h-screen flex flex-col">
           <SiteHeader />
           {children}
-          {location.pathname !== '/login' && <SiteFooter />}
+          {!["/sign-up", "/login"].includes(location.pathname) && <SiteFooter />}
         </div>
         <ScrollRestoration />
         <Scripts />
