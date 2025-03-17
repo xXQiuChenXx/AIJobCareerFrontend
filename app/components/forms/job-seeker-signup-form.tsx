@@ -25,11 +25,15 @@ export const JobSeekerSignupForm = () => {
       user_email: "",
       user_password: "",
       confirm_password: "",
+      user_privacy_status: "public",
+      user_role: "job_seeker",
+      user_account_created_time: new Date().toISOString(),
     },
   });
 
   const handleSubmit = async (values: z.infer<typeof RegisterFormZod>) => {
     setIsLoading(true);
+    console.log(values);
 
     // Simulate API call
     setTimeout(() => {
