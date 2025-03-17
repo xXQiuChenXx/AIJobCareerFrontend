@@ -1,11 +1,11 @@
 import z from 'zod'
 
 export const job_application = z.object({
-  APPLICATION_ID: z.number(),
-  APPLICATION_JOB_ID: z.number(),
-  APPLICATION_TYPE: z.string(),
-  APPLICATION_STATUS: z.string(),
-  APPLICATION_SUBMISSION_DATE: z.string(),
+  application_id: z.number(),
+  application_job_id: z.number(),
+  application_type: z.string(),
+  application_status: z.string(),
+  application_submission_date: z.string(),
 })
 
 export type jobApplicationType = z.infer<typeof job_application>

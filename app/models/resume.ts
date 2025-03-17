@@ -1,11 +1,11 @@
 import z from 'zod'
 
 export const resume = z.object({
-  RESUME_ID: z.number(),
-  RESUME_USER_ID: z.number(),
-  RESUME_TEXT: z.string(),
-  RESUME_FILE: z.string(),
-  RESUME_LAST_MODIFY_TIME: z.string(),
+  resume_id: z.number(),
+  resume_user_id: z.number(),
+  resume_text: z.string(),
+  resume_file: z.string(),
+  resume_last_modify_time: z.string(),
 })
 
 export type resumeType = z.infer<typeof resume>
