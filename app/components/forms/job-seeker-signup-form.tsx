@@ -5,8 +5,11 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { RegisterFormSchema } from "@/models/register_form";
+import { useAuth } from "@/components/provider/auth-provider";
+import {
+  RegisterFormSchema,
+  type RegisterFormType,
+} from "@/models/register_form";
 import axios from "axios";
 import {
   Form,
@@ -19,10 +22,10 @@ import {
 import { useNavigate } from "react-router";
 
 export const JobSeekerSignupForm = () => {
-  const [isSubmitting, startSubmit] = useTransition();
+  const { error, isLoading, register } = useAuth();
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof RegisterFormSchema>>({
+  const form = useForm<RegisterFormType>({
     resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
       user_email: "",
@@ -34,24 +37,15 @@ export const JobSeekerSignupForm = () => {
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof RegisterFormSchema>) => {
-    const { terms_accepted, confirm_password, ...submitData } = values;
-    startSubmit(async () => {
-      try {
-        const response = await axios.post("/api/auth/register", submitData);
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        form.reset();
-        navigate("/profile");
-        toast("Account created successfully!");
-      } catch (error: any) {
-        console.error(error);
-        toast(
-          error?.response?.data?.message ||
-            "An error occurred. Please try again later."
-        );
-      }
-    });
+  const handleSubmit = async (values: RegisterFormType) => {
+    await register(values);
+    if (error) {
+      toast(error);
+    } else {
+      form.reset();
+      navigate("/profile");
+      toast("Account created successfully!");
+    }
   };
 
   return (
@@ -177,9 +171,9 @@ export const JobSeekerSignupForm = () => {
           <Button
             type="submit"
             className="w-full cursor-pointer"
-            disabled={isSubmitting}
+            disabled={isLoading}
           >
-            {isSubmitting ? "Creating account..." : "Create account"}
+            {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
       </Form>

@@ -12,6 +12,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { SiteHeader } from "@/components/layout/siteHeader";
 import SiteFooter from "./components/layout/siteFooter";
+import { AuthProvider } from "./components/provider/auth-provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -39,11 +40,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <div className="min-h-screen flex flex-col">
-          <SiteHeader />
-          {children}
-          {!["/sign-up", "/login"].includes(location.pathname) && (
-            <SiteFooter />
-          )}
+          <AuthProvider>
+            <SiteHeader />
+            {children}
+            {!["/sign-up", "/login"].includes(location.pathname) && (
+              <SiteFooter />
+            )}
+          </AuthProvider>
         </div>
         <ScrollRestoration />
         <Scripts />
