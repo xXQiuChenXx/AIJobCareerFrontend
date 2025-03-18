@@ -1,7 +1,7 @@
 import { user } from "@/models/user";
 import { z } from "zod";
 
-export const RegisterFormZod = user
+export const RegisterFormSchema = user
   .extend({
     confirm_password: z.string(),
     terms_accepted: z.literal(true, {
@@ -18,4 +18,4 @@ export const RegisterFormZod = user
     }
   });
 
-export type RegisterFormType = z.infer<typeof RegisterFormZod>;
+export type RegisterFormType = z.infer<typeof RegisterFormSchema>;

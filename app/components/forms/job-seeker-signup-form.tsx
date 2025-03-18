@@ -1,26 +1,29 @@
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { RegisterFormZod } from "@/models/register_form";
+import { RegisterFormSchema } from "@/models/register_form";
+import axios from "axios";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useNavigate } from "react-router";
 
 export const JobSeekerSignupForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useTransition();
-  const form = useForm<z.infer<typeof RegisterFormZod>>({
-    resolver: zodResolver(RegisterFormZod),
+  const [isSubmitting, startSubmit] = useTransition();
+  const navigate = useNavigate();
+
+  const form = useForm<z.infer<typeof RegisterFormSchema>>({
+    resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
       user_email: "",
       user_password: "",
@@ -31,15 +34,24 @@ export const JobSeekerSignupForm = () => {
     },
   });
 
-  const handleSubmit = async (values: z.infer<typeof RegisterFormZod>) => {
-    setIsLoading(true);
-    console.log(values);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Handle successful signup - redirect or show success message
-    }, 1500);
+  const handleSubmit = (values: z.infer<typeof RegisterFormSchema>) => {
+    const { terms_accepted, confirm_password, ...submitData } = values;
+    startSubmit(async () => {
+      try {
+        const response = await axios.post("/api/auth/register", submitData);
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        form.reset();
+        navigate("/profile");
+        toast("Account created successfully!");
+      } catch (error: any) {
+        console.error(error);
+        toast(
+          error?.response?.data?.message ||
+            "An error occurred. Please try again later."
+        );
+      }
+    });
   };
 
   return (
@@ -162,8 +174,12 @@ export const JobSeekerSignupForm = () => {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create account"}
+          <Button
+            type="submit"
+            className="w-full cursor-pointer"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Creating account..." : "Create account"}
           </Button>
         </form>
       </Form>

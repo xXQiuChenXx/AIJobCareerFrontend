@@ -7,7 +7,7 @@ import {
   ScrollRestoration,
   useLocation,
 } from "react-router";
-
+import { Toaster } from "@/components/ui/sonner";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { SiteHeader } from "@/components/layout/siteHeader";
@@ -31,7 +31,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <html lang="en">
-      <head>  
+      <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
@@ -41,10 +41,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="min-h-screen flex flex-col">
           <SiteHeader />
           {children}
-          {!["/sign-up", "/login"].includes(location.pathname) && <SiteFooter />}
+          {!["/sign-up", "/login"].includes(location.pathname) && (
+            <SiteFooter />
+          )}
         </div>
         <ScrollRestoration />
         <Scripts />
+        <Toaster />
       </body>
     </html>
   );
