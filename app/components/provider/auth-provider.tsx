@@ -22,11 +22,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
 }
 
-interface ResponseUserTyoe {
+interface ResponseUserType {
+  userId: string;
+  email: string;
   username: string;
-  name: string;
-  user_email: string;
-  user_icon: string
 }
 
 // Create the Auth Context
@@ -34,7 +33,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 // AuthProvider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<ResponseUserTyoe | null>(null);
+  const [user, setUser] = useState<ResponseUserType | null>(null);
   const [isLoading, startLoding] = useTransition();
   const [error, setError] = useState(null);
 
@@ -44,15 +43,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         setError(null);
         // Check for token in localStorage
-        const token = Cookies.get("token");
-        const user = Cookies.get("user");
-
-        if (token) {
+        const cookie_token = Cookies.get("token");
+        const cookie_user = JSON.parse(Cookies.get("user") ?? "{}") as ResponseUserType;
+        if (cookie_token && cookie_user) {
           // Validate token with your API
           const response = await axios.post("/api/auth/validate", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            token: cookie_token,
+            ...cookie_user
           });
           // Save token to cookies
           Cookies.set("token", response.data.token, { expires: 30 });

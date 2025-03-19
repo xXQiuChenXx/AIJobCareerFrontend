@@ -58,7 +58,7 @@ export const SiteHeader = () => {
               Log out
             </Button>
           ) : (
-            <div>
+            <>
               <NavLink
                 to="/sign-up"
                 className="text-sm font-medium inline-flex hover:cursor-pointer"
@@ -73,7 +73,7 @@ export const SiteHeader = () => {
               >
                 Post a job
               </NavLink>
-            </div>
+            </>
           )}
           <MobileViewMenu />
         </div>
