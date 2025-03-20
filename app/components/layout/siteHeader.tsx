@@ -78,6 +78,7 @@ export const SiteHeader = () => {
           <MobileViewMenu />
         </div>
       </div>
+      {JSON.stringify(user)}
     </header>
   );
 };

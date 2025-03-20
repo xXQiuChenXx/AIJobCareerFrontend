@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { LoginFormSchema, type LoginFormType } from "@/models/login_form";
+import { useAuth } from "@/components/provider/auth-provider";
+import { toast } from "sonner";
 
 export const SignInForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading, error, clearError } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormType>({
     resolver: zodResolver(LoginFormSchema),
@@ -25,21 +28,27 @@ export const SignInForm = () => {
     },
   });
 
-  const onSubmit = async (data: LoginFormType) => {
-    setIsLoading(true);
+  // Watch for error changes
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      clearError();
+    }
+  }, [error, clearError]);
 
-    // Simulate API call
-    console.log("Form data:", data);
-    setTimeout(() => {
-      setIsLoading(false);
-      // Handle successful sign-in - redirect to dashboard or home
-    }, 1500);
+  const onSuccess = () => {
+    form.reset();
+    navigate("/profile");
+    toast.success("Logged in successfully!");
   };
 
   return (
     <div className="space-y-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit((data) => login(data, onSuccess))}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="username_or_email"
@@ -94,4 +103,3 @@ export const SignInForm = () => {
     </div>
   );
 };
-

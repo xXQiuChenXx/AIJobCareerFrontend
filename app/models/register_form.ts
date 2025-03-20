@@ -4,8 +4,8 @@ import { z } from "zod";
 export const RegisterFormSchema = user
   .extend({
     confirm_password: z.string(),
-    terms_accepted: z.literal(true, {
-      errorMap: () => ({ message: "You must accept the terms and conditions" }),
+    terms_accepted: z.boolean().refine(val => val === true, {
+      message: "You must accept the terms and conditions"
     }),
   })
   .superRefine(({ user_password, confirm_password }, ctx) => {

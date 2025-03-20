@@ -13,13 +13,14 @@ import type { LoginFormType } from "@/models/login_form";
 import Cookies from "js-cookie";
 
 interface AuthContextType {
-  user: any;
+  user: ResponseUserType | null;
   isLoading: boolean;
-  error: any;
-  login: ({ username_or_email, password }: LoginFormType) => Promise<any>;
+  error: string | null;
+  login: (data: LoginFormType, onSuccess: () => void) => void;
   logout: () => void;
-  register: (data: RegisterFormType) => Promise<any>;
+  register: (data: RegisterFormType, onSuccess: () => void) => void;
   isAuthenticated: boolean;
+  clearError: () => void;
 }
 
 interface ResponseUserType {
@@ -35,41 +36,44 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<ResponseUserType | null>(null);
   const [isLoading, startLoding] = useTransition();
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const clearError = () => setError(null);
 
   // Check if user is already logged in on mount
   useEffect(() => {
     startLoding(async () => {
+      clearError();
       try {
-        setError(null);
-        // Check for token in localStorage
+        // Check for token in cookies
         const cookie_token = Cookies.get("token");
-        const cookie_user = JSON.parse(Cookies.get("user") ?? "{}") as ResponseUserType;
+        const cookie_user = JSON.parse(
+          Cookies.get("user") ?? "{}"
+        ) as ResponseUserType;
         if (cookie_token && cookie_user) {
           // Validate token with your API
           const response = await axios.post("/api/auth/validate", {
             token: cookie_token,
-            ...cookie_user
+            ...cookie_user,
           });
           // Save token to cookies
-          Cookies.set("token", response.data.token, { expires: 30 });
           Cookies.set("user", JSON.stringify(response.data.user), {
             expires: 30,
           });
           setUser(response.data.user);
         }
       } catch (err: any) {
-        localStorage.removeItem("authToken");
+        Cookies.remove("token");
+        Cookies.remove("user");
         setError(err?.response?.data?.message || err.message);
       }
     });
   }, []);
 
   // Login function
-  const login = async (data: LoginFormType) => {
+  const login = (data: LoginFormType, onSuccess: () => void) => {
     startLoding(async () => {
       try {
-        setError(null);
+        clearError();
         const response = await axios.post("/api/auth/login", data);
 
         // Save token to cookies
@@ -80,26 +84,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Set user data
         setUser(response.data?.user);
+        onSuccess();
       } catch (err: any) {
-        setError(
-          err?.response?.data?.message || "Failed to login, please try again."
-        );
+        const errorMessage =
+          err?.response?.data?.message || "Failed to login, please try again.";
+        setError(errorMessage);
       }
     });
   };
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem("authToken");
+    Cookies.remove("token");
+    Cookies.remove("user");
     setUser(null);
   };
 
   // Register function
-  const register = async ({
-    terms_accepted,
-    confirm_password,
-    ...submitData
-  }: RegisterFormType) => {
+  const register = (
+    { terms_accepted, confirm_password, ...submitData }: RegisterFormType,
+    onSuccess: () => void
+  ) => {
     startLoding(async () => {
       setError(null);
       try {
@@ -110,9 +115,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           expires: 30,
         });
         setUser(response.data.user);
-      } catch (error: any) {
+        onSuccess();
+      } catch (err: any) {
         setError(
-          error?.response?.data?.message ||
+          err?.response?.data?.message ||
             "An error occurred. Please try again later."
         );
       }
@@ -128,6 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout,
       register,
       isAuthenticated: !!user,
+      clearError,
     }),
     [user, login, logout, register, isLoading, error]
   );

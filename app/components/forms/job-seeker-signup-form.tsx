@@ -1,4 +1,4 @@
-import { useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,6 @@ import {
   RegisterFormSchema,
   type RegisterFormType,
 } from "@/models/register_form";
-import axios from "axios";
 import {
   Form,
   FormControl,
@@ -22,8 +21,14 @@ import {
 import { useNavigate } from "react-router";
 
 export const JobSeekerSignupForm = () => {
-  const { error, isLoading, register } = useAuth();
+  const { error, isLoading, register, clearError } = useAuth();
   const navigate = useNavigate();
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      clearError();
+    }
+  }, [error, clearError]);
 
   const form = useForm<RegisterFormType>({
     resolver: zodResolver(RegisterFormSchema),
@@ -34,24 +39,26 @@ export const JobSeekerSignupForm = () => {
       user_privacy_status: "public",
       user_role: "job_seeker",
       user_account_created_time: new Date().toISOString(),
+      user_first_name: "",
+      user_last_name: "",
+      username: "",
+      terms_accepted: false,
     },
   });
 
-  const handleSubmit = async (values: RegisterFormType) => {
-    await register(values);
-    if (error) {
-      toast(error);
-    } else {
-      form.reset();
-      navigate("/profile");
-      toast("Account created successfully!");
-    }
+  const onSuccess = () => {
+    form.reset();
+    navigate("/profile");
+    toast("Account created successfully!");
   };
 
   return (
     <div className="space-y-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit((data) => register(data, onSuccess))}
+          className="space-y-4"
+        >
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -93,7 +100,7 @@ export const JobSeekerSignupForm = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          />  
 
           <FormField
             control={form.control}
