@@ -93,7 +93,7 @@ export const JobSeekerSignupForm = () => {
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Sarawak ID</FormLabel>
                 <FormControl>
                   <Input type="text" {...field} />
                 </FormControl>
