@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, DollarSign, Clock, Building } from "lucide-react";
+import { MapPin, DollarSign, Clock, Building, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -24,7 +24,7 @@ import { jobListings } from "@/sample-data/jobs";
 
 export default function JobListings() {
   const [filters, setFilters] = useState({
-    jobType: "",
+    jobType: [] as string[],
     location: "",
     salary: "",
   });
@@ -44,11 +44,11 @@ export default function JobListings() {
             <div key={type} className="flex items-center space-x-2">
               <Checkbox
                 id={`type-${type}`}
-                checked={filters.jobType === type}
+                checked={filters.jobType.includes(type)}
                 onCheckedChange={() =>
                   handleFilterChange(
                     "jobType",
-                    filters.jobType === type ? "" : type
+                    filters.jobType.includes(type) ? "" : type
                   )
                 }
               />
@@ -106,7 +106,7 @@ export default function JobListings() {
       <Button
         className="w-full"
         variant="outline"
-        onClick={() => setFilters({ jobType: "", location: "", salary: "" })}
+        onClick={() => setFilters({ jobType: [], location: "", salary: "" })}
       >
         Clear Filters
       </Button>
@@ -118,7 +118,10 @@ export default function JobListings() {
       {/* Filters - Desktop */}
       {isDesktop ? (
         <div className="bg-white p-6 rounded-lg shadow-sm h-fit">
-          <h2 className="text-xl font-bold mb-6">Filters</h2>
+          <h2 className="text-xl font-bold mb-6 flex items-center">
+            <Filter className="h-5 w-5 mr-2" />
+            Filters
+          </h2>
           <FilterContent />
         </div>
       ) : (

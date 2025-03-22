@@ -4,7 +4,6 @@ import { LearningPlatforms } from "@/components/training/learning-platform";
 import { LocalUniversities } from "@/components/training/local-universities";
 import OrganizationTraining from "@/components/training/organization-training";
 import { Button } from "@/components/ui/button";
-import React from "react";
 import { NavLink } from "react-router";
 
 const TrainingPage = () => {
