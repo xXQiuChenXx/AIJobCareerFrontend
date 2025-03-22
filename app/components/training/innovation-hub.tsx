@@ -20,7 +20,7 @@ export function InnovationHubs() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {innovationHubs.map((hub) => (
-        <Card className="overflow-hidden flex flex-col h-full pt-0">
+        <Card className="overflow-hidden flex flex-col h-full pt-0" key={hub.division}>
           <div className="relative h-48 w-full overflow-hidden">
             <img
               src={hub.imageUrl || "/placeholder.svg"}

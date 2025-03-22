@@ -2,6 +2,7 @@ import CategoryCard from "@/components/training/category-card";
 import { InnovationHubs } from "@/components/training/innovation-hub";
 import { LearningPlatforms } from "@/components/training/learning-platform";
 import { LocalUniversities } from "@/components/training/local-universities";
+import OrganizationTraining from "@/components/training/organization-training";
 import { Button } from "@/components/ui/button";
 import React from "react";
 
@@ -103,11 +104,7 @@ const TrainingPage = () => {
           </h2>
           <InnovationHubs />
         </section>
-        <section className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">
-            For Organisations
-          </h2>
-        </section>
+       <OrganizationTraining />
       </main>
     </div>
   );
