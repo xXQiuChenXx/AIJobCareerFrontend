@@ -86,25 +86,60 @@ const TrainingPage = () => {
 
         {/* Featured Courses */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">
-            Courses & Learning Platform
-          </h2>
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Courses & Learning Platform
+            </h2>
+            <p className="text-gray-600">
+              Discover courses that sharpen your skills for landing a better
+              job.
+            </p>
+          </div>
           <LearningPlatforms />
         </section>
 
-        <section className="mb-16"> 
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">
-            Local Universities
-          </h2>
+        {/* Local Universities */}
+        <section className="mb-16">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Local Universities
+            </h2>
+            <p className="text-gray-600">
+              Discover local universities offering career-focused programs and
+              gain a certificate to help you secure a better job.
+            </p>
+          </div>
           <LocalUniversities />
         </section>
+
+        {/* Innovation Hubs */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">
-            Sarawak Digital Innovation Hub
-          </h2>
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Sarawak Digital Innovation Hub
+            </h2>
+            <p className="text-gray-600">
+              Dive into the Sarawak Digital Innovation Hub for cutting-edge
+              training, tech insights, and career growth.
+            </p>
+          </div>
           <InnovationHubs />
         </section>
-       <OrganizationTraining />
+
+        {/* Organization Training */}
+        <section className="mb-16">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Organization Training Program
+            </h2>
+            <p className="text-gray-600">
+              Elevate local skills with training designed for Sarawak’s dynamic
+              economy.
+            </p>
+          </div>
+
+          <OrganizationTraining />
+        </section>
       </main>
     </div>
   );

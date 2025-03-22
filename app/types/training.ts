@@ -30,3 +30,9 @@ export type LearningPlatform = {
   imageUrl: string
   url: string
 }
+
+export type Organization = {
+  title: string;
+  description: string;
+  website: string;
+}
