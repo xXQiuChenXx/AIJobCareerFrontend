@@ -5,6 +5,7 @@ import { LocalUniversities } from "@/components/training/local-universities";
 import OrganizationTraining from "@/components/training/organization-training";
 import { Button } from "@/components/ui/button";
 import React from "react";
+import { NavLink } from "react-router";
 
 const TrainingPage = () => {
   return (
@@ -25,19 +26,23 @@ const TrainingPage = () => {
               industries.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8"
-              >
-                Explore Programs
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 text-lg px-8"
-              >
-                For Organizations
-              </Button>
+              <NavLink to="#courses-platform">
+                <Button
+                  size="lg"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8 cursor-pointer"
+                >
+                  Explore Programs
+                </Button>
+              </NavLink>
+              <NavLink to="#organization-training">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-800 text-lg px-8 cursor-pointer"
+                >
+                  For Organizations
+                </Button>
+              </NavLink>
             </div>
           </div>
         </div>
@@ -45,47 +50,61 @@ const TrainingPage = () => {
 
       <main className="container mx-auto px-4 py-12">
         {/* Categories Section */}
-        <section className="mb-16">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-800">
-              Explore Categories
-            </h2>
-          </div>
+        <section className="mb-20 relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-white opacity-70 -z-10 rounded-xl"></div>
+          <div className="bg-dot-pattern bg-repeat opacity-10 absolute inset-0 -z-10 rounded-xl"></div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <CategoryCard
-              title="Digital Skills & Tech Training"
-              description="Courses on AI, coding, e-commerce, and digital literacy"
-              icon="laptop"
-              color="bg-blue-500"
-              count={15}
-            />
-            <CategoryCard
-              title="Industry-Specific Skills"
-              description="Training for agriculture, tourism, renewable energy, and more"
-              icon="briefcase"
-              color="bg-green-500"
-              count={24}
-            />
-            <CategoryCard
-              title="Traditional & Heritage Skills"
-              description="Preserve and learn handicrafts, boat-making, and culinary arts"
-              icon="paintbrush"
-              color="bg-amber-500"
-              count={12}
-            />
-            <CategoryCard
-              title="Language & Communication"
-              description="English, Mandarin, and Iban language courses for business"
-              icon="message-circle"
-              color="bg-purple-500"
-              count={8}
-            />
+          <div className="p-8 rounded-xl">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-800 mb-3">
+                Explore Training Categories
+              </h2>
+              <p className="text-gray-600 ">
+                Discover a wide range of skill development opportunities
+                tailored for Sarawak's growing industries and future workforce
+                needs.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <CategoryCard
+                title="Courses & Learning Platform"
+                description="Access online learning platforms with diverse courses to enhance your skills and knowledge"
+                icon="GraduationCap"
+                color="from-blue-500 to-indigo-600"
+                count={15}
+                href="#courses-platform"
+              />
+              <CategoryCard
+                title="Local Universities"
+                description="Discover local universities offering career-focused programs and certifications"
+                icon="Building2"
+                color="from-green-500 to-emerald-600"
+                count={12}
+                href="#local-universities"
+              />
+              <CategoryCard
+                title="Sarawak Digital Innovation Hub"
+                description="Explore tech training and innovation programs at Sarawak's digital innovation centers"
+                icon="Cpu"
+                color="from-purple-500 to-violet-600"
+                count={8}
+                href="#innovation-hub"
+              />
+              <CategoryCard
+                title="Organization Training Program"
+                description="Find enterprise training solutions designed for Sarawak's dynamic business landscape"
+                icon="Users"
+                color="from-amber-500 to-orange-600"
+                count={24}
+                href="#organization-training"
+              />
+            </div>
           </div>
         </section>
 
         {/* Featured Courses */}
-        <section className="mb-16">
+        <section id="courses-platform" className="mb-16 pt-16 -mt-16">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">
               Courses & Learning Platform
@@ -99,7 +118,7 @@ const TrainingPage = () => {
         </section>
 
         {/* Local Universities */}
-        <section className="mb-16">
+        <section id="local-universities" className="mb-16 pt-16 -mt-16">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">
               Local Universities
@@ -113,7 +132,7 @@ const TrainingPage = () => {
         </section>
 
         {/* Innovation Hubs */}
-        <section className="mb-16">
+        <section id="innovation-hub" className="mb-16 pt-16 -mt-16">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">
               Sarawak Digital Innovation Hub
@@ -127,13 +146,13 @@ const TrainingPage = () => {
         </section>
 
         {/* Organization Training */}
-        <section className="mb-16">
+        <section id="organization-training" className="mb-16 pt-16 -mt-16">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">
               Organization Training Program
             </h2>
             <p className="text-gray-600">
-              Elevate local skills with training designed for Sarawak’s dynamic
+              Elevate local skills with training designed for Sarawak's dynamic
               economy.
             </p>
           </div>
