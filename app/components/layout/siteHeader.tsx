@@ -24,10 +24,10 @@ export const SiteHeader = () => {
             Jobs in Sarawak
           </CustomNavLink>
           <CustomNavLink
-            to="companies"
+            to="training"
             className="font-medium text-slate-700 hover:text-slate-900"
           >
-            Companies
+            Courses & Training
           </CustomNavLink>
           <CustomNavLink
             to="aichat"
@@ -78,7 +78,6 @@ export const SiteHeader = () => {
           <MobileViewMenu />
         </div>
       </div>
-      {JSON.stringify(user)}
     </header>
   );
 };

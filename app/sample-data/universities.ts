@@ -1,0 +1,118 @@
+import type { University } from "@/types/training";
+
+export const universities: University[] = [
+  {
+    name: "Universiti Malaysia Sarawak",
+    shortName: "UNIMAS",
+    location: "Kota Samarahan, Sarawak",
+    description:
+      "The first public university in Sarawak, known for its innovative approach to education and research with a strong focus on biodiversity, sustainable development, and indigenous communities.",
+    foundedYear: 1992,
+    studentCount: "16,000+",
+    ranking: "Top 1000 in QS World University Rankings",
+    notablePrograms: [
+      "Biodiversity and Environmental Conservation",
+      "Medicine and Health Sciences",
+      "Computer Science and IT",
+      "Resource Science and Technology",
+      "Social Informatics and Computing",
+    ],
+    website: "https://www.unimas.my/",
+    imageUrl: "/university-logo/UNIMAS-logo.png",
+  },
+  {
+    name: "Swinburne University of Technology Sarawak Campus",
+    shortName: "Swinburne Sarawak",
+    location: "Kuching, Sarawak",
+    description:
+      "The Malaysian campus of Australia's Swinburne University of Technology, offering internationally recognized Australian degrees with a strong focus on industry connections and practical learning.",
+    foundedYear: 2000,
+    studentCount: "4,000+",
+    ranking: "Branch campus of a university ranked in Top 400 globally",
+    notablePrograms: [
+      "Engineering",
+      "Business",
+      "Computing",
+      "Design",
+      "Science",
+    ],
+    website: "https://www.swinburne.edu.my/",
+    imageUrl: "/university-logo/swinburne-logo.png",
+  },
+  {
+    name: "Curtin University Malaysia",
+    shortName: "Curtin Malaysia",
+    location: "Miri, Sarawak",
+    description:
+      "The largest international campus of Curtin University, Australia, offering identical courses and degrees to its Australian parent with a strong emphasis on engineering and business education.",
+    foundedYear: 1999,
+    studentCount: "4,500+",
+    ranking: "Branch campus of a university ranked in Top 250 globally",
+    notablePrograms: [
+      "Engineering",
+      "Business",
+      "Science",
+      "Media and Communication",
+      "Information Technology",
+    ],
+    website: "https://www.curtin.edu.my/",
+    imageUrl: "/university-logo/Curtin_University_Crest.jpg",
+  },
+  {
+    name: "University of Technology Sarawak",
+    shortName: "UTS",
+    location: "Sibu, Sarawak",
+    description:
+      "A state-owned university focused on technological and professional education to meet Sarawak's development needs, particularly in the central region of Sarawak.",
+    foundedYear: 2013,
+    studentCount: "2,000+",
+    ranking: "Emerging university in Malaysia",
+    notablePrograms: [
+      "Engineering Technology",
+      "Built Environment",
+      "Computing",
+      "Business Management",
+      "Technology Management",
+    ],
+    website: "https://www.uts.edu.my/",
+    imageUrl: "/university-logo/uts-logo.png",
+  },
+  {
+    name: "i-CATS University College",
+    shortName: "i-CATS",
+    location: "Kuching, Sarawak",
+    description:
+      "A state-owned institution formerly known as International College of Advanced Technology Sarawak, focusing on technical and vocational education aligned with Sarawak's industrial needs.",
+    foundedYear: 2003,
+    studentCount: "3,000+",
+    ranking: "Leading technical university college in Sarawak",
+    notablePrograms: [
+      "Culinary Arts",
+      "Fashion Design",
+      "Information Technology",
+      "Business Studies",
+      "Engineering Technology",
+    ],
+    website: "https://icats.edu.my/2.0/",
+    imageUrl: "/university-logo/i-cats.jpg",
+  },
+  {
+    name: "UiTM Sarawak",
+    shortName: "UiTM Sarawak",
+    location: "Kota Samarahan, Sarawak",
+    description:
+      "The Sarawak branch campus of Universiti Teknologi MARA (UiTM), Malaysia's largest university, primarily serving bumiputera students with a wide range of programs.",
+    foundedYear: 1973,
+    studentCount: "6,000+",
+    ranking: "Branch campus of a top Malaysian public university",
+    notablePrograms: [
+      "Business Administration",
+      "Accountancy",
+      "Computer Science",
+      "Mass Communication",
+      "Administrative Science",
+    ],
+    website: "https://sarawak.uitm.edu.my/",
+    imageUrl: "/university-logo/UiTM.jpg",
+  },
+];
