@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Building2 } from "lucide-react";
+import { company_industries } from "@/sample-data/company";
+import { Textarea } from "../ui/textarea";
 
 export const EmployerSignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -86,38 +88,33 @@ export const EmployerSignupForm = () => {
             <Label htmlFor="companyName">Company name</Label>
             <Input id="companyName" placeholder="Acme Inc." required />
           </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="company_intro">Company Description</Label>
+            <Textarea id="company_intro" required />
+          </div>
 
           <div className="space-y-2">
-            <Label htmlFor="companySize">Company size</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select company size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1-10">1-10 employees</SelectItem>
-                <SelectItem value="11-50">11-50 employees</SelectItem>
-                <SelectItem value="51-200">51-200 employees</SelectItem>
-                <SelectItem value="201-500">201-500 employees</SelectItem>
-                <SelectItem value="501-1000">501-1000 employees</SelectItem>
-                <SelectItem value="1000+">1000+ employees</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="company_website">Company website</Label>
+            <Input
+              id="company_website"
+              placeholder="www.example.com"
+              required
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="industry">Industry</Label>
             <Select>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select industry" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="tech">Technology</SelectItem>
-                <SelectItem value="finance">Finance</SelectItem>
-                <SelectItem value="healthcare">Healthcare</SelectItem>
-                <SelectItem value="education">Education</SelectItem>
-                <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                <SelectItem value="retail">Retail</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                {company_industries.map((industry) => (
+                  <SelectItem key={industry} value={industry}>
+                    {industry}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

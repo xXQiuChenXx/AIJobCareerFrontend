@@ -13,6 +13,8 @@ export default [
   route("profile", "routes/user/profile.tsx"),
   route("aichat", "routes/aiChat.tsx"),
   route("careers", "routes/careers/index.tsx"),
+  route("notifications", "routes/notifications/index.tsx"),
+  route("notifications/:id", "routes/notifications/notification.tsx"),
   route("careers/details/:id", "routes/careers/career-details.tsx"),
   layout("routes/auth/layout.tsx", [
     route("login", "routes/auth/login.tsx"),

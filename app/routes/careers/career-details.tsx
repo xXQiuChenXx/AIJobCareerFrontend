@@ -6,22 +6,23 @@ import {
   Calendar,
   ChevronLeft,
   Clock,
-  DollarSign,
   Globe,
   MapPin,
   Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { NavLink } from "react-router";
-import { getJobById } from "@/services/job-service";
+import { NavLink, useLocation } from "react-router";
+import { formatSalaryRange, getJobById } from "@/services/job-service";
 import { useEffect, useState } from "react";
 import type { jobType } from "@/models/job";
 import { jobTypeToString } from "@/types/job";
+import { toast } from "sonner";
 
 const JobDetailPage = ({ params }: Route.ComponentProps) => {
   const [jobData, setJobData] = useState<jobType | null>(null);
   const { id } = params;
+  const location = useLocation();
 
   useEffect(() => {
     getJobById(id).then((job) => {
@@ -33,7 +34,7 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
   if (!jobData)
     return (
       <div>
-        <h1>Not Found</h1>
+        <h1>Loading</h1>
       </div>
     );
 
@@ -65,7 +66,7 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
               </div>
               <div className="flex-grow">
                 <h1 className="text-2xl md:text-3xl font-bold">
-                  {jobData?.job_title} {id}
+                  {jobData?.job_title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   <div className="flex items-center text-muted-foreground">
@@ -89,8 +90,10 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
                     variant="secondary"
                     className="flex items-center gap-1"
                   >
-                    <DollarSign className="h-3 w-3" />
-                    {jobData?.job_salary_min} - {jobData?.job_salary_max}
+                    {formatSalaryRange(
+                      jobData?.job_salary_min,
+                      jobData.job_salary_max
+                    )}
                   </Badge>
                   <Badge
                     variant="secondary"
@@ -102,11 +105,19 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
                 </div>
               </div>
               <div className="flex flex-col gap-2 md:items-end mt-4 md:mt-0">
-                <Button className="w-full md:w-auto">Apply Now</Button>
+                <NavLink to={`/careers/apply/${jobData.job_id}`}>
+                  <Button className="w-full md:w-auto cursor-pointer">Apply Now</Button>
+                </NavLink>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="hidden md:flex"
+                  className="hidden md:flex cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      window.location.origin + location.pathname
+                    );
+                    toast("Link copied to clipboard");
+                  }}
                 >
                   <Share2 className="h-4 w-4" />
                   <span className="sr-only">Share job</span>
@@ -197,7 +208,13 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
                   </div>
                   <div className="flex items-center text-muted-foreground">
                     <Globe className="h-4 w-4 mr-2" />
-                    <span>{jobData?.company.company_website}</span>
+                    <NavLink
+                      to={jobData?.company.company_website}
+                      target="_blank"
+                      className="text-primary hover:underline"
+                    >
+                      <span>{jobData?.company.company_website}</span>
+                    </NavLink>
                   </div>
                 </div>
                 <p className="mt-4 text-muted-foreground">
@@ -221,10 +238,18 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
               We're looking for talented individuals to join our team. Apply now
               to start your journey with {jobData?.company.company_name}.
             </p>
-            <Button className="w-full mb-3">Apply Now</Button>
+            <NavLink to={`/careers/apply/${jobData.job_id}`}>
+              <Button className="w-full mb-3 cursor-pointer">Apply Now</Button>
+            </NavLink>
             <Button
               variant="outline"
-              className="w-full flex items-center justify-center gap-2"
+              className="w-full flex items-center justify-center gap-2 cursor-pointer"
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  window.location.origin + location.pathname
+                );
+                toast("Link copied to clipboard");
+              }}
             >
               <Share2 className="h-4 w-4" />
               Share This Job

@@ -1,12 +1,21 @@
-import { UserCircle } from "lucide-react";
+import { Bell, UserCircle } from "lucide-react";
 import { NavLink } from "react-router";
 import { Button } from "@/components/ui/button";
 import { CustomNavLink } from "./customNavLink";
 import MobileViewMenu from "./mobile-view-menu";
 import { useAuth } from "@/components/provider/auth-provider";
+import { useState } from "react";
+import { useNotifications } from "@/components/provider/notification-provider";
+import NotificationDropdown from "../notifications/dropdown";
 
 export const SiteHeader = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const { notifications, hasUnread } = useNotifications();
+
+  const toggleNotifications = () => {
+    setIsOpen(!isOpen);
+  };
   return (
     <header className="sticky top-0 z-50 w-full border-b shadow bg-white">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6 mx-auto">
@@ -43,12 +52,39 @@ export const SiteHeader = () => {
           </CustomNavLink>
         </nav>
         <div className="flex items-center gap-4">
-          <div className="items-center space-x-2 bg-[#FCD106] px-3 py-1.5 rounded-full hidden lg:flex">
-            <UserCircle className="text-gray-800 w-4 h-4" />
-            <span className="text-gray-800 font-semibold text-sm">
-              SarawakID
-            </span>
-          </div>
+          {!isAuthenticated && (
+            <div className="items-center space-x-2 bg-[#FCD106] px-3 py-1.5 rounded-full hidden lg:flex">
+              <UserCircle className="text-gray-800 w-4 h-4" />
+              <span className="text-gray-800 font-semibold text-sm">
+                SarawakID
+              </span>
+            </div>
+          )}
+          {isAuthenticated && (
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleNotifications}
+                aria-label={
+                  hasUnread ? "You have unread notifications" : "Notifications"
+                }
+                className="relative cursor-pointer"
+              >
+                <Bell className="h-5 w-5" />
+                {hasUnread && (
+                  <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-destructive" />
+                )}
+              </Button>
+
+              {isOpen && (
+                <NotificationDropdown
+                  notifications={notifications}
+                  onClose={() => setIsOpen(false)}
+                />
+              )}
+            </div>
+          )}
           {isAuthenticated ? (
             <Button
               className="ext-sm font-medium inline-flex cursor-pointer"

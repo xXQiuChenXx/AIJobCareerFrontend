@@ -13,6 +13,7 @@ import "./app.css";
 import { SiteHeader } from "@/components/layout/siteHeader";
 import SiteFooter from "./components/layout/siteFooter";
 import { AuthProvider } from "./components/provider/auth-provider";
+import { NotificationProvider } from "./components/provider/notification-provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -41,11 +42,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <div className="min-h-screen flex flex-col">
           <AuthProvider>
-            <SiteHeader />
-            {children}
-            {!["/sign-up", "/login"].includes(location.pathname) && (
-              <SiteFooter />
-            )}
+            <NotificationProvider>
+              <SiteHeader />
+              {children}
+              {!["/sign-up", "/login"].includes(location.pathname) && (
+                <SiteFooter />
+              )}
+            </NotificationProvider>
           </AuthProvider>
         </div>
         <ScrollRestoration />
