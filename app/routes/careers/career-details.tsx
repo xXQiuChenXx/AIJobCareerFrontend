@@ -1,6 +1,4 @@
 // Dynamic Route
-
-import { jobData } from "@/sample-data/job-details";
 import type { Route } from "../careers/+types/career-details";
 import {
   Briefcase,
@@ -16,9 +14,28 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { NavLink } from "react-router";
+import { getJobById } from "@/services/job-service";
+import { useEffect, useState } from "react";
+import type { jobType } from "@/models/job";
+import { jobTypeToString } from "@/types/job";
 
 const JobDetailPage = ({ params }: Route.ComponentProps) => {
+  const [jobData, setJobData] = useState<jobType | null>(null);
   const { id } = params;
+
+  useEffect(() => {
+    getJobById(id).then((job) => {
+      setJobData(job);
+      console.log(job);
+    });
+  }, [id]);
+
+  if (!jobData)
+    return (
+      <div>
+        <h1>Not Found</h1>
+      </div>
+    );
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -39,8 +56,8 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               <div className="flex-shrink-0">
                 <img
-                  src={jobData.companyInfo.logo || "/placeholder.svg"}
-                  alt={jobData.companyInfo.name}
+                  src={jobData?.company?.company_icon || "/placeholder.svg"}
+                  alt={jobData?.company.company_name}
                   width={80}
                   height={80}
                   className="rounded-lg bg-background p-2"
@@ -48,16 +65,16 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
               </div>
               <div className="flex-grow">
                 <h1 className="text-2xl md:text-3xl font-bold">
-                  {jobData.title} {id}
+                  {jobData?.job_title} {id}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   <div className="flex items-center text-muted-foreground">
                     <Building2 className="h-4 w-4 mr-1" />
-                    <span>{jobData.company}</span>
+                    <span>{jobData?.company.company_name}</span>
                   </div>
                   <div className="flex items-center text-muted-foreground">
                     <MapPin className="h-4 w-4 mr-1" />
-                    <span>{jobData.location}</span>
+                    <span>{jobData?.job_location}</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-4">
@@ -66,21 +83,21 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
                     className="flex items-center gap-1"
                   >
                     <Briefcase className="h-3 w-3" />
-                    {jobData.type}
+                    {jobTypeToString(jobData.job_type)}
                   </Badge>
                   <Badge
                     variant="secondary"
                     className="flex items-center gap-1"
                   >
                     <DollarSign className="h-3 w-3" />
-                    {jobData.salary}
+                    {jobData?.job_salary_min} - {jobData?.job_salary_max}
                   </Badge>
                   <Badge
                     variant="secondary"
                     className="flex items-center gap-1"
                   >
                     <Clock className="h-3 w-3" />
-                    {jobData.experience}
+                    {/* {jobData.experience} */}
                   </Badge>
                 </div>
               </div>
@@ -99,11 +116,28 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
             <div className="flex justify-between items-center mt-6 text-sm text-muted-foreground">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
-                <span>Posted {jobData.posted}</span>
+                <span>
+                  Posted{" "}
+                  {new Date(jobData?.posted_Date as Date).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    }
+                  )}
+                </span>
               </div>
               <div>
                 <span className="font-medium">Apply before:</span>{" "}
-                {jobData.deadline}
+                {new Date(jobData?.job_deadline as Date).toLocaleDateString(
+                  "en-GB",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  }
+                )}
               </div>
             </div>
           </div>
@@ -111,25 +145,27 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
           {/* Job Description */}
           <div className="bg-card rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-4">Job Description</h2>
-            <p className="text-muted-foreground mb-6">{jobData.description}</p>
+            <p className="text-muted-foreground mb-6">
+              {jobData.job_description}
+            </p>
 
             <h3 className="text-lg font-semibold mb-3">Responsibilities</h3>
             <ul className="list-disc pl-5 space-y-2 text-muted-foreground mb-6">
-              {jobData.responsibilities.map((item, index) => (
+              {jobData.job_responsible.split("\n").map((item, index) => (
                 <li key={index}>{item}</li>
               ))}
             </ul>
 
             <h3 className="text-lg font-semibold mb-3">Requirements</h3>
             <ul className="list-disc pl-5 space-y-2 text-muted-foreground mb-6">
-              {jobData.requirements.map((item, index) => (
+              {jobData.job_requirement.split("\n").map((item, index) => (
                 <li key={index}>{item}</li>
               ))}
             </ul>
 
             <h3 className="text-lg font-semibold mb-3">Benefits</h3>
             <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-              {jobData.benefits.map((item, index) => (
+              {jobData.job_benefit.split("\n").map((item, index) => (
                 <li key={index}>{item}</li>
               ))}
             </ul>
@@ -140,32 +176,32 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
             <h2 className="text-xl font-semibold mb-4">About the Company</h2>
             <div className="flex flex-col md:flex-row gap-4 items-start">
               <img
-                src={jobData.companyInfo.logo || "/placeholder.svg"}
-                alt={jobData.companyInfo.name}
+                src={jobData.company?.company_icon || "/placeholder.svg"}
+                alt={jobData.company.company_name}
                 width={100}
                 height={100}
                 className="rounded-lg bg-background p-2"
               />
               <div>
                 <h3 className="text-lg font-medium">
-                  {jobData.companyInfo.name}
+                  {jobData.company.company_name}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 text-sm">
-                  <div className="flex items-center text-muted-foreground">
+                  {/* <div className="flex items-center text-muted-foreground">
                     <Building2 className="h-4 w-4 mr-2" />
                     <span>{jobData.companyInfo.employees} employees</span>
-                  </div>
+                  </div> */}
                   <div className="flex items-center text-muted-foreground">
                     <Briefcase className="h-4 w-4 mr-2" />
-                    <span>{jobData.companyInfo.industry}</span>
+                    <span>{jobData.company.company_industry}</span>
                   </div>
                   <div className="flex items-center text-muted-foreground">
                     <Globe className="h-4 w-4 mr-2" />
-                    <span>{jobData.companyInfo.website}</span>
+                    <span>{jobData?.company.company_website}</span>
                   </div>
                 </div>
                 <p className="mt-4 text-muted-foreground">
-                  {jobData.companyInfo.about}
+                  {jobData.company.company_intro}
                 </p>
               </div>
             </div>
@@ -183,7 +219,7 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
             </h2>
             <p className="text-muted-foreground mb-4">
               We're looking for talented individuals to join our team. Apply now
-              to start your journey with {jobData.companyInfo.name}.
+              to start your journey with {jobData?.company.company_name}.
             </p>
             <Button className="w-full mb-3">Apply Now</Button>
             <Button

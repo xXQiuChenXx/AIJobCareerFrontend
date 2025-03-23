@@ -1,14 +1,17 @@
 import { JobType } from '@/types/job'
 import z from 'zod'
+import { company } from './company'
 
 export const Job = z.object({
   job_id: z.number(),
-  company: z.object({ company_id: z.number(), company_name: z.string() }),
+  company: company,
   job_title: z.string(),
+  job_description: z.string(),
   job_responsible: z.string(),
   job_salary_min: z.number(),
   job_salary_max: z.number(),
   job_location: z.string(),
+  job_deadline: z.date(),
   job_status: z.string(),
   job_benefit: z.string(),
   job_requirement: z.string(),

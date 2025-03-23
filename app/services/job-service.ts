@@ -17,7 +17,7 @@ export async function getJobs(
   if (filters.jobType !== undefined) {
     if (Array.isArray(filters.jobType)) {
       // Add each job type as a separate parameter value
-      filters.jobType.forEach(jobType => {
+      filters.jobType.forEach((jobType) => {
         url.searchParams.append("JobType", jobType.toString());
       });
     } else {
@@ -72,6 +72,27 @@ export async function getJobs(
       // if (response.status === 401) {
       //   throw new Error("Unauthorized access. Please login again.");
       // }
+      throw new Error(`Failed to fetch jobs: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+    throw error;
+  }
+}
+
+export async function getJobById(jobId: string): Promise<jobType> {
+  const url = new URL(`/api/Jobs/${jobId}`, window.location.origin);
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        // Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
       throw new Error(`Failed to fetch jobs: ${response.statusText}`);
     }
 

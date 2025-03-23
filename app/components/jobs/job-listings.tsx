@@ -36,7 +36,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import type { jobType } from "@/models/job";
-import { IconCash, IconCoin } from "@tabler/icons-react";
+import { IconCash } from "@tabler/icons-react";
 import { NavLink } from "react-router";
 
 export default function JobListings() {
