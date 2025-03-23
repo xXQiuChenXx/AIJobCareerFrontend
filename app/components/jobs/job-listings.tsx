@@ -187,10 +187,22 @@ export default function JobListings() {
             <SelectValue placeholder="Select location" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="remote">Remote</SelectItem>
-            <SelectItem value="san-francisco">San Francisco, CA</SelectItem>
-            <SelectItem value="new-york">New York, NY</SelectItem>
-            <SelectItem value="austin">Austin, TX</SelectItem>
+            {[
+              "Kuching",
+              "Miri",
+              "Sibu",
+              "Bintulu",
+              "Samarahan",
+              "Sri Aman",
+              "Kapit",
+              "Limbang",
+              "Sarikei",
+              "Betong",
+            ].map((location) => (
+              <SelectItem key={location} value={location}>
+                {location}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

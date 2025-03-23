@@ -13,13 +13,13 @@ export async function getJobs(
     url.searchParams.append("SearchTerm", filters.searchTerm);
   }
 
-  // Handle JobType filter (could be single value or array)
+  // Handle JobType filter - support multiple values
   if (filters.jobType !== undefined) {
     if (Array.isArray(filters.jobType)) {
-      // If array has values, use the first one (API doesn't support multiple job types)
-      if (filters.jobType.length > 0) {
-        url.searchParams.append("JobType", filters.jobType[0].toString());
-      }
+      // Add each job type as a separate parameter value
+      filters.jobType.forEach(jobType => {
+        url.searchParams.append("JobType", jobType.toString());
+      });
     } else {
       url.searchParams.append("JobType", filters.jobType.toString());
     }
