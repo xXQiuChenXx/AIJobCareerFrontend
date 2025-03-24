@@ -9,7 +9,6 @@ import {
   Briefcase,
   Building2,
   Calendar,
-  Edit,
   Eye,
   EyeOff,
   FileText,
@@ -23,7 +22,26 @@ import {
   ThumbsUp,
   Users,
 } from "lucide-react"
+import { EditSectionDialog } from "@/components/profile/edit-section-dialog"
+import { EditAboutForm } from "@/components/profile/edit-about-form"
+import { EditSkillsForm } from "@/components/profile/edit-skills-form"
+import { EditExperienceForm } from "@/components/profile/edit-experience-form"
+import { EditEducationForm } from "@/components/profile/edit-education-form"
+import { EditPortfolioForm } from "@/components/profile/edit-portfolio-form"
+import { EditPublicationsForm } from "@/components/profile/edit-publications-form"
 import { NavLink } from "react-router"
+
+// Helper function to get percentage equivalent for progress bars
+const getLevelPercentage = (level: string): number => {
+  const percentages: Record<string, number> = {
+    beginner: 20,
+    intermediate: 40,
+    proficient: 60,
+    advanced: 80,
+    expert: 100,
+  }
+  return percentages[level] || 50
+}
 
 // This would typically come from a database or API
 const profileData = {
@@ -55,14 +73,14 @@ export default function ProfilePage() {
           {/* Profile Header */}
           <div className="relative">
             <div className="h-40 w-full rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-            <div className="absolute -bottom-12 left-4 flex items-end space-x-4">
-              <Avatar className="h-24 w-24 border-4 border-background">
-                <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Sarah Johnson" />
+            <div className="absolute -bottom-20 left-4 flex items-end space-x-4">
+              <Avatar className="h-28 w-28 border-4 border-background">
+                <AvatarImage src="https://wallpapers.com/images/high/anime-profile-picture-jioug7q8n43yhlwn.webp" alt="Sarah Johnson" />
                 <AvatarFallback>SJ</AvatarFallback>
               </Avatar>
-              <div className="mb-2 hidden md:block">
-                <h1 className="text-2xl font-bold text-white drop-shadow-md">Sarah Johnson</h1>
-                <p className="text-white/90 drop-shadow-md">Senior AI Engineer</p>
+              <div className="mb-2 hidden md:block px-3 py-1 rounded ">
+                <h1 className="text-2xl font-bold text-black">Sarah Johnson</h1>
+                <p className="text-black/90">Senior AI Engineer</p>
               </div>
             </div>
             <div className="absolute right-4 top-4 flex space-x-2">
@@ -96,7 +114,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Profile Tabs */}
-          <Tabs defaultValue="about" className="pt-6">
+          <Tabs defaultValue="about" className="pt-4 mt-24">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="experience">Experience</TabsTrigger>
@@ -116,11 +134,9 @@ export default function ProfilePage() {
                         </Badge>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" asChild>
-                      <NavLink to="/profile/edit">
-                        <Edit className="h-4 w-4" />
-                      </NavLink>
-                    </Button>
+                    <EditSectionDialog title="About Me" description="Update your personal information">
+                      <EditAboutForm />
+                    </EditSectionDialog>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -177,11 +193,9 @@ export default function ProfilePage() {
                         </Badge>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" asChild>
-                      <NavLink to="/profile/edit">
-                        <Edit className="h-4 w-4" />
-                      </NavLink>
-                    </Button>
+                    <EditSectionDialog title="Skills" description="Update your skills and expertise">
+                      <EditSkillsForm />
+                    </EditSectionDialog>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -203,35 +217,35 @@ export default function ProfilePage() {
                             <span className="font-medium">Machine Learning</span>
                             <span className="text-sm text-muted-foreground">Expert</span>
                           </div>
-                          <Progress value={95} className="h-2 bg-blue-100"  />
+                          <Progress value={100} className="h-2 bg-blue-100" />
                         </div>
                         <div>
                           <div className="flex justify-between mb-1">
                             <span className="font-medium">Natural Language Processing</span>
                             <span className="text-sm text-muted-foreground">Expert</span>
                           </div>
-                          <Progress value={90} className="h-2 bg-purple-100" />
+                          <Progress value={100} className="h-2 bg-purple-100" />
                         </div>
                         <div>
                           <div className="flex justify-between mb-1">
                             <span className="font-medium">Python</span>
                             <span className="text-sm text-muted-foreground">Expert</span>
                           </div>
-                          <Progress value={95} className="h-2 bg-green-100"  />
+                          <Progress value={100} className="h-2 bg-green-100" />
                         </div>
                         <div>
                           <div className="flex justify-between mb-1">
                             <span className="font-medium">TensorFlow/PyTorch</span>
                             <span className="text-sm text-muted-foreground">Advanced</span>
                           </div>
-                          <Progress value={85} className="h-2 bg-amber-100" />
+                          <Progress value={80} className="h-2 bg-amber-100" />
                         </div>
                         <div>
                           <div className="flex justify-between mb-1">
                             <span className="font-medium">Computer Vision</span>
-                            <span className="text-sm text-muted-foreground">Intermediate</span>
+                            <span className="text-sm text-muted-foreground">Proficient</span>
                           </div>
-                          <Progress value={75} className="h-2 bg-rose-100" />
+                          <Progress value={60} className="h-2 bg-rose-100" />
                         </div>
                       </div>
                       <div className="mt-6 flex flex-wrap gap-2">
@@ -265,11 +279,9 @@ export default function ProfilePage() {
                         </Badge>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" asChild>
-                      <NavLink to="/profile/edit">
-                        <Edit className="h-4 w-4" />
-                      </NavLink>
-                    </Button>
+                    <EditSectionDialog title="Work Experience" description="Update your professional experience">
+                      <EditExperienceForm />
+                    </EditSectionDialog>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -370,11 +382,9 @@ export default function ProfilePage() {
                         </Badge>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" asChild>
-                      <NavLink to="/profile/edit">
-                        <Edit className="h-4 w-4" />
-                      </NavLink>
-                    </Button>
+                    <EditSectionDialog title="Education" description="Update your educational background">
+                      <EditEducationForm />
+                    </EditSectionDialog>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -441,11 +451,9 @@ export default function ProfilePage() {
                         </Badge>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" asChild>
-                      <NavLink to="/profile/edit">
-                        <Edit className="h-4 w-4" />
-                      </NavLink>
-                    </Button>
+                    <EditSectionDialog title="Certifications" description="Update your certifications and licenses">
+                      <EditEducationForm />
+                    </EditSectionDialog>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -515,11 +523,9 @@ export default function ProfilePage() {
                         </Badge>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" asChild>
-                      <NavLink to="/profile/edit">
-                        <Edit className="h-4 w-4" />
-                      </NavLink>
-                    </Button>
+                    <EditSectionDialog title="Projects" description="Update your portfolio projects">
+                      <EditPortfolioForm />
+                    </EditSectionDialog>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -622,11 +628,9 @@ export default function ProfilePage() {
                         </Badge>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" asChild>
-                      <NavLink to="/profile/edit">
-                        <Edit className="h-4 w-4" />
-                      </NavLink>
-                    </Button>
+                    <EditSectionDialog title="Publications" description="Update your research papers and publications">
+                      <EditPublicationsForm />
+                    </EditSectionDialog>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -751,7 +755,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <Button size="sm" className="w-full" asChild>
-                  <NavLink to="/profile/edit">Complete Your Profile</NavLink>
+                  <NavLink to="/profile">Complete Your Profile</NavLink>
                 </Button>
               </div>
             </CardContent>
