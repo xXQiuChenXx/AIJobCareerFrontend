@@ -1,8 +1,10 @@
 import {
+  BrowserRouter,
   isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
+  Router,
   Scripts,
   ScrollRestoration,
   useLocation,
@@ -29,8 +31,6 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
-
   return (
     <html lang="en">
       <head>
@@ -40,17 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className="min-h-screen flex flex-col">
-          <AuthProvider>
-            <NotificationProvider>
-              <SiteHeader />
-              {children}
-              {!["/sign-up", "/login"].includes(location.pathname) && (
-                <SiteFooter />
-              )}
-            </NotificationProvider>
-          </AuthProvider>
-        </div>
+        {children}
         <ScrollRestoration />
         <Scripts />
         <Toaster />
@@ -60,7 +50,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const location = useLocation();
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <AuthProvider>
+        <NotificationProvider>
+          <SiteHeader />
+          <Outlet />
+          {!["/sign-up", "/login"].includes(location.pathname) && (
+            <SiteFooter />
+          )}
+        </NotificationProvider>
+      </AuthProvider>
+    </div>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

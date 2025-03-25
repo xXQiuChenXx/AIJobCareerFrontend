@@ -1,177 +1,256 @@
-import { useState } from "react"
+import { useState, forwardRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Trash2, X } from "lucide-react"
+import type { Project } from "@/types/project"
+import { ProjectService } from "@/services/project-service"
+import { toast } from "sonner"
 
-interface Project {
-  id: number
-  name: string
-  year: string
-  description: string
-  tags: string[]
+interface EditProjectsFormProps {
+  projects?: Project[];
+  onSave?: (projects: Project[]) => Promise<void>;
+  onSubmitSuccess?: () => void;
 }
 
-export function EditProjectsForm() {
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: 1,
-      name: "AI-Powered Resume Analyzer",
-      year: "2023",
-      description: "Built an AI tool that analyzes resumes and provides personalized improvement suggestions.",
-      tags: ["Python", "NLP", "GPT-4"],
-    },
-    {
-      id: 2,
-      name: "Sentiment Analysis API",
-      year: "2022",
-      description: "Developed a high-performance API for real-time sentiment analysis of customer feedback.",
-      tags: ["FastAPI", "BERT", "Docker"],
-    },
-    {
-      id: 3,
-      name: "Job Market Trend Predictor",
-      year: "2021",
-      description:
-        "Created a model to predict emerging job trends based on historical data and current market signals.",
-      tags: ["Time Series", "PyTorch", "Data Visualization"],
-    },
-    {
-      id: 4,
-      name: "Multilingual Chatbot",
-      year: "2020",
-      description: "Built a chatbot that can understand and respond in 10 different languages for customer support.",
-      tags: ["Transformers", "Flask", "AWS Lambda"],
-    },
-  ])
+export const EditProjectsForm = forwardRef<HTMLFormElement, EditProjectsFormProps>(
+  ({ projects = [], onSave, onSubmitSuccess }, ref) => {
+    const [projectsList, setProjectsList] = useState<Project[]>(projects);
+    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [tags, setTags] = useState<Record<string, string[]>>({});
+    const [newTag, setNewTag] = useState("");
 
-  const [newTag, setNewTag] = useState("")
+    const addProject = () => {
+      const newProj: Project = {
+        project_id: `temp-${Date.now()}`,
+        user_id: projects[0]?.user_id || '',
+        project_name: "",
+        project_year: new Date().getFullYear(),
+        description: "",
+        project_url: "",
+      };
+      setProjectsList([newProj, ...projectsList]);
+    };
 
-  const addProject = () => {
-    const newProj = {
-      id: Date.now(),
-      name: "",
-      year: "",
-      description: "",
-      tags: [],
-    }
-    setProjects([newProj, ...projects])
-  }
+    const removeProject = async (id: string) => {
+      try {
+        // Only call API if it's not a temporary ID
+        if (!id.startsWith('temp-')) {
+          setLoading(true);
+          await ProjectService.deleteProject(id);
+          toast.success("Project deleted successfully");
+        }
+        setProjectsList(projectsList.filter((proj) => proj.project_id !== id));
+        
+        // Also clean up tags
+        const newTags = { ...tags };
+        delete newTags[id];
+        setTags(newTags);
+      } catch (error) {
+        console.error("Failed to delete project:", error);
+        toast.error("Failed to delete project");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const removeProject = (id: number) => {
-    setProjects(projects.filter((proj) => proj.id !== id))
-  }
+    const addTag = (projectId: string) => {
+      if (newTag.trim()) {
+        const currentTags = tags[projectId] || [];
+        if (!currentTags.includes(newTag.trim())) {
+          setTags({
+            ...tags,
+            [projectId]: [...currentTags, newTag.trim()]
+          });
+        }
+        setNewTag("");
+      }
+    };
 
-  const addTag = (projectId: number) => {
-    if (newTag.trim()) {
-      const updated = projects.map((proj) => (proj.id === projectId ? { ...proj, tags: [...proj.tags, newTag] } : proj))
-      setProjects(updated)
-      setNewTag("")
-    }
-  }
+    const removeTag = (projectId: string, tag: string) => {
+      const currentTags = tags[projectId] || [];
+      setTags({
+        ...tags,
+        [projectId]: currentTags.filter(t => t !== tag)
+      });
+    };
 
-  const removeTag = (projectId: number, tag: string) => {
-    const updated = projects.map((proj) =>
-      proj.id === projectId ? { ...proj, tags: proj.tags.filter((t) => t !== tag) } : proj,
-    )
-    setProjects(updated)
-  }
+    // Handle form submission
+    const handleSubmit = async (e?: React.FormEvent) => {
+      if (e) e.preventDefault();
+      
+      try {
+        setSubmitting(true);
+        
+        // If custom onSave is provided, use that
+        if (onSave) {
+          await onSave(projectsList);
+        } 
+        // Otherwise save directly to API
+        else {
+          for (const project of projectsList) {
+            if (project.project_id.startsWith('temp-')) {
+              // Create new project
+              const { project_id, ...newProject } = project;
+              await ProjectService.createProject(newProject);
+            } else {
+              // Update existing project
+              await ProjectService.updateProject(project.project_id, project);
+            }
+          }
+        }
+        
+        // Call the onSubmitSuccess callback to close the dialog
+        if (onSubmitSuccess) {
+          onSubmitSuccess();
+        }
+      } catch (error) {
+        console.error("Failed to save projects:", error);
+        toast.error("Failed to save projects");
+      } finally {
+        setSubmitting(false);
+      }
+    };
 
-  return (
-    <div className="space-y-4">
-      <Button
-        onClick={addProject}
-        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-      >
-        <Plus className="mr-2 h-4 w-4" />
-        Add Project
-      </Button>
+    return (
+      <div className="space-y-4">
+        <Button
+          onClick={addProject}
+          className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+          disabled={loading || submitting}
+          type="button"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add Project
+        </Button>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {projects.map((project) => (
-          <div key={project.id} className="rounded-lg border p-4">
-            <div className="flex justify-between mb-2">
-              <div className="flex-1">
-                <Input
-                  value={project.name}
-                  onChange={(e) => {
-                    const updated = projects.map((item) =>
-                      item.id === project.id ? { ...item, name: e.target.value } : item,
-                    )
-                    setProjects(updated)
-                  }}
-                  placeholder="Project Name"
-                  className="border-0 p-0 text-lg font-semibold h-7 focus-visible:ring-0"
-                />
-                <div className="flex items-center mt-1">
-                  <Input
-                    value={project.year}
-                    onChange={(e) => {
-                      const updated = projects.map((item) =>
-                        item.id === project.id ? { ...item, year: e.target.value } : item,
-                      )
-                      setProjects(updated)
-                    }}
-                    placeholder="Year"
-                    className="border-0 p-0 h-6 w-16 text-sm text-muted-foreground focus-visible:ring-0"
-                  />
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeProject(project.id)}
-                className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-            <Textarea
-              value={project.description}
-              onChange={(e) => {
-                const updated = projects.map((item) =>
-                  item.id === project.id ? { ...item, description: e.target.value } : item,
-                )
-                setProjects(updated)
-              }}
-              placeholder="Describe your project, its purpose, and your role..."
-              className="min-h-20 resize-none mt-2"
-            />
-            <div className="mt-4">
-              <label className="text-sm font-medium">Technologies Used</label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {project.tags.map((tag, index) => (
-                  <Badge key={index} className="flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200">
-                    {tag}
-                    <button onClick={() => removeTag(project.id, tag)} className="ml-1 rounded-full hover:bg-green-200">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add technology"
-                    className="h-7 w-32"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && newTag.trim()) {
-                        addTag(project.id)
-                        e.preventDefault()
-                      }
-                    }}
-                  />
-                  <Button size="sm" onClick={() => addTag(project.id)} className="h-7">
-                    Add
+        <form ref={ref} onSubmit={handleSubmit}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {projectsList.map((project) => (
+              <div key={project.project_id} className="rounded-lg border p-4">
+                <div className="flex justify-between mb-2">
+                  <div className="flex-1">
+                    <Input
+                      value={project.project_name}
+                      onChange={(e) => {
+                        const updated = projectsList.map((item) =>
+                          item.project_id === project.project_id ? { ...item, project_name: e.target.value } : item,
+                        );
+                        setProjectsList(updated);
+                      }}
+                      placeholder="Project Name"
+                      className="border-0 p-0 text-lg font-semibold h-7 focus-visible:ring-0"
+                    />
+                    <div className="flex items-center mt-1">
+                      <Input
+                        value={project.project_year.toString()}
+                        onChange={(e) => {
+                          const updated = projectsList.map((item) =>
+                            item.project_id === project.project_id ? 
+                              { ...item, project_year: parseInt(e.target.value) || new Date().getFullYear() } : item,
+                          );
+                          setProjectsList(updated);
+                        }}
+                        placeholder="Year"
+                        className="border-0 p-0 h-6 w-16 text-sm text-muted-foreground focus-visible:ring-0"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeProject(project.project_id)}
+                    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                    disabled={loading}
+                    type="button"
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
+                <Textarea
+                  value={project.description}
+                  onChange={(e) => {
+                    const updated = projectsList.map((item) =>
+                      item.project_id === project.project_id ? { ...item, description: e.target.value } : item,
+                    );
+                    setProjectsList(updated);
+                  }}
+                  placeholder="Describe your project, its purpose, and your role..."
+                  className="min-h-20 resize-none mt-2"
+                />
+                <div className="mt-3">
+                  <label className="text-sm font-medium">Project URL</label>
+                  <Input
+                    value={project.project_url}
+                    onChange={(e) => {
+                      const updated = projectsList.map((item) =>
+                        item.project_id === project.project_id ? { ...item, project_url: e.target.value } : item,
+                      );
+                      setProjectsList(updated);
+                    }}
+                    placeholder="https://example.com/project"
+                    className="mt-1"
+                  />
+                </div>
+                <div className="mt-4">
+                  <label className="text-sm font-medium">Technologies Used</label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {(tags[project.project_id] || []).map((tag, index) => (
+                      <Badge key={index} className="flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200">
+                        {tag}
+                        <button 
+                          onClick={() => removeTag(project.project_id, tag)} 
+                          className="ml-1 rounded-full hover:bg-green-200"
+                          type="button"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Add technology"
+                        className="h-7 w-32"
+                        value={newTag}
+                        onChange={(e) => setNewTag(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && newTag.trim()) {
+                            e.preventDefault();
+                            addTag(project.project_id);
+                          }
+                        }}
+                      />
+                      <Button 
+                        size="sm" 
+                        onClick={() => addTag(project.project_id)} 
+                        className="h-7"
+                        type="button"
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
+            
+            {projectsList.length === 0 && (
+              <div className="col-span-2 text-center py-6 text-muted-foreground border rounded-lg">
+                No projects yet. Add your first project to showcase your work!
+              </div>
+            )}
           </div>
-        ))}
+          
+          {/* Hidden submit button that will be triggered by the dialog's save button */}
+          <button type="submit" hidden></button>
+        </form>
       </div>
-    </div>
-  )
-}
+    )
+  }
+)
+
+// Add display name for React DevTools
+EditProjectsForm.displayName = "EditProjectsForm";
 
