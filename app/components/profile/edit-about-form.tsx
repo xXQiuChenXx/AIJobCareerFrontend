@@ -58,7 +58,7 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
     const defaultValues: AboutFormValues = {
       user_first_name: profile?.first_name || "",
       user_last_name: profile?.last_name || "",
-      user_age: profile?.age || undefined,
+      user_age: profile?.age || 0,
       user_email: profile?.email || "",
       area_name: profile?.location || ("" as any),
       user_intro: profile?.intro || "",
@@ -74,7 +74,7 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
     const handleSubmit = async (values: AboutFormValues) => {
       if (onSave) {
         try {
-          let profileIconUrl = FileService.getFileUrl(iconKey, "avatar");
+          let profileIconUrl = FileService.getFileUrl(iconKey);
 
           // If there's a new image, upload it first
           // if (newImage) {

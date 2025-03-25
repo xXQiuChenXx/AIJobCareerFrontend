@@ -23,11 +23,8 @@ export const FileService = {
     );
   },
 
-  getFileUrl(fileKey: string, folderName?: string): string {
-    const baseUrl = import.meta.env.CLOUDFLARE_BASE_URL;
-    if (folderName) {
-      return `${baseUrl}/${folderName}/${fileKey}`;
-    }
+  getFileUrl(fileKey: string): string {
+    const baseUrl = import.meta.env.VITE_CLOUDFLARE_BASE_URL;
     return `${baseUrl}/${fileKey}`;
   },
 
