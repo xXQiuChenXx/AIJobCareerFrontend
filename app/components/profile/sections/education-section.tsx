@@ -6,6 +6,7 @@ import { EditEducationForm } from "../edit-education-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Education } from "@/types/education";
 import type { Certification } from "@/types/certification";
+import { useRef, type RefObject } from "react";
 
 interface EducationSectionProps {
   profile: CompleteProfile;
@@ -13,7 +14,12 @@ interface EducationSectionProps {
   handleSaveEducation?: (education: Education[]) => Promise<void>;
 }
 
-const EducationSection = ({ profile, isPrivate, handleSaveEducation }: EducationSectionProps) => {
+const EducationSection = ({
+  profile,
+  isPrivate,
+  handleSaveEducation,
+}: EducationSectionProps) => {
+  const formRef = useRef<HTMLFormElement>(null);
   return (
     <Card>
       <CardHeader>
@@ -33,8 +39,10 @@ const EducationSection = ({ profile, isPrivate, handleSaveEducation }: Education
           <EditSectionDialog
             title="Education"
             description="Update your educational background"
+            formRef={formRef as RefObject<HTMLFormElement>}
           >
             <EditEducationForm
+              ref={formRef}
               educations={profile.education || []}
               certifications={profile.certifications || []}
               onSaveEducation={handleSaveEducation}

@@ -93,14 +93,13 @@ export default function ProfilePage() {
     const userId = profile.basicInfo?.user_id;
     if (!userId) return;
 
-    await UserService.updateBasicInfo(userId, data);
+    await UserService.updateBasicInfo(data);
 
     setProfile({
       ...profile,
       basicInfo: {
         ...(profile.basicInfo || {}),
         ...data,
-        user_id: userId,
       } as BasicInfo,
     });
   };
@@ -335,18 +334,15 @@ export default function ProfilePage() {
 
   const isPrivate = profile.basicInfo?.privacy_status === "private";
   const profileCompletion = calculateProfileCompletion(profile);
-  const userInitials = profile.basicInfo?.full_name
-    ? profile.basicInfo.full_name
-        .split(" ")
-        .map((part) => part[0])
-        .join("")
-        .toUpperCase()
-    : "?";
+  const userInitials = profile.basicInfo?.first_name
+    ? (
+        profile.basicInfo.first_name[0] + profile.basicInfo.last_name[0]
+      ).toUpperCase()
+    : "User";
 
-  const profileImageUrl = profile.basicInfo?.icon
-    ? FileService.getFileUrl(profile.basicInfo.icon)
-    : undefined;
-
+  const user_name = profile.basicInfo?.first_name
+    ? `${profile.basicInfo.first_name} ${profile.basicInfo.last_name}`
+    : "Unknown";
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       {isPrivate && (
@@ -366,16 +362,11 @@ export default function ProfilePage() {
             <div className="h-40 w-full rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
             <div className="absolute -bottom-20 left-4 flex items-end space-x-4">
               <Avatar className="h-28 w-28 border-4 border-background">
-                <AvatarImage
-                  src={profileImageUrl || "/profile/avatar.jpg"}
-                  alt={profile.basicInfo?.full_name || "User"}
-                />
+                <AvatarImage src={profile?.basicInfo?.icon} alt="user-avatar" />
                 <AvatarFallback>{userInitials}</AvatarFallback>
               </Avatar>
               <div className="mb-2 hidden md:block px-3 py-1 rounded ">
-                <h1 className="text-2xl font-bold text-black">
-                  {profile.basicInfo?.full_name || "Your Name"}
-                </h1>
+                <h1 className="text-2xl font-bold text-black">{user_name}</h1>
                 <p className="text-black/90">
                   {(profile.workExperiences &&
                     profile.workExperiences[0]?.job_title) ||
@@ -414,9 +405,7 @@ export default function ProfilePage() {
 
           <div className="md:hidden pt-14 pb-2 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">
-                {profile.basicInfo?.full_name || "Your Name"}
-              </h1>
+              <h1 className="text-2xl font-bold">{user_name}</h1>
               <p className="text-muted-foreground">
                 {(profile.workExperiences &&
                   profile.workExperiences[0]?.job_title) ||
@@ -447,6 +436,7 @@ export default function ProfilePage() {
                 handleSaveBasicInfo={handleSaveBasicInfo}
                 isPrivate={isPrivate}
                 profile={profile}
+                userInitials={userInitials}
               />
 
               <SkillsSection

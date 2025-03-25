@@ -1,10 +1,17 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { EyeOff, FileText, Lock } from "lucide-react";
 import { EditSectionDialog } from "../edit-section-dialog";
 import { EditPortfolioForm } from "../edit-portfolio-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Project } from "@/types/project";
+import { useRef, type RefObject } from "react";
 
 interface ProjectsSectionProps {
   profile: CompleteProfile;
@@ -12,7 +19,12 @@ interface ProjectsSectionProps {
   handleSaveProjects?: (projects: Project[]) => Promise<void>;
 }
 
-const ProjectsSection = ({ profile, isPrivate, handleSaveProjects }: ProjectsSectionProps) => {
+const ProjectsSection = ({
+  profile,
+  isPrivate,
+  handleSaveProjects,
+}: ProjectsSectionProps) => {
+  const formRef = useRef<HTMLFormElement>(null);
   return (
     <Card>
       <CardHeader>
@@ -32,8 +44,10 @@ const ProjectsSection = ({ profile, isPrivate, handleSaveProjects }: ProjectsSec
           <EditSectionDialog
             title="Projects"
             description="Update your portfolio projects"
+            formRef={formRef as RefObject<HTMLFormElement>}
           >
             <EditPortfolioForm
+              ref={formRef}
               projects={profile.projects || []}
               publications={profile.publications || []}
               onSaveProjects={handleSaveProjects}

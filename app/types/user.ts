@@ -8,7 +8,8 @@ import type { WorkExperience } from "./work-experience";
 export interface BasicInfo {
   user_id: string;
   username: string;
-  full_name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   age?: number;
   intro: string;

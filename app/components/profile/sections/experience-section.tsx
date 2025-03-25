@@ -5,6 +5,7 @@ import { EditSectionDialog } from "../edit-section-dialog";
 import { EditExperienceForm } from "../edit-experience-form";
 import type { CompleteProfile } from "@/types/user";
 import type { WorkExperience } from "@/types/work-experience";
+import { useRef, type RefObject } from "react";
 
 interface ExperienceSectionProps {
   profile: CompleteProfile;
@@ -19,11 +20,12 @@ const formatDate = (dateString?: string): string => {
   return date.toLocaleDateString("en-US", { year: "numeric", month: "short" });
 };
 
-const ExperienceSection = ({ 
-  profile, 
-  isPrivate, 
-  handleSaveWorkExperiences 
+const ExperienceSection = ({
+  profile,
+  isPrivate,
+  handleSaveWorkExperiences,
 }: ExperienceSectionProps) => {
+  const formRef = useRef<HTMLFormElement>(null);
   return (
     <Card>
       <CardHeader>
@@ -43,8 +45,10 @@ const ExperienceSection = ({
           <EditSectionDialog
             title="Work Experience"
             description="Update your professional experience"
+            formRef={formRef as RefObject<HTMLFormElement>}
           >
             <EditExperienceForm
+              ref={formRef}
               experiences={profile.workExperiences || []}
               onSave={handleSaveWorkExperiences}
             />
@@ -88,8 +92,8 @@ const ExperienceSection = ({
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {formatDate(exp.start_date)} -{" "}
-                    {exp.is_current ? "Present" : formatDate(exp.end_date)}{" "}
-                    · {exp.location}
+                    {exp.is_current ? "Present" : formatDate(exp.end_date)} ·{" "}
+                    {exp.location}
                   </div>
                   <p className="mt-2 text-sm">{exp.description}</p>
                   <div className="mt-2 flex flex-wrap gap-2">

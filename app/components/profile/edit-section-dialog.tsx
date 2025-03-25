@@ -1,5 +1,5 @@
-import React, { type ReactNode, useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
+import React, { type ReactNode, useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,71 +8,42 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Edit, Loader2, Save } from "lucide-react"
-import { toast } from "sonner"
+} from "@/components/ui/dialog";
+import { Edit, HandCoins, Loader2, Save } from "lucide-react";
+import { toast } from "sonner";
 
 interface EditSectionDialogProps {
-  triggerClassName?: string
-  title: string
-  description?: string
-  children: ReactNode
-  onSave?: () => Promise<void>
+  triggerClassName?: string;
+  title: string;
+  description?: string;
+  children: ReactNode;
+  formRef?: React.RefObject<HTMLFormElement>;
 }
 
-export function EditSectionDialog({ triggerClassName, title, description, children, onSave }: EditSectionDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
+export function EditSectionDialog({
+  triggerClassName,
+  title,
+  description,
+  children,
+  formRef,
+}: EditSectionDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
+    setSaving(true);
     // Check if we have a form in the children and try to submit it
-    if (formRef.current) {
+    if (formRef?.current) {
       // Programmatically submit the form
-      const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
+      const submitEvent = new Event("submit", {
+        cancelable: true,
+        bubbles: true,
+      });
       formRef.current.dispatchEvent(submitEvent);
-      
-      // If the event wasn't prevented (validation passed), submit handler will be called
-      // The form's submit handler should handle the actual saving
-      return;
     }
-    
-    // If no form exists or form doesn't have a submit handler, use the onSave prop
-    if (onSave) {
-      setSaving(true)
-      try {
-        await onSave()
-        setOpen(false)
-        toast.success(`${title} updated successfully.`)
-      } catch (error) {
-        console.error(`Error saving ${title}:`, error)
-        toast.error(`Failed to update ${title}. Please try again.`)
-      } finally {
-        setSaving(false)
-      }
-    } else {
-      // No form and no onSave, just close the dialog
-      setOpen(false)
-      toast.success(`${title} updated successfully.`)
-    }
-  }
-
-  // Clone the children and pass the formRef to it if it's a form
-  const childrenWithProps = React.Children.map(children, child => {
-    if (React.isValidElement(child)) {
-      // If the child has a form element as the top component, pass the ref
-      if (child.type === 'form' || (typeof child.type === 'function' && child.type.name.includes('Form'))) {
-        return React.cloneElement(child, { 
-          ref: formRef,
-          onSubmitSuccess: () => {
-            setOpen(false);
-            toast.success(`${title} updated successfully.`);
-          }
-        } as any);
-      }
-    }
-    return child;
-  });
+    setOpen(false);
+    setSaving(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -82,16 +53,25 @@ export function EditSectionDialog({ triggerClassName, title, description, childr
           <span className="sr-only">Edit {title}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        onKeyDown={(e) => {
+          if (e.key === "Enter") setOpen(false);
+        }}
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"
+      >
         <DialogHeader>
           <DialogTitle>Edit {title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 
-        {childrenWithProps}
+        {children}
 
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={saving}>
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={saving}
+          >
             Cancel
           </Button>
           <Button
@@ -114,6 +94,5 @@ export function EditSectionDialog({ triggerClassName, title, description, childr
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

@@ -5,6 +5,7 @@ import { EditSectionDialog } from "../edit-section-dialog";
 import { EditEducationForm } from "../edit-education-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Certification } from "@/types/certification";
+import { useRef, type RefObject } from "react";
 
 interface CertificationsSectionProps {
   profile: CompleteProfile;
@@ -19,11 +20,12 @@ const formatDate = (dateString?: string): string => {
   return date.toLocaleDateString("en-US", { year: "numeric", month: "short" });
 };
 
-const CertificationsSection = ({ 
-  profile, 
-  isPrivate, 
-  handleSaveCertifications 
+const CertificationsSection = ({
+  profile,
+  isPrivate,
+  handleSaveCertifications,
 }: CertificationsSectionProps) => {
+  const formRef = useRef<HTMLFormElement>(null);
   return (
     <Card>
       <CardHeader>
@@ -43,11 +45,13 @@ const CertificationsSection = ({
           <EditSectionDialog
             title="Certifications"
             description="Update your certifications and licenses"
+            formRef={formRef as RefObject<HTMLFormElement>}
           >
             <EditEducationForm
               educations={profile.education || []}
               certifications={profile.certifications || []}
               onSaveCertifications={handleSaveCertifications}
+              ref={formRef}
             />
           </EditSectionDialog>
         </CardTitle>

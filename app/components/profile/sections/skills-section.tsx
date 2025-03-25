@@ -6,6 +6,7 @@ import { EditSectionDialog } from "../edit-section-dialog";
 import { EditSkillsForm } from "../edit-skills-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Skill } from "@/types/skill";
+import { useRef, type RefObject } from "react";
 
 interface SkillsSectionProps {
   profile: CompleteProfile;
@@ -25,7 +26,12 @@ const getLevelPercentage = (level: string): number => {
   return percentages[level.toLowerCase()] || 50;
 };
 
-const SkillsSection = ({ profile, isPrivate, handleSaveSkills }: SkillsSectionProps) => {
+const SkillsSection = ({
+  profile,
+  isPrivate,
+  handleSaveSkills,
+}: SkillsSectionProps) => {
+  const formRef = useRef<HTMLFormElement>(null);
   return (
     <Card>
       <CardHeader>
@@ -45,10 +51,12 @@ const SkillsSection = ({ profile, isPrivate, handleSaveSkills }: SkillsSectionPr
           <EditSectionDialog
             title="Skills"
             description="Update your skills and expertise"
+            formRef={formRef as RefObject<HTMLFormElement>}
           >
-            <EditSkillsForm 
-              skills={profile.skills || []} 
-              onSave={handleSaveSkills} 
+            <EditSkillsForm
+              skills={profile.skills || []}
+              onSave={handleSaveSkills}
+              ref={formRef}
             />
           </EditSectionDialog>
         </CardTitle>
@@ -95,18 +103,13 @@ const SkillsSection = ({ profile, isPrivate, handleSaveSkills }: SkillsSectionPr
             <div className="mt-6 flex flex-wrap gap-2">
               {profile.workExperiences
                 ?.flatMap((exp) =>
-                  exp.experience_skill
-                    .split(",")
-                    .map((skill) => skill.trim())
+                  exp.experience_skill.split(",").map((skill) => skill.trim())
                 )
                 .filter(
                   (value, index, self) => self.indexOf(value) === index && value
                 )
                 .map((skill, index) => (
-                  <Badge
-                    key={index}
-                    className="bg-blue-500 hover:bg-blue-600"
-                  >
+                  <Badge key={index} className="bg-blue-500 hover:bg-blue-600">
                     {skill}
                   </Badge>
                 ))}

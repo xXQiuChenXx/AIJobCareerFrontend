@@ -23,10 +23,12 @@ export const FileService = {
     );
   },
 
-  getFileUrl(fileKey: string): string {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_URL || "https://api.aicareer.example.com";
-    return `${baseUrl}/Files/${fileKey}`;
+  getFileUrl(fileKey: string, folderName?: string): string {
+    const baseUrl = import.meta.env.CLOUDFLARE_BASE_URL;
+    if (folderName) {
+      return `${baseUrl}/${folderName}/${fileKey}`;
+    }
+    return `${baseUrl}/${fileKey}`;
   },
 
   async deleteFile(fileKey: string): Promise<FileDeleteResponse> {

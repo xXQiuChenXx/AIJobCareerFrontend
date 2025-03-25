@@ -11,18 +11,22 @@ import {
 import { EditSectionDialog } from "../edit-section-dialog";
 import { EditAboutForm } from "../edit-about-form";
 import type { BasicInfo, CompleteProfile } from "@/types/user";
+import { useRef, type RefObject } from "react";
 
 interface AboutSectionProps {
   profile: CompleteProfile;
   isPrivate: boolean;
   handleSaveBasicInfo: (data: Partial<BasicInfo>) => Promise<void>;
+  userInitials: string;
 }
 
 const AboutSection = ({
   isPrivate,
   profile,
   handleSaveBasicInfo,
+  userInitials,
 }: AboutSectionProps) => {
+  const formRef = useRef<HTMLFormElement>(null);
   return (
     <Card>
       <CardHeader>
@@ -42,10 +46,13 @@ const AboutSection = ({
           <EditSectionDialog
             title="About Me"
             description="Update your personal information"
+            formRef={formRef as RefObject<HTMLFormElement>}
           >
             <EditAboutForm
-              profile={profile.basicInfo || { user_id: "" }}
+              userInitials={userInitials}
+              profile={profile.basicInfo}
               onSave={handleSaveBasicInfo}
+              ref={formRef}
             />
           </EditSectionDialog>
         </CardTitle>

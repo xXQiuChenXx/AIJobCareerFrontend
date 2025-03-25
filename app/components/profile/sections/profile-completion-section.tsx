@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Eye } from "lucide-react";
 import type { CompleteProfile } from "@/types/user";
+import { useRef } from "react";
 
 interface ProfileCompletionSectionProps {
   profile: CompleteProfile;
@@ -12,7 +13,9 @@ interface ProfileCompletionSectionProps {
 }
 
 // Helper to calculate profile completion
-const calculateProfileCompletion = (profile: CompleteProfile | null): number => {
+const calculateProfileCompletion = (
+  profile: CompleteProfile | null
+): number => {
   if (!profile) return 0;
 
   const sections = [
@@ -29,10 +32,10 @@ const calculateProfileCompletion = (profile: CompleteProfile | null): number => 
   return Math.round((completedSections / sections.length) * 100);
 };
 
-const ProfileCompletionSection = ({ 
-  profile, 
-  isPrivate, 
-  profileCompletion 
+const ProfileCompletionSection = ({
+  profile,
+  isPrivate,
+  profileCompletion,
 }: ProfileCompletionSectionProps) => {
   return (
     <Card>
