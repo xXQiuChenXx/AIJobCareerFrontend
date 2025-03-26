@@ -3,26 +3,26 @@ import { apiClient } from './api-client';
 
 export const EducationService = {
   async getAllEducations(): Promise<Education[]> {
-    return apiClient.get<Education[]>('/api/Education');
+    return apiClient.get<Education[]>('/Education');
   },
 
   async getEducationById(id: string): Promise<Education> {
-    return apiClient.get<Education>(`/api/Education/${id}`);
+    return apiClient.get<Education>(`/Education/${id}`);
   },
 
   async getEducationsByUserId(userId: string): Promise<Education[]> {
-    return apiClient.get<Education[]>(`/api/Education/user/${userId}`);
+    return apiClient.get<Education[]>(`/Education/user/${userId}`);
   },
 
   async createEducation(data: CreateEducationDto): Promise<Education> {
-    return apiClient.post<Education>('/api/Education', data);
+    return apiClient.post<Education>('/Education', data);
   },
 
   async updateEducation(id: string, data: UpdateEducationDto): Promise<void> {
-    return apiClient.put<void>(`/api/Education/${id}`, data);
+    return apiClient.put<void>(`/Education/${id}`, data);
   },
 
   async deleteEducation(id: string): Promise<void> {
-    return apiClient.delete<void>(`/api/Education/${id}`);
+    return apiClient.delete<void>(`/Education/${id}`);
   },
 };

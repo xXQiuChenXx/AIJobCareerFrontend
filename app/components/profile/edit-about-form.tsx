@@ -52,7 +52,6 @@ const ALLOWED_CITIES = [
 export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
   ({ profile, onSave, userInitials, registerSubmit }, ref) => {
     const [iconKey, setIconKey] = useState<string>(profile?.icon || "");
-    // const [newImage, setNewImage] = useState<File | null>(null);
 
     // Set default values from the profile data if provided
     const defaultValues: AboutFormValues = {
@@ -75,18 +74,6 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
       if (onSave) {
         try {
           let profileIconUrl = FileService.getFileUrl(iconKey);
-
-          // If there's a new image, upload it first
-          // if (newImage) {
-          //   const uploadResponse = await FileService.uploadFile(
-          //     newImage,
-          //     "avatar"
-          //   );
-          //   const fileKey = uploadResponse.fileKey;
-          // }
-          // profileIconUrl = FileService.getFileUrl(iconKey, "avatar");
-
-          // Transform form values to match BasicInfo structure
           const updateData: Partial<BasicInfo> = {
             first_name: values.user_first_name,
             last_name: values.user_last_name,
@@ -124,10 +111,6 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
       }
     }, [registerSubmit, form]);
 
-    // const handleImageSelected = (file: File) => {
-    //   setNewImage(file);
-    // };
-
     return (
       <div className="space-y-6">
         <div className="flex justify-center">
@@ -135,7 +118,6 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
             currentImageUrl={profile?.icon}
             userInitials={userInitials}
             onImageUploaded={setIconKey}
-            // onImageSelected={handleImageSelected}
           />
         </div>
 

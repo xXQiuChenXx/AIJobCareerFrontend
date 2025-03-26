@@ -16,14 +16,14 @@ export const UserService = {
   },
 
   async updateProfileImage(userId: string, fileKey: string): Promise<void> {
-    return apiClient.put<void>(`/api/User/${userId}/image`, { icon: fileKey });
+    return apiClient.put<void>(`/User/${userId}/image`, { icon: fileKey });
   },
 
   async updatePrivacySettings(
     userId: string,
     isPrivate: boolean
   ): Promise<void> {
-    return apiClient.put<void>(`/api/User/${userId}/privacy`, {
+    return apiClient.put<void>(`/User/${userId}/privacy`, {
       privacy_status: isPrivate ? "private" : "public",
     });
   },
