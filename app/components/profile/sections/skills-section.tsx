@@ -6,7 +6,7 @@ import { EditSectionDialog } from "../edit-section-dialog";
 import { EditSkillsForm } from "../edit-skills-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Skill } from "@/types/skill";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 
 interface SkillsSectionProps {
   profile: CompleteProfile;
@@ -32,6 +32,7 @@ const SkillsSection = ({
   handleSaveSkills,
 }: SkillsSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
   return (
     <Card>
       <CardHeader>
@@ -49,6 +50,8 @@ const SkillsSection = ({
             )}
           </div>
           <EditSectionDialog
+            open={open}
+            setOpen={setOpen}
             title="Skills"
             description="Update your skills and expertise"
             formRef={formRef as RefObject<HTMLFormElement>}

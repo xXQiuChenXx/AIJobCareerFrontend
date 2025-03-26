@@ -11,7 +11,7 @@ import {
 import { EditSectionDialog } from "../edit-section-dialog";
 import { EditAboutForm } from "../edit-about-form";
 import type { BasicInfo, CompleteProfile } from "@/types/user";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 
 interface AboutSectionProps {
   profile: CompleteProfile;
@@ -27,6 +27,7 @@ const AboutSection = ({
   userInitials,
 }: AboutSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
   return (
     <Card>
       <CardHeader>
@@ -45,6 +46,8 @@ const AboutSection = ({
           </div>
           <EditSectionDialog
             title="About Me"
+            open={open}
+            setOpen={setOpen}
             description="Update your personal information"
             formRef={formRef as RefObject<HTMLFormElement>}
           >

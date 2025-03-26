@@ -12,7 +12,6 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { ProfileService } from "@/services/profile-service";
-import { FileService } from "@/services/file-service";
 import type { CompleteProfile } from "@/types/user";
 import { UserService } from "@/services/user-service";
 import { WorkExperienceService } from "@/services/work-experience-service";
@@ -42,6 +41,7 @@ import type { Education } from "@/types/education";
 import type { Certification } from "@/types/certification";
 import type { Project } from "@/types/project";
 import type { Publication } from "@/types/publication";
+import type { EducationFormValues } from "@/lib/schemas/education-schema";
 
 // Helper to calculate profile completion
 const calculateProfileCompletion = (
@@ -181,7 +181,7 @@ export default function ProfilePage() {
     });
   };
 
-  const handleSaveEducation = async (educations: Education[]) => {
+  const handleSaveEducation = async (educations: EducationFormValues[]) => {
     if (!profile || !profile.basicInfo) return;
 
     const userId = profile.basicInfo.user_id;
@@ -205,7 +205,7 @@ export default function ProfilePage() {
     }
 
     // Get updated education list
-    const updatedEducation = await EducationService.getAllEducations();
+    const updatedEducation = await EducationService.getCurrentUserEducations();
 
     setProfile({
       ...profile,
@@ -461,11 +461,11 @@ export default function ProfilePage() {
                 handleSaveEducation={handleSaveEducation}
               />
 
-              <CertificationsSection
+              {/* <CertificationsSection
                 profile={profile}
                 isPrivate={isPrivate}
                 handleSaveCertifications={handleSaveCertifications}
-              />
+              /> */}
             </TabsContent>
 
             <TabsContent value="portfolio" className="space-y-6 pt-4">

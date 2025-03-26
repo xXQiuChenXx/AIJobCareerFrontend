@@ -1,4 +1,9 @@
-import React, { type ReactNode, useState, useRef } from "react";
+import React, {
+  type ReactNode,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,14 +14,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Edit, HandCoins, Loader2, Save } from "lucide-react";
-import { toast } from "sonner";
+import { Edit, Loader2, Save } from "lucide-react";
 
 interface EditSectionDialogProps {
   triggerClassName?: string;
   title: string;
   description?: string;
   children: ReactNode;
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
   formRef?: React.RefObject<HTMLFormElement>;
 }
 
@@ -26,8 +32,9 @@ export function EditSectionDialog({
   description,
   children,
   formRef,
+  open,
+  setOpen,
 }: EditSectionDialogProps) {
-  const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -41,7 +48,6 @@ export function EditSectionDialog({
       });
       formRef.current.dispatchEvent(submitEvent);
     }
-    setOpen(false);
     setSaving(false);
   };
 

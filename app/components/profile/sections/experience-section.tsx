@@ -5,7 +5,7 @@ import { EditSectionDialog } from "../edit-section-dialog";
 import { EditExperienceForm } from "../edit-experience-form";
 import type { CompleteProfile } from "@/types/user";
 import type { WorkExperience } from "@/types/work-experience";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 
 interface ExperienceSectionProps {
   profile: CompleteProfile;
@@ -26,6 +26,7 @@ const ExperienceSection = ({
   handleSaveWorkExperiences,
 }: ExperienceSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
   return (
     <Card>
       <CardHeader>
@@ -43,6 +44,8 @@ const ExperienceSection = ({
             )}
           </div>
           <EditSectionDialog
+            open={open}
+            setOpen={setOpen}
             title="Work Experience"
             description="Update your professional experience"
             formRef={formRef as RefObject<HTMLFormElement>}

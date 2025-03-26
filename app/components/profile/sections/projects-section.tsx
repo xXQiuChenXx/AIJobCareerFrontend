@@ -11,7 +11,7 @@ import { EditSectionDialog } from "../edit-section-dialog";
 import { EditPortfolioForm } from "../edit-portfolio-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Project } from "@/types/project";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 
 interface ProjectsSectionProps {
   profile: CompleteProfile;
@@ -25,6 +25,7 @@ const ProjectsSection = ({
   handleSaveProjects,
 }: ProjectsSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
   return (
     <Card>
       <CardHeader>
@@ -43,6 +44,8 @@ const ProjectsSection = ({
           </div>
           <EditSectionDialog
             title="Projects"
+            open={open}
+            setOpen={setOpen}
             description="Update your portfolio projects"
             formRef={formRef as RefObject<HTMLFormElement>}
           >

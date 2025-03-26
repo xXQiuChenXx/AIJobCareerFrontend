@@ -6,6 +6,8 @@ export interface Education {
   start_year: number;
   end_year?: number;
   description: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateEducationDto {

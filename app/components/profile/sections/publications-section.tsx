@@ -5,7 +5,7 @@ import { EditSectionDialog } from "../edit-section-dialog";
 import { EditPublicationsForm } from "../edit-publications-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Publication } from "@/types/publication";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 
 interface PublicationsSectionProps {
   profile: CompleteProfile;
@@ -19,6 +19,7 @@ const PublicationsSection = ({
   handleSavePublications,
 }: PublicationsSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
   return (
     <Card>
       <CardHeader>
@@ -36,6 +37,8 @@ const PublicationsSection = ({
             )}
           </div>
           <EditSectionDialog
+            open={open}
+            setOpen={setOpen}
             title="Publications"
             description="Update your research papers and publications"
             formRef={formRef as RefObject<HTMLFormElement>}

@@ -10,8 +10,12 @@ export const EducationService = {
     return apiClient.get<Education>(`/Education/${id}`);
   },
 
-  async getEducationsByUserId(userId: string): Promise<Education[]> {
-    return apiClient.get<Education[]>(`/Education/user/${userId}`);
+  async getCurrentUserEducations(): Promise<Education[]> {
+    return apiClient.get<Education[]>('/Education/user/current');
+  },
+  
+  async getEducationsByUserId(): Promise<Education[]> {
+    return apiClient.get<Education[]>(`/Education/user/current`);
   },
 
   async createEducation(data: CreateEducationDto): Promise<Education> {

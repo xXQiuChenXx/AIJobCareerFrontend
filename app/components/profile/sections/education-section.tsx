@@ -4,14 +4,13 @@ import { GraduationCap, EyeOff, FileText, Lock } from "lucide-react";
 import { EditSectionDialog } from "../edit-section-dialog";
 import { EditEducationForm } from "../edit-education-form";
 import type { CompleteProfile } from "@/types/user";
-import type { Education } from "@/types/education";
-import type { Certification } from "@/types/certification";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
+import type { EducationFormValues } from "@/lib/schemas/education-schema";
 
 interface EducationSectionProps {
   profile: CompleteProfile;
   isPrivate: boolean;
-  handleSaveEducation?: (education: Education[]) => Promise<void>;
+  handleSaveEducation: (education: EducationFormValues[]) => Promise<void>;
 }
 
 const EducationSection = ({
@@ -20,6 +19,8 @@ const EducationSection = ({
   handleSaveEducation,
 }: EducationSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
+
   return (
     <Card>
       <CardHeader>
@@ -37,6 +38,8 @@ const EducationSection = ({
             )}
           </div>
           <EditSectionDialog
+            open={open}
+            setOpen={setOpen}
             title="Education"
             description="Update your educational background"
             formRef={formRef as RefObject<HTMLFormElement>}
@@ -44,8 +47,8 @@ const EducationSection = ({
             <EditEducationForm
               ref={formRef}
               educations={profile.education || []}
-              certifications={profile.certifications || []}
               onSaveEducation={handleSaveEducation}
+              onSubmitSuccess={() => setOpen(false)}
             />
           </EditSectionDialog>
         </CardTitle>

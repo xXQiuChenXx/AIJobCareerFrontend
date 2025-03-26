@@ -13,6 +13,10 @@ export const CertificationService = {
   async getCertificationById(id: string): Promise<Certification> {
     return apiClient.get<Certification>(`/Certification/${id}`);
   },
+  
+  async getCurrentUserCertifications(): Promise<Certification[]> {
+    return apiClient.get<Certification[]>('/Certification/user/current');
+  },
 
   async getCertificationsByUserId(userId: string): Promise<Certification[]> {
     return apiClient.get<Certification[]>(`/Certification/user/${userId}`);

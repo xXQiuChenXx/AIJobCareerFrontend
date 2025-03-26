@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, EyeOff, FileText, Lock } from "lucide-react";
+import { Star, EyeOff, FileText, Lock, ExternalLink } from "lucide-react";
 import { EditSectionDialog } from "../edit-section-dialog";
-import { EditEducationForm } from "../edit-education-form";
+import { EditCertificationsForm } from "../edit-certifications-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Certification } from "@/types/certification";
-import { useRef, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 
 interface CertificationsSectionProps {
   profile: CompleteProfile;
@@ -13,19 +13,20 @@ interface CertificationsSectionProps {
   handleSaveCertifications?: (certifications: Certification[]) => Promise<void>;
 }
 
-// Helper function to format dates
-const formatDate = (dateString?: string): string => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", { year: "numeric", month: "short" });
-};
-
 const CertificationsSection = ({
   profile,
   isPrivate,
   handleSaveCertifications,
 }: CertificationsSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleString("default", { month: "short", year: "numeric" });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -43,15 +44,16 @@ const CertificationsSection = ({
             )}
           </div>
           <EditSectionDialog
+            open={open}
+            setOpen={setOpen}
             title="Certifications"
-            description="Update your certifications and licenses"
+            description="Update your professional certifications"
             formRef={formRef as RefObject<HTMLFormElement>}
           >
-            <EditEducationForm
-              educations={profile.education || []}
+            <EditCertificationsForm
+              ref={formRef}
               certifications={profile.certifications || []}
               onSaveCertifications={handleSaveCertifications}
-              ref={formRef}
             />
           </EditSectionDialog>
         </CardTitle>
@@ -74,35 +76,43 @@ const CertificationsSection = ({
             </div>
             <h3 className="text-lg font-medium">Add your certifications</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Click the edit button to add your certifications and licenses.
+              Click the edit button to add your professional certifications.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {profile.certifications.map((cert) => (
               <div key={cert.certification_id} className="flex gap-4">
                 <div className="mt-1 flex-shrink-0">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100">
-                    <Star className="h-4 w-4 text-amber-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+                    <Star className="h-5 w-5 text-amber-600" />
                   </div>
                 </div>
-                <div>
-                  <h3 className="font-medium">{cert.certification_name}</h3>
+                <div className="space-y-1">
+                  <h3 className="font-semibold">{cert.certification_name}</h3>
                   <div className="text-sm text-muted-foreground">
-                    {cert.issuing_organization} · Issued{" "}
-                    {formatDate(cert.issue_date)}
+                    {cert.issuing_organization}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Issued: {formatDate(cert.issue_date)}
                     {cert.expiry_date &&
-                      ` · Expires ${formatDate(cert.expiry_date)}`}
+                      ` • Expires: ${formatDate(cert.expiry_date)}`}
                   </div>
                   {cert.credential_url && (
                     <a
                       href={cert.credential_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-1 inline-block text-sm text-primary hover:underline"
+                      className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mt-1"
                     >
                       View credential
+                      <ExternalLink className="ml-1 h-3 w-3" />
                     </a>
+                  )}
+                  {cert.credential_id && (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      Credential ID: {cert.credential_id}
+                    </div>
                   )}
                 </div>
               </div>
