@@ -27,6 +27,16 @@ export const PublicationService = {
   },
 
   async deletePublication(id: string): Promise<void> {
-    return apiClient.delete<void>(`/Publication/${id}`);
+    try {
+      return await apiClient.delete<void>(`/Publication/${id}`);
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        throw new Error('You do not have permission to delete this publication');
+      }
+      if (error.response?.status === 404) {
+        throw new Error('Publication not found');
+      }
+      throw error;
+    }
   },
 };

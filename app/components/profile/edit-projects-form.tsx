@@ -1,9 +1,8 @@
-import { useState, useEffect, forwardRef } from "react";
-import { Badge } from "@/components/ui/badge";
+import { useState, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import type { Project } from "@/types/project";
 import { ProjectService } from "@/services/project-service";
 import { toast } from "sonner";
@@ -33,7 +32,6 @@ export const EditProjectsForm = forwardRef<
   EditProjectsFormProps
 >(({ projects = [], onSave, onSubmitSuccess }, ref) => {
   const [loading, setLoading] = useState(false);
-  const [newTag, setNewTag] = useState("");
 
   // Initialize form with React Hook Form
   const form = useForm<ProjectsFormValues>({

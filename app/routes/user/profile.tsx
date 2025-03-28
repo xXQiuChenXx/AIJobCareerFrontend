@@ -299,14 +299,13 @@ export default function ProfilePage() {
         // Update existing publication
         await PublicationService.updatePublication(pub.publication_id, {
           ...pub,
-          user_id: userId,
         });
       }
     }
 
     // Get updated publications list
-    const updatedPublications =
-      await PublicationService.getPublicationsByUserId(userId);
+    const updatedPublications = await PublicationService.getAllPublications();
+    console.log(updatedPublications)
 
     setProfile({
       ...profile,

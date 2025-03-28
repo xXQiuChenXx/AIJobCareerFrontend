@@ -1,16 +1,19 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, EyeOff, Lock } from "lucide-react";
+import { FileText, EyeOff, Lock, ExternalLink } from "lucide-react";
 import { EditSectionDialog } from "../edit-section-dialog";
 import { EditPublicationsForm } from "../edit-publications-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Publication } from "@/types/publication";
 import { useRef, useState, type RefObject } from "react";
+import { formatDate } from "@/lib/utils";
+import { NavLink } from "react-router";
+import { Button } from "@/components/ui/button";
 
 interface PublicationsSectionProps {
   profile: CompleteProfile;
   isPrivate: boolean;
-  handleSavePublications?: (publications: Publication[]) => Promise<void>;
+  handleSavePublications: (publications: Publication[]) => Promise<void>;
 }
 
 const PublicationsSection = ({
@@ -20,10 +23,11 @@ const PublicationsSection = ({
 }: PublicationsSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
   const [open, setOpen] = useState(false);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-2xl">
           <div className="flex items-center">
             <span>Publications</span>
             {isPrivate && (
@@ -47,6 +51,7 @@ const PublicationsSection = ({
               publications={profile.publications || []}
               onSave={handleSavePublications}
               ref={formRef}
+              onSubmitSuccess={() => setOpen(false)}
             />
           </EditSectionDialog>
         </CardTitle>
@@ -62,7 +67,7 @@ const PublicationsSection = ({
               The account owner has set this profile to private.
             </p>
           </div>
-        ) : profile.publications?.length === 0 ? (
+        ) : !profile.publications || profile.publications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="mb-4 rounded-full bg-blue-100 p-3">
               <FileText className="h-6 w-6 text-blue-600" />
@@ -87,18 +92,20 @@ const PublicationsSection = ({
                   <div className="text-sm text-muted-foreground">
                     {pub.publisher} · {pub.publication_year}
                   </div>
-                  {pub.publication_url && (
-                    <a
-                      href={pub.publication_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 inline-block text-sm text-primary hover:underline"
-                    >
-                      View publication
-                    </a>
-                  )}
                   {pub.description && (
                     <p className="mt-1 text-sm">{pub.description}</p>
+                  )}
+                  {pub.publication_url && (
+                    <NavLink
+                      to={pub.publication_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="link" style={{ padding: "0" }}>
+                        <ExternalLink className="w-2 h-2" />
+                        View publication
+                      </Button>
+                    </NavLink>
                   )}
                 </div>
               </div>
