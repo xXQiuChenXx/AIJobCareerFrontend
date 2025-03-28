@@ -4,13 +4,15 @@ import { Briefcase, EyeOff, FileText, Lock } from "lucide-react";
 import { EditSectionDialog } from "../edit-section-dialog";
 import { EditExperienceForm } from "../edit-experience-form";
 import type { CompleteProfile } from "@/types/user";
-import type { WorkExperience } from "@/types/work-experience";
 import { useRef, useState, type RefObject } from "react";
+import type { WorkExperienceFormValues } from "@/lib/schemas/work-experience-schema";
 
 interface ExperienceSectionProps {
   profile: CompleteProfile;
   isPrivate: boolean;
-  handleSaveWorkExperiences: (experiences: WorkExperience[]) => Promise<void>;
+  handleSaveWorkExperiences: (
+    experiences: WorkExperienceFormValues[]
+  ) => Promise<void>;
 }
 
 // Helper function to format dates
@@ -27,6 +29,7 @@ const ExperienceSection = ({
 }: ExperienceSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
   const [open, setOpen] = useState(false);
+
   return (
     <Card>
       <CardHeader>
@@ -54,6 +57,7 @@ const ExperienceSection = ({
               ref={formRef}
               experiences={profile.workExperiences || []}
               onSave={handleSaveWorkExperiences}
+              onSubmitSuccess={() => setOpen(false)}
             />
           </EditSectionDialog>
         </CardTitle>
@@ -100,11 +104,14 @@ const ExperienceSection = ({
                   </div>
                   <p className="mt-2 text-sm">{exp.description}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {exp.experience_skill.split(",").map((skill, idx) => (
-                      <Badge key={idx} variant="outline">
-                        {skill.trim()}
-                      </Badge>
-                    ))}
+                    {exp?.experience_skill
+                      ?.split(",")
+                      .filter(Boolean)
+                      .map((skill, idx) => (
+                        <Badge key={idx} variant="outline">
+                          {skill.trim()}
+                        </Badge>
+                      ))}
                   </div>
                 </div>
               </div>

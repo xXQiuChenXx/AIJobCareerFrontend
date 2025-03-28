@@ -16,11 +16,6 @@ import type { CompleteProfile } from "@/types/user";
 import { UserService } from "@/services/user-service";
 import { WorkExperienceService } from "@/services/work-experience-service";
 import type { BasicInfo } from "@/types/user";
-import type {
-  CreateWorkExperienceDto,
-  UpdateWorkExperienceDto,
-  WorkExperience,
-} from "@/types/work-experience";
 import AboutSection from "@/components/profile/sections/about-section";
 import SkillsSection from "@/components/profile/sections/skills-section";
 import ExperienceSection from "@/components/profile/sections/experience-section";
@@ -38,13 +33,10 @@ import { ProjectService } from "@/services/project-service";
 import { PublicationService } from "@/services/publication-service";
 import type { Skill } from "@/types/skill";
 import type { Certification } from "@/types/certification";
-import type { Project } from "@/types/project";
 import type { Publication } from "@/types/publication";
 import type { EducationFormValues } from "@/lib/schemas/education-schema";
-import type {
-  ProjectFormValues,
-  ProjectsFormValues,
-} from "@/lib/schemas/project-schema";
+import type { ProjectFormValues } from "@/lib/schemas/project-schema";
+import type { WorkExperienceFormValues } from "@/lib/schemas/work-experience-schema";
 
 // Helper to calculate profile completion
 const calculateProfileCompletion = (
@@ -107,48 +99,31 @@ export default function ProfilePage() {
     });
   };
 
-  const handleSaveWorkExperiences = async (experiences: WorkExperience[]) => {
+  const handleSaveWorkExperiences = async (
+    experiences: WorkExperienceFormValues[]
+  ) => {
     if (!profile || !profile.basicInfo) return;
+    const userId = profile.basicInfo.user_id;
 
     for (const exp of experiences) {
       if (exp.experience_id.startsWith("temp-")) {
-        const newExp: CreateWorkExperienceDto = {
-          user_id: profile.basicInfo.user_id,
-          job_title: exp.job_title,
-          company_name: exp.company_name,
-          location: exp.location,
-          start_date: exp.start_date,
-          end_date: exp.end_date,
-          is_current: exp.is_current,
-          description: exp.description,
-          experience_skill: exp.experience_skill,
-        };
-        await WorkExperienceService.createWorkExperience(newExp);
+        const { experience_id, ...newExp } = exp;
+        // Create new work experience
+        await WorkExperienceService.createWorkExperience({
+          ...newExp,
+          user_id: userId,
+        });
       } else {
-        const updateExp: UpdateWorkExperienceDto = {
-          experience_id: exp.experience_id,
-          user_id: exp.user_id,
-          job_title: exp.job_title,
-          company_name: exp.company_name,
-          location: exp.location,
-          start_date: exp.start_date,
-          end_date: exp.end_date,
-          is_current: exp.is_current,
-          description: exp.description,
-          experience_skill: exp.experience_skill,
-        };
-        await WorkExperienceService.updateWorkExperience(
-          exp.experience_id,
-          updateExp
-        );
+        await WorkExperienceService.updateWorkExperience(exp.experience_id, {
+          ...exp,
+          user_id: userId,
+        });
       }
     }
 
     const updatedExperiences =
-      await WorkExperienceService.getWorkExperiencesByUserId(
-        profile.basicInfo.user_id
-      );
-
+      await WorkExperienceService.getAllWorkExperiences();
+    console.log(updatedExperiences);
     setProfile({
       ...profile,
       workExperiences: updatedExperiences,
@@ -305,7 +280,7 @@ export default function ProfilePage() {
 
     // Get updated publications list
     const updatedPublications = await PublicationService.getAllPublications();
-    console.log(updatedPublications)
+    console.log(updatedPublications);
 
     setProfile({
       ...profile,

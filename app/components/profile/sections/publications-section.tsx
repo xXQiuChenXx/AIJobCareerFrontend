@@ -6,7 +6,6 @@ import { EditPublicationsForm } from "../edit-publications-form";
 import type { CompleteProfile } from "@/types/user";
 import type { Publication } from "@/types/publication";
 import { useRef, useState, type RefObject } from "react";
-import { formatDate } from "@/lib/utils";
 import { NavLink } from "react-router";
 import { Button } from "@/components/ui/button";
 

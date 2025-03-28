@@ -7,20 +7,23 @@ import { PublicationService } from "@/services/publication-service";
 import { toast } from "sonner";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { publicationsFormSchema, type PublicationFormValues } from "@/lib/schemas/publication-schema";
-import { 
+import {
+  publicationsFormSchema,
+  type PublicationFormValues,
+} from "@/lib/schemas/publication-schema";
+import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage 
+  FormMessage,
 } from "@/components/ui/form";
 
 interface EditPublicationsFormProps {
   publications?: Publication[];
   onSave: (publications: Publication[]) => Promise<void>;
-  onSubmitSuccess: () => void;
+  onSubmitSuccess?: () => void;
 }
 
 export const EditPublicationsForm = forwardRef<
@@ -107,7 +110,7 @@ export const EditPublicationsForm = forwardRef<
       await onSave(data.publications);
 
       // Call the onSubmitSuccess callback to close the dialog
-      onSubmitSuccess();
+      if (onSubmitSuccess) await onSubmitSuccess();
       toast.success("Publications saved successfully");
     } catch (error) {
       console.error("Failed to save publications:", error);
@@ -196,7 +199,13 @@ export const EditPublicationsForm = forwardRef<
                                   placeholder="Year"
                                   className="border-0 p-0 h-6 w-16 text-sm text-muted-foreground focus-visible:ring-0"
                                   // Convert string to number for the form
-                                  onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value, 10) : '')}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        ? parseInt(e.target.value, 10)
+                                        : ""
+                                    )
+                                  }
                                 />
                               </FormControl>
                               <FormMessage className="text-xs mt-1" />
@@ -209,10 +218,14 @@ export const EditPublicationsForm = forwardRef<
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => removePublication(index, field.publication_id)}
+                    onClick={() =>
+                      removePublication(index, field.publication_id)
+                    }
                     className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 shrink-0"
                     type="button"
-                    disabled={isDeleting === field.publication_id || isSubmitting}
+                    disabled={
+                      isDeleting === field.publication_id || isSubmitting
+                    }
                   >
                     {isDeleting === field.publication_id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -222,14 +235,16 @@ export const EditPublicationsForm = forwardRef<
                   </Button>
                 </div>
               </div>
-              
+
               <div className="ml-0 sm:ml-11">
                 <FormField
                   control={control}
                   name={`publications.${index}.publication_url`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Publication URL</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        Publication URL
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -247,7 +262,9 @@ export const EditPublicationsForm = forwardRef<
                   name={`publications.${index}.description`}
                   render={({ field }) => (
                     <FormItem className="mt-3">
-                      <FormLabel className="text-sm font-medium">Description</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        Description
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}

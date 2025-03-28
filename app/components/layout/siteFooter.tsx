@@ -80,7 +80,7 @@ const SiteFooter = () => {
             </NavLink>
           </div>
         </div>
-        <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4">
+        <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-3">
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Company</h3>
             <ul className="space-y-2 text-sm">
@@ -188,43 +188,6 @@ const SiteFooter = () => {
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Enterprise
-                </NavLink>
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <NavLink
-                  to="#"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Privacy Policy
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="#"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Terms of Service
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="#"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Cookie Policy
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="#"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  Accessibility
                 </NavLink>
               </li>
             </ul>
