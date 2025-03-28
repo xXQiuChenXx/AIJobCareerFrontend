@@ -24,7 +24,7 @@ const EducationSection = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-2xl">
           <div className="flex items-center">
             <span>Education</span>
             {isPrivate && (

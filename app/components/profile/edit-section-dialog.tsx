@@ -46,7 +46,7 @@ export function EditSectionDialog({
         cancelable: true,
         bubbles: true,
       });
-      formRef.current.dispatchEvent(submitEvent);
+      await formRef.current.dispatchEvent(submitEvent);
     }
     setSaving(false);
   };
@@ -80,11 +80,7 @@ export function EditSectionDialog({
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-            disabled={saving}
-          >
+          <Button onClick={handleSave} className="" disabled={saving}>
             {saving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

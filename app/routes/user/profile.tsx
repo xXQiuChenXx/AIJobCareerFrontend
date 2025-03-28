@@ -37,11 +37,14 @@ import { CertificationService } from "@/services/certification-service";
 import { ProjectService } from "@/services/project-service";
 import { PublicationService } from "@/services/publication-service";
 import type { Skill } from "@/types/skill";
-import type { Education } from "@/types/education";
 import type { Certification } from "@/types/certification";
 import type { Project } from "@/types/project";
 import type { Publication } from "@/types/publication";
 import type { EducationFormValues } from "@/lib/schemas/education-schema";
+import type {
+  ProjectFormValues,
+  ProjectsFormValues,
+} from "@/lib/schemas/project-schema";
 
 // Helper to calculate profile completion
 const calculateProfileCompletion = (
@@ -247,7 +250,7 @@ export default function ProfilePage() {
     });
   };
 
-  const handleSaveProjects = async (projects: Project[]) => {
+  const handleSaveProjects = async (projects: ProjectFormValues[]) => {
     if (!profile || !profile.basicInfo) return;
 
     const userId = profile.basicInfo.user_id;
@@ -256,9 +259,8 @@ export default function ProfilePage() {
     for (const project of projects) {
       if (project.project_id.startsWith("temp-")) {
         // Create new project
-        const { project_id, ...newProject } = project;
         await ProjectService.createProject({
-          ...newProject,
+          ...project,
           user_id: userId,
         });
       } else {

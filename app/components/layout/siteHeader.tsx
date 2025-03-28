@@ -79,7 +79,7 @@ export const SiteHeader = () => {
 
               {isOpen && (
                 <NotificationDropdown
-                  notifications={notifications}
+                  notifications={notifications} 
                   onClose={() => setIsOpen(false)}
                 />
               )}

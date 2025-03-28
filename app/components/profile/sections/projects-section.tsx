@@ -6,17 +6,19 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { EyeOff, FileText, Lock } from "lucide-react";
+import { ExternalLinkIcon, EyeOff, FileText, Lock } from "lucide-react";
 import { EditSectionDialog } from "../edit-section-dialog";
-import { EditPortfolioForm } from "../edit-portfolio-form";
+import { EditProjectsForm } from "../edit-projects-form";
 import type { CompleteProfile } from "@/types/user";
-import type { Project } from "@/types/project";
 import { useRef, useState, type RefObject } from "react";
+import { type ProjectFormValues } from "@/lib/schemas/project-schema";
+import { NavLink } from "react-router";
+import { Button } from "@/components/ui/button";
 
 interface ProjectsSectionProps {
   profile: CompleteProfile;
   isPrivate: boolean;
-  handleSaveProjects?: (projects: Project[]) => Promise<void>;
+  handleSaveProjects: (projects: ProjectFormValues[]) => Promise<void>;
 }
 
 const ProjectsSection = ({
@@ -29,7 +31,7 @@ const ProjectsSection = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-2xl">
           <div className="flex items-center">
             <span>Projects</span>
             {isPrivate && (
@@ -49,11 +51,11 @@ const ProjectsSection = ({
             description="Update your portfolio projects"
             formRef={formRef as RefObject<HTMLFormElement>}
           >
-            <EditPortfolioForm
+            <EditProjectsForm
               ref={formRef}
               projects={profile.projects || []}
-              publications={profile.publications || []}
-              onSaveProjects={handleSaveProjects}
+              onSave={handleSaveProjects}
+              onSubmitSuccess={() => setOpen(false)}
             />
           </EditSectionDialog>
         </CardTitle>
@@ -82,26 +84,26 @@ const ProjectsSection = ({
         ) : (
           <div className="grid gap-6 sm:grid-cols-2">
             {profile.projects.map((project) => (
-              <Card key={project.project_id}>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-base">
-                    {project.project_name}
-                  </CardTitle>
+              <Card key={project.project_id} className="gap-3">
+                <CardHeader>
+                  <CardTitle>{project.project_name}</CardTitle>
                   <CardDescription>{project.project_year}</CardDescription>
                 </CardHeader>
-                <CardContent className="p-4 pt-0">
+                <CardContent>
                   <p className="text-sm text-muted-foreground">
                     {project.description}
                   </p>
                   {project.project_url && (
-                    <a
-                      href={project.project_url}
+                    <NavLink
+                      to={project.project_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-block text-sm text-primary hover:underline"
                     >
-                      View project
-                    </a>
+                      <Button variant="outline" className="mt-3 w-full">
+                        <ExternalLinkIcon className="h-2 w-2" />
+                        View project
+                      </Button>
+                    </NavLink>
                   )}
                 </CardContent>
               </Card>
