@@ -2,9 +2,10 @@ import { useState, forwardRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { X } from "lucide-react"
-import type { Skill } from "@/types/skill"
+import type { Skill, CreateSkillDTO } from "@/types/skill"
 import { SkillService } from "@/services/skill-service"
 import { toast } from "sonner"
 
@@ -31,26 +32,30 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
 
     const [newSkill, setNewSkill] = useState("");
     const [newSkillLevel, setNewSkillLevel] = useState<ProficiencyLevel>("intermediate");
+    const [newSkillType, setNewSkillType] = useState("");
+    const [newSkillInfo, setNewSkillInfo] = useState("");
     const [newTag, setNewTag] = useState("");
 
     const addSkill = () => {
       if (newSkill.trim()) {
         // Create a new skill with a temporary ID
         const newSkillItem: Skill = {
-          skill_id: Date.now(), // Temporary ID until saved to API
+          skill_id: -Date.now(), // Temporary ID until saved to API (negative to distinguish from real IDs)
           skill_name: newSkill,
           skill_level: newSkillLevel,
         };
         setSkillsList([...skillsList, newSkillItem]);
         setNewSkill("");
         setNewSkillLevel("intermediate");
+        setNewSkillType("");
+        setNewSkillInfo("");
       }
     };
 
     const removeSkill = async (id: number) => {
       try {
         // Only call API if it's a real ID (not a temporary one)
-        if (typeof id === 'string' || id > 10000000) {
+        if (id > 0) {
           setLoading(true);
           await SkillService.deleteSkill(id);
           toast.success("Skill removed");
@@ -89,13 +94,20 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
         // Otherwise save directly to API
         else {
           for (const skill of skillsList) {
-            if (typeof skill.skill_id === 'number' && skill.skill_id > 10000000) {
+            if (skill.skill_id < 0) {
               // This is a temporary ID, create a new skill
-              const { skill_id, ...newSkill } = skill;
-              // await SkillService.createSkill(newSkill);
+              const skillData: CreateSkillDTO = {
+                skill_name: skill.skill_name,
+                skill_level: skill.skill_level,
+              };
+              await SkillService.createSkill(skillData);
             } else {
               // Update existing skill
-              // await SkillService.updateSkill(skill.skill_id, skill);
+              const skillData: CreateSkillDTO = {
+                skill_name: skill.skill_name,
+                skill_level: skill.skill_level,
+              };
+              await SkillService.updateSkill(skill.skill_id, skillData);
             }
           }
         }
@@ -104,6 +116,8 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
         if (onSubmitSuccess) {
           onSubmitSuccess();
         }
+        
+        toast.success("Skills saved successfully");
       } catch (error) {
         console.error("Failed to save skills:", error);
         toast.error("Failed to save skills");
@@ -160,19 +174,18 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
               ))}
             </div>
 
-            <div className="mt-4 flex flex-col sm:flex-row gap-2">
+            <div className="mt-4 flex flex-col gap-2">
               <Input
                 placeholder="Add a new skill"
                 value={newSkill}
                 onChange={(e) => setNewSkill(e.target.value)}
-                className="flex-1"
               />
-              <div className="flex gap-2 mt-2 sm:mt-0">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Select 
                   defaultValue={newSkillLevel} 
                   onValueChange={(value) => setNewSkillLevel(value as ProficiencyLevel)}
                 >
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-full sm:w-[140px]">
                     <SelectValue placeholder="Select level" />
                   </SelectTrigger>
                   <SelectContent>
@@ -183,15 +196,26 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
                     <SelectItem value="expert">Expert</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button
-                  type="button"
-                  onClick={addSkill}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                  disabled={loading || submitting}
-                >
-                  Add
-                </Button>
+                <Input
+                  placeholder="Skill type (optional)"
+                  value={newSkillType}
+                  onChange={(e) => setNewSkillType(e.target.value)}
+                />
               </div>
+              <Textarea
+                placeholder="Skill information (optional)"
+                value={newSkillInfo}
+                onChange={(e) => setNewSkillInfo(e.target.value)}
+                rows={3}
+              />
+              <Button
+                type="button"
+                onClick={addSkill}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 mt-2"
+                disabled={loading || submitting}
+              >
+                Add Skill
+              </Button>
             </div>
           </div>
 
@@ -227,7 +251,7 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
                 className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                 disabled={loading || submitting}
               >
-                Add
+                Add Tag
               </Button>
             </div>
           </div>

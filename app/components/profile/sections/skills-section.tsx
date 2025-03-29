@@ -36,7 +36,7 @@ const SkillsSection = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-2xl">
           <div className="flex items-center">
             <span>Skills</span>
             {isPrivate && (
@@ -89,7 +89,7 @@ const SkillsSection = ({
           <>
             <div className="space-y-4">
               {profile.skills.map((skill) => (
-                <div key={skill.skill_id}>
+                <div key={skill.skill_id} className="mb-4">
                   <div className="flex justify-between mb-1">
                     <span className="font-medium">{skill.skill_name}</span>
                     <span className="text-sm text-muted-foreground">
@@ -106,7 +106,7 @@ const SkillsSection = ({
             <div className="mt-6 flex flex-wrap gap-2">
               {profile.workExperiences
                 ?.flatMap((exp) =>
-                  exp.experience_skill.split(",").map((skill) => skill.trim())
+                  exp.experience_skill?.split(",").map((skill) => skill.trim())
                 )
                 .filter(
                   (value, index, self) => self.indexOf(value) === index && value

@@ -37,6 +37,7 @@ import type { Publication } from "@/types/publication";
 import type { EducationFormValues } from "@/lib/schemas/education-schema";
 import type { ProjectFormValues } from "@/lib/schemas/project-schema";
 import type { WorkExperienceFormValues } from "@/lib/schemas/work-experience-schema";
+import type { CreateSkillDTO } from "@/types/skill";
 
 // Helper to calculate profile completion
 const calculateProfileCompletion = (
@@ -137,21 +138,17 @@ export default function ProfilePage() {
 
     // Process each skill (create new ones or update existing ones)
     for (const skill of skills) {
-      if (typeof skill.skill_id === "number" && skill.skill_id > 10000000) {
+      if (skill.skill_id < 0) {
         // This is a temporary ID, create a new skill
-        await SkillService.createSkill(
-          userId,
-          skill.skill_name,
-          skill.skill_level
-        );
+        await SkillService.createSkill(skill);
       } else {
         // Update existing skill
-        await SkillService.updateSkill(skill.skill_id, skill.skill_level);
+        await SkillService.updateSkill(skill.skill_id, skill);
       }
     }
 
     // Refresh the skills list
-    const updatedSkills = await SkillService.getSkillsByUserId(userId);
+    const updatedSkills = await SkillService.getUserSkills(userId);
 
     setProfile({
       ...profile,

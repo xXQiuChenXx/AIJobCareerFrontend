@@ -16,6 +16,7 @@ export default [
   route("notifications", "routes/notifications/index.tsx"),
   route("notifications/:id", "routes/notifications/notification.tsx"),
   route("careers/details/:id", "routes/careers/career-details.tsx"),
+  route("careers/apply/:id", "routes/applications/application.tsx"),
   layout("routes/auth/layout.tsx", [
     route("login", "routes/auth/login.tsx"),
     route("sign-up", "routes/auth/sign-up.tsx"),

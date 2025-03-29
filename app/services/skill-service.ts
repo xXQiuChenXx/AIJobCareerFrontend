@@ -1,35 +1,46 @@
-import type { Skill } from "../types/skill";
+import type { Skill, CreateSkillDTO } from "../types/skill";
 import { apiClient } from "./api-client";
 
 export const SkillService = {
-  async getAllSkills(): Promise<Skill[]> {
-    return apiClient.get<Skill[]>("/Skill");
+  async getUserSkills(userId: string): Promise<Skill[]> {
+    try {
+      return await apiClient.get<Skill[]>(`/UserSkills/${userId}`);
+    } catch (error) {
+      console.error("Failed to fetch user skills:", error);
+      return [];
+    }
   },
 
-  async getSkillsByUserId(userId: string): Promise<Skill[]> {
-    return apiClient.get<Skill[]>(`/Skill/user/${userId}`);
+  async createSkill(skillData: CreateSkillDTO): Promise<Skill | undefined> {
+    try {
+      return await apiClient.post<Skill>("/UserSkills", skillData);
+    } catch (error) {
+      console.error("Failed to create skill:", error);
+      throw error;
+    }
   },
 
-  async createSkill(
-    userId: string,
-    skillName: string,
-    skillLevel: string
-  ): Promise<Skill> {
-    return apiClient.post<Skill>("/Skill", {
-      user_id: userId,
-      skill_name: skillName,
-      skill_level: skillLevel,
-    });
-  },
-
-  async updateSkill(skillId: number, skillLevel: string): Promise<void> {
-    return apiClient.put<void>(`/Skill/${skillId}`, {
-      skill_id: skillId,
-      skill_level: skillLevel,
-    });
+  async updateSkill(skillId: number, skillData: CreateSkillDTO): Promise<void> {
+    try {
+      return await apiClient.put<void>(`/UserSkills/${skillId}`, skillData);
+    } catch (error) {
+      console.error(`Failed to update skill ${skillId}:`, error);
+      throw error;
+    }
   },
 
   async deleteSkill(skillId: number): Promise<void> {
-    return apiClient.delete<void>(`/Skill/${skillId}`);
+    try {
+      return await apiClient.delete<void>(`/UserSkills/${skillId}`);
+    } catch (error) {
+      console.error(`Failed to delete skill ${skillId}:`, error);
+      throw error;
+    }
   },
+  
+  // Keep this for backward compatibility during transition
+  async getSkillsByUserId(userId: string): Promise<Skill[]> {
+    return this.getUserSkills(userId);
+  }
 };
+  
