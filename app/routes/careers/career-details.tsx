@@ -129,7 +129,7 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
                 <Calendar className="h-4 w-4 mr-1" />
                 <span>
                   Posted{" "}
-                  {new Date(jobData?.posted_Date as Date).toLocaleDateString(
+                  {new Date(jobData?.posted_date as Date).toLocaleDateString(
                     "en-GB",
                     {
                       day: "2-digit",

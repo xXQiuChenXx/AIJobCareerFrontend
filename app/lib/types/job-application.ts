@@ -17,6 +17,16 @@ export enum JobType {
   Freelance = "Freelance"
 }
 
+// Company interface to match the API response
+export interface Company {
+  company_id: number;
+  company_name: string;
+  company_icon?: string;
+  company_intro?: string;
+  company_website?: string;
+  company_industry?: string;
+}
+
 export interface JobApplicationSubmitDto {
   userId: string;
   firstName: string;
@@ -40,13 +50,13 @@ export interface JobApplicationSubmitDto {
 export interface JobDto {
   id: number;
   title: string;
-  company: string;
-  location: string;
+  company: Company; // Update to use the Company interface
+  job_location: string;
   employmentType: JobType;
-  description?: string;
+  job_description?: string;
   requirements?: string[];
   responsibilities?: string[];
-  postedDate?: string;
+  posted_date?: string;
   salary?: string;
   companyLogo?: string;
 }

@@ -2,7 +2,14 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Route } from "../applications/+types/application";
-import { Briefcase, Building2, Clock, MapPin, Upload } from "lucide-react";
+import {
+  Briefcase,
+  Building2,
+  ChevronLeft,
+  Clock,
+  MapPin,
+  Upload,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -44,21 +51,44 @@ import {
 import { jobApplicationService } from "@/services/job-application-service";
 import { useAuth } from "@/components/provider/auth-provider";
 import { type JobDto, JobType } from "@/lib/types/job-application";
+import { NavLink } from "react-router";
 
 export default function JobApplicationForm({ params }: Route.ComponentProps) {
   const { id } = params; // Job ID that user is applying for
+  const { user } = useAuth();
+
+  // All state hooks
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeError, setResumeError] = useState<string | null>(null);
-  const { user } = useAuth();
-
-  // New states for job data
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [jobData, setJobData] = useState<JobDto | null>(null);
+  console.log(jobData);
 
-  // Fetch job details when component mounts
+  // Form hook
+  const form = useForm<JobApplicationFormValues>({
+    resolver: zodResolver(jobApplicationSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      linkedIn: "",
+      portfolio: "",
+      experience: "",
+      education: "",
+      skills: "",
+      availability: "",
+      relocate: false,
+      salary: "",
+      coverLetter: "",
+      termsAccepted: undefined,
+    },
+  });
+
+  // useEffect hook
   useEffect(() => {
     const fetchJobDetails = async () => {
       if (!id) {
@@ -69,7 +99,9 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
 
       try {
         setIsLoading(true);
-        const jobDetails = await jobApplicationService.getJobDetails(parseInt(id));
+        const jobDetails = await jobApplicationService.getJobDetails(
+          parseInt(id)
+        );
         setJobData(jobDetails);
       } catch (error) {
         console.error("Error fetching job details:", error);
@@ -81,6 +113,11 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
 
     fetchJobDetails();
   }, [id]);
+
+  // Now we can safely have conditional returns
+  if (!user) {
+    return <div>Not Found</div>;
+  }
 
   // Format employment type for display
   const formatEmploymentType = (type: JobType | undefined) => {
@@ -109,30 +146,6 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     return `${Math.floor(diffDays / 30)} months ago`;
   };
-
-  if (!user) {
-    return <div>Not Found</div>;
-  }
-
-  const form = useForm<JobApplicationFormValues>({
-    resolver: zodResolver(jobApplicationSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      linkedIn: "",
-      portfolio: "",
-      experience: "",
-      education: "",
-      skills: "",
-      availability: "",
-      relocate: false,
-      salary: "",
-      coverLetter: "",
-      termsAccepted: undefined,
-    },
-  });
 
   // Handle file input change
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,7 +193,9 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
       };
 
       // Submit the application using our service
-      const response = await jobApplicationService.submitApplication(submission);
+      const response = await jobApplicationService.submitApplication(
+        submission
+      );
 
       console.log("Application submitted successfully:", response);
       setIsSubmitted(true);
@@ -190,9 +205,8 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
       });
     } catch (error) {
       console.error("Failed to submit application:", error);
-      toast("Submission Failed", {
-        description:
-          error instanceof Error ? error.message : "An unknown error occurred",
+      toast.error("Submission Failed", {
+        description: "You have already applied for this position",
       });
     } finally {
       setIsSubmitting(false);
@@ -201,15 +215,15 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
 
   if (isSubmitted) {
     return (
-      <div className="container max-w-4xl py-10">
+      <div className="container max-w-4xl py-10 mx-auto">
         <Card>
           <CardHeader>
             <CardTitle className="text-center text-2xl">
               Application Submitted
             </CardTitle>
             <CardDescription className="text-center">
-              Thank you for applying to the {jobData?.title || "Job Position"} at{" "}
-              {jobData?.company || "the company"}.
+              Thank you for applying to the {jobData?.title || "Job Position"}{" "}
+              at {jobData?.company?.company_name || "the company"}.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
@@ -218,9 +232,9 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
               hiring team.
             </p>
             <p>We will contact you soon regarding the next steps.</p>
-            <Button onClick={() => setIsSubmitted(false)} className="mt-4">
-              Submit Another Application
-            </Button>
+            <NavLink to="/careers">
+              <Button className="mt-4">Go back to job listing</Button>
+            </NavLink>
           </CardContent>
         </Card>
       </div>
@@ -251,7 +265,16 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
   }
 
   return (
-    <div className="container max-w-4xl py-10">
+    <div className="container max-w-4xl py-10 mx-auto">
+      <div className="mb-3">
+        <NavLink
+          to={`/careers/details/${id}`}
+          className="flex items-center text-muted-foreground hover:text-primary transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Back to job details
+        </NavLink>
+      </div>
       <Card>
         <CardHeader className="space-y-1">
           {isLoading ? (
@@ -266,18 +289,18 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
             </>
           ) : (
             <>
-              <CardTitle className="text-2xl">
-                {jobData?.title || "Job Position"}
-              </CardTitle>
+              <CardTitle className="text-2xl">Job Application</CardTitle>
               <CardDescription>
                 <div className="flex flex-wrap gap-4 mt-2">
                   <div className="flex items-center text-sm">
                     <Building2 className="mr-1 h-4 w-4" />
-                    <span>{jobData?.company || "Company Name"}</span>
+                    <span>
+                      {jobData?.company?.company_name || "Company Name"}
+                    </span>
                   </div>
                   <div className="flex items-center text-sm">
                     <MapPin className="mr-1 h-4 w-4" />
-                    <span>{jobData?.location || "Location"}</span>
+                    <span>{jobData?.job_location || "Location"}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <Briefcase className="mr-1 h-4 w-4" />
@@ -285,7 +308,7 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
                   </div>
                   <div className="flex items-center text-sm">
                     <Clock className="mr-1 h-4 w-4" />
-                    <span>Posted {formatDate(jobData?.postedDate)}</span>
+                    <span>Posted {formatDate(jobData?.posted_date)}</span>
                   </div>
                 </div>
               </CardDescription>
@@ -304,7 +327,7 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
             <div className="mb-6 p-4 bg-muted rounded-lg">
               <h3 className="font-medium mb-2">Job Description</h3>
               <p className="text-sm text-muted-foreground">
-                {jobData?.description ||
+                {jobData?.job_description ||
                   "We are looking for an experienced professional to join our team. You will be responsible for key tasks and projects, ensuring high quality deliverables and excellent outcomes."}
               </p>
 
@@ -397,7 +420,7 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
                       <FormItem>
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="(123) 456-7890" {...field} />
+                          <Input placeholder="0123456789" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -596,14 +619,6 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
                                 1 month notice
                               </FormLabel>
                             </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="other" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Other
-                              </FormLabel>
-                            </FormItem>
                           </RadioGroup>
                         </FormControl>
                         <FormMessage />
@@ -627,19 +642,19 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="50-70k">
-                              $50,000 - $70,000
+                            <SelectItem value="RM 1.5k - 2k">
+                              RM 1,500 - RM 2,000
                             </SelectItem>
-                            <SelectItem value="70-90k">
-                              $70,000 - $90,000
+                            <SelectItem value="RM 2k - 3k">
+                              RM 2,000 - RM 3,000
                             </SelectItem>
-                            <SelectItem value="90-110k">
-                              $90,000 - $110,000
+                            <SelectItem value="RM 3k - 4k">
+                              RM 3,000 - RM 4,000
                             </SelectItem>
-                            <SelectItem value="110-130k">
-                              $110,000 - $130,000
+                            <SelectItem value="RM 4k - 8k">
+                              RM 4,000 - RM 8,000
                             </SelectItem>
-                            <SelectItem value="130k+">$130,000+</SelectItem>
+                            <SelectItem value="RM 8k+">RM 8,000+</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

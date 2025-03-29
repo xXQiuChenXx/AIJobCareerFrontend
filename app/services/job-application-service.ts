@@ -27,17 +27,18 @@ export class JobApplicationService {
       }
     });
 
-    // Use axios directly for FormData with correct content type
-    const response = await axios.post(`${this.baseUrl}`, formData, {
-      headers: {
-        // Let the browser set the content-type with boundary for FormData
-        "Content-Type": "multipart/form-data",
-        // Include auth token that our ApiClient would normally add
-        ...(apiClient["client"].defaults.headers.common || {}),
-      },
-    });
+    const response = await apiClient.post<JobApplicationResponseDto>(
+      "/JobApplications",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(apiClient["client"].defaults.headers.common || {}),
+        },
+      }
+    );
 
-    return response.data;
+    return response;
   }
 
   /**
