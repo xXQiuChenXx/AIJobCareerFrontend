@@ -1,21 +1,32 @@
-import { useState, forwardRef } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { X } from "lucide-react"
-import type { Skill, CreateSkillDTO } from "@/types/skill"
-import { SkillService } from "@/services/skill-service"
-import { toast } from "sonner"
+import { useState, forwardRef } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { X } from "lucide-react";
+import type { Skill, CreateSkillDTO } from "@/types/skill";
+import { SkillService } from "@/services/skill-service";
+import { toast } from "sonner";
 
 // Define the skill proficiency levels
-type ProficiencyLevel = "beginner" | "intermediate" | "proficient" | "advanced" | "expert"
+type ProficiencyLevel =
+  | "beginner"
+  | "intermediate"
+  | "proficient"
+  | "advanced"
+  | "expert";
 
 // Helper function to get a human-readable label for the level
 const getLevelLabel = (level: string): string => {
   return level.charAt(0).toUpperCase() + level.slice(1);
-}
+};
 
 interface EditSkillsFormProps {
   skills?: Skill[];
@@ -31,7 +42,8 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
     const [submitting, setSubmitting] = useState(false);
 
     const [newSkill, setNewSkill] = useState("");
-    const [newSkillLevel, setNewSkillLevel] = useState<ProficiencyLevel>("intermediate");
+    const [newSkillLevel, setNewSkillLevel] =
+      useState<ProficiencyLevel>("intermediate");
     const [newSkillType, setNewSkillType] = useState("");
     const [newSkillInfo, setNewSkillInfo] = useState("");
     const [newTag, setNewTag] = useState("");
@@ -83,14 +95,14 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
     // Handle form submission
     const handleSubmit = async (e?: React.FormEvent) => {
       if (e) e.preventDefault();
-      
+
       try {
         setSubmitting(true);
-        
+
         // If custom onSave is provided, use that
         if (onSave) {
           await onSave(skillsList);
-        } 
+        }
         // Otherwise save directly to API
         else {
           for (const skill of skillsList) {
@@ -111,12 +123,12 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
             }
           }
         }
-        
+
         // Call the onSubmitSuccess callback to close the dialog
         if (onSubmitSuccess) {
           onSubmitSuccess();
         }
-        
+
         toast.success("Skills saved successfully");
       } catch (error) {
         console.error("Failed to save skills:", error);
@@ -137,28 +149,35 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{skill.skill_name}</span>
-                      <span className="text-sm text-muted-foreground">{getLevelLabel(skill.skill_level)}</span>
+                      <span className="text-sm text-muted-foreground">
+                        <Select
+                          defaultValue={skill.skill_level.toLowerCase()}
+                          onValueChange={(value: string) => {
+                            const updated = skillsList.map((s) =>
+                              s.skill_id === skill.skill_id
+                                ? { ...s, skill_level: value }
+                                : s
+                            );
+                            setSkillsList(updated);
+                          }}
+                        >
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="Select level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="beginner">Beginner</SelectItem>
+                            <SelectItem value="intermediate">
+                              Intermediate
+                            </SelectItem>
+                            <SelectItem value="proficient">
+                              Proficient
+                            </SelectItem>
+                            <SelectItem value="advanced">Advanced</SelectItem>
+                            <SelectItem value="expert">Expert</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </span>
                     </div>
-                    <Select
-                      defaultValue={skill.skill_level.toLowerCase()}
-                      onValueChange={(value: string) => {
-                        const updated = skillsList.map((s) =>
-                          s.skill_id === skill.skill_id ? { ...s, skill_level: value } : s,
-                        );
-                        setSkillsList(updated);
-                      }}
-                    >
-                      <SelectTrigger className="h-8">
-                        <SelectValue placeholder="Select level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="beginner">Beginner</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
-                        <SelectItem value="proficient">Proficient</SelectItem>
-                        <SelectItem value="advanced">Advanced</SelectItem>
-                        <SelectItem value="expert">Expert</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <Button
                     variant="ghost"
@@ -174,96 +193,48 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
               ))}
             </div>
 
-            <div className="mt-4 flex flex-col gap-2">
+            <div className="mt-4 flex gap-2">
               <Input
                 placeholder="Add a new skill"
                 value={newSkill}
                 onChange={(e) => setNewSkill(e.target.value)}
               />
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Select 
-                  defaultValue={newSkillLevel} 
-                  onValueChange={(value) => setNewSkillLevel(value as ProficiencyLevel)}
-                >
-                  <SelectTrigger className="w-full sm:w-[140px]">
-                    <SelectValue placeholder="Select level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="beginner">Beginner</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="proficient">Proficient</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                    <SelectItem value="expert">Expert</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input
-                  placeholder="Skill type (optional)"
-                  value={newSkillType}
-                  onChange={(e) => setNewSkillType(e.target.value)}
-                />
-              </div>
-              <Textarea
-                placeholder="Skill information (optional)"
-                value={newSkillInfo}
-                onChange={(e) => setNewSkillInfo(e.target.value)}
-                rows={3}
-              />
-              <Button
-                type="button"
-                onClick={addSkill}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 mt-2"
-                disabled={loading || submitting}
+              <Select
+                defaultValue={newSkillLevel}
+                onValueChange={(value) =>
+                  setNewSkillLevel(value as ProficiencyLevel)
+                }
               >
-                Add Skill
-              </Button>
+                <SelectTrigger className="w-full sm:w-[140px]">
+                  <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="proficient">Proficient</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                  <SelectItem value="expert">Expert</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            <Button
+              type="button"
+              onClick={addSkill}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 mt-4"
+              disabled={loading || submitting}
+            >
+              Add Skill
+            </Button>
           </div>
 
-          <div className="border-t pt-4 mt-6">
-            <h3 className="text-lg font-medium mb-4">Skill Tags</h3>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {skillTags.map((tag) => (
-                <Badge
-                  key={tag}
-                  className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                >
-                  {tag}
-                  <button 
-                    onClick={() => removeTag(tag)} 
-                    className="ml-1 rounded-full hover:bg-white/20"
-                    type="button"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Input
-                placeholder="Add a new tag"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                className="flex-1"
-              />
-              <Button
-                type="button"
-                onClick={addTag}
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                disabled={loading || submitting}
-              >
-                Add Tag
-              </Button>
-            </div>
-          </div>
-          
           {/* Hidden submit button that will be triggered by the dialog's save button */}
           <button type="submit" hidden></button>
         </form>
       </div>
-    )
+    );
   }
-)
+);
 
 // Add display name for React DevTools
 EditSkillsForm.displayName = "EditSkillsForm";
-

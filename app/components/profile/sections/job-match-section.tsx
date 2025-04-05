@@ -42,15 +42,15 @@ const JobMatchSection = () => {
         </div>
         <div className="mt-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm">AI Engineer at Google</span>
+            <span className="text-sm">Management Accountant</span>
             <span className="text-sm font-medium">92% match</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm">ML Engineer at Meta</span>
+            <span className="text-sm">Accounting Supervisor</span>
             <span className="text-sm font-medium">88% match</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm">Data Scientist at Amazon</span>
+            <span className="text-sm">Accounting Manager</span>
             <span className="text-sm font-medium">75% match</span>
           </div>
         </div>

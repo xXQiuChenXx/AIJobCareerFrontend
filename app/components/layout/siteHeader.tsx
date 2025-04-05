@@ -1,4 +1,4 @@
-import { Bell, UserCircle } from "lucide-react";
+import { Bell, LogOut, Settings, User, UserCircle } from "lucide-react";
 import { NavLink } from "react-router";
 import { Button } from "@/components/ui/button";
 import { CustomNavLink } from "./customNavLink";
@@ -7,6 +7,14 @@ import { useAuth } from "@/components/provider/auth-provider";
 import { useState } from "react";
 import { useNotifications } from "@/components/provider/notification-provider";
 import NotificationDropdown from "../notifications/dropdown";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const SiteHeader = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -79,20 +87,53 @@ export const SiteHeader = () => {
 
               {isOpen && (
                 <NotificationDropdown
-                  notifications={notifications} 
+                  notifications={notifications}
                   onClose={() => setIsOpen(false)}
                 />
               )}
             </div>
           )}
           {isAuthenticated ? (
-            <Button
-              className="ext-sm font-medium inline-flex cursor-pointer"
-              variant="outline"
-              onClick={logout}
-            >
-              Log out
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-8 w-8 cursor-pointer">
+                  <AvatarImage
+                    src="/placeholder.svg?height=32&width=32"
+                    alt="User avatar"
+                  />
+                  <AvatarFallback>
+                    <User className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-fit">
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <div className="flex flex-col space-y-1 leading-none">
+                    <p className="font-medium">John Doe</p>
+                    <p className="text-sm text-muted-foreground">
+                      john.doe@example.com
+                    </p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <NavLink
+                    to="/profile"
+                    className="flex w-full cursor-pointer items-center"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="flex cursor-pointer items-center"
+                  onClick={logout}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <NavLink
