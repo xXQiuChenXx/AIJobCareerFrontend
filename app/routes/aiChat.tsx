@@ -201,8 +201,7 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <div className="flex-1 min-h-0 relative">
-            <div className="absolute inset-0 overflow-y-auto custom-scrollbar">
+          <div className="flex-1 min-h-0 max-h-[50vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-4 px-2">
                 <AnimatePresence>
                   {messages.map((message) => (
@@ -427,7 +426,6 @@ export default function ChatPage() {
                   ))}
                 </AnimatePresence>
               </div>
-            </div>
           </div>
         </div>
 
