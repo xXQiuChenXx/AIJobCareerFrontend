@@ -22,8 +22,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   clearError: () => void;
 }
-
-interface ResponseUserType {
+ interface ResponseUserType {
   userId: string;
   email: string;
   username: string;

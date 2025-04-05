@@ -1,4 +1,4 @@
-import { user } from "@/models/user";
+import { CozeAPI, RoleType, type StreamChatData } from "@coze/api";
 
 export type CozeMessage = {
   id: string;
@@ -17,17 +17,34 @@ export interface CozeAIConfig {
   apiKey: string;
   botId: string;
   baseUrl?: string;
+  user: {
+    userId: string;
+    email: string;
+    username: string;
+  };
 }
 
 export class CozeAIService {
   private apiKey: string;
   private botId: string;
   private baseUrl: string;
+  private user: {
+    userId: string;
+    email: string;
+    username: string;
+  };
+  private apiClient: CozeAPI;
 
   constructor(config: CozeAIConfig) {
     this.apiKey = config.apiKey;
     this.botId = config.botId;
     this.baseUrl = config.baseUrl || "https://api.coze.com/v1";
+    this.user = config.user;
+    this.apiClient = new CozeAPI({
+      token: config.apiKey,
+      baseURL: "https://api.coze.com",
+      allowPersonalAccessTokenInBrowser: true
+    });
   }
 
   private async fetchWithAuth(endpoint: string, options: RequestInit = {}) {
@@ -69,81 +86,106 @@ export class CozeAIService {
 
   async sendMessage(
     message: string,
-    conversationId?: string,
+    conversationId: string,
     fileId?: string
-  ): Promise<ReadableStream<CozeMessage>> {
-    const endpoint = `https://api.coze.com/v3/chat`;
+  ): Promise<AsyncIterable<StreamChatData>> {
+    // const endpoint = `https://api.coze.com/v3/chat?conversation_id=${conversationId}`;
 
-    const payload = {
+    return await this.apiClient.chat.stream({
       bot_id: this.botId,
-      user_id: "hongstudio",
-      stream: true,
+      conversation_id: conversationId,
+      user_id: this.user.userId,
       additional_messages: [
         {
-          role: "user",
-          type: "question",
+          content: fileId
+            ? JSON.stringify([
+                { type: "text", text: message },
+                { type: "file", file_id: fileId },
+              ])
+            : message,
           content_type: fileId ? "object_string" : "text",
+          role: RoleType.User,
+          type: "question",
         },
       ],
       auto_save_history: true,
-      conversation_id: conversationId,
-    };
-
-    const response = await this.fetchWithAuth(endpoint, {
-      method: "POST",
-      body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      throw new Error(`Coze AI API error: ${response.statusText}`);
-    }
+    // const payload = {
+    //   bot_id: this.botId,
+    //   user_id: this.user.userId,
+    //   stream: true,
+    //   additional_messages: [
+    //     {
+    //       role: "user",
+    //       type: "question",
+    //       content_type: fileId ? "object_string" : "text",
+    //       content: fileId
+    //         ? JSON.stringify([
+    //             { type: "text", text: message },
+    //             { type: "file", file_id: fileId },
+    //           ])
+    //         : message,
+    //     },
+    //   ],
+    //   auto_save_history: true,
+    // };
 
-    const data = await response.json();
-    if (!response.body) {
-      throw new Error("Response body is null");
-    }
+    // const response = await fetch(endpoint, {
+    //   method: "POST",
+    //   body: JSON.stringify(payload),
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${this.apiKey}`,
+    //   },
+    // });
 
-    // Create a transform stream to convert byte chunks to CozeMessage objects
-    const transformer = new TransformStream<Uint8Array, CozeMessage>({
-      transform: async (chunk, controller) => {
-        const text = new TextDecoder().decode(chunk);
-        try {
-          const data = JSON.parse(text);
-          const message: CozeMessage = {
-            id: data.id || `msg-${Date.now()}`,
-            role: "assistant",
-            content: data.response || data.content,
-            createdAt: new Date(),
-          };
-          controller.enqueue(message);
-        } catch (e) {
-          console.error("Error parsing stream chunk:", e);
-        }
-      },
-    });
+    // if (!response.ok) {
+    //   throw new Error(`Coze AI API error: ${response.statusText}`);
+    // }
 
-    return response.body.pipeThrough(transformer);
+    // if (!response.body) {
+    //   throw new Error("Response body is null");
+    // }
+
+    // // Create a transform stream to convert byte chunks to CozeMessage objects
+    // const transformer = new TransformStream<Uint8Array, CozeMessage>({
+    //   transform: async (chunk, controller) => {
+    //     const text = new TextDecoder().decode(chunk);
+    //     try {
+    //       const data = JSON.parse(text);
+    //       const message: CozeMessage = {
+    //         id: data.id || `msg-${Date.now()}`,
+    //         role: "assistant",
+    //         content: data.response || data.content,
+    //         createdAt: new Date(),
+    //       };
+    //       controller.enqueue(message);
+    //     } catch (e) {
+    //       console.error("Error parsing stream chunk:", e);
+    //     }
+    //   },
+    // });
+
+    // return response.body.pipeThrough(transformer);
   }
 
-  async createConversation(title?: string): Promise<string> {
-    const endpoint = `/conversations`;
-
-    const payload = {
-      bot_id: this.botId,
-      title: title || `Conversation ${new Date().toLocaleString()}`,
-    };
+  async createConversation(): Promise<string> {
+    const endpoint = `/conversation/create`;
 
     const response = await this.fetchWithAuth(endpoint, {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        bot_id: this.botId,
+      }),
     });
 
     if (!response.ok) {
       throw new Error(`Coze AI API error: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    return data.conversation_id;
+    const responseData = await response.json();
+    return responseData?.data?.id;
   }
 
   async getConversationHistory(conversationId: string): Promise<CozeMessage[]> {

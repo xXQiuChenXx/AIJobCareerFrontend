@@ -8,13 +8,11 @@ import {
   X,
   Paperclip,
   Send,
-  // Mic,
   FileText,
   Download,
   MessageSquare,
   Keyboard,
   Info,
-  Code,
 } from "lucide-react";
 import { useCozeChat } from "../../hooks/useCozeChat";
 import ReactMarkdown from "react-markdown";
@@ -45,18 +43,22 @@ const getSuggestedQuestions = (lastMessage: string): string[] => {
 export default function ChatPage() {
   const { user } = useAuth();
   if (!user) return <LoginRequired />;
-  const { messages, input, handleInputChange, handleSubmit, status } =
-    useCozeChat({
-      apiKey: cozeAIConfig.apiKey,
-      botId: cozeAIConfig.botId,
-      streaming: true,
-    });
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    status,
+    suggestedQuestions,
+  } = useCozeChat({
+    apiKey: cozeAIConfig.apiKey,
+    botId: cozeAIConfig.botId,
+    user: user,
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [aiTyping, setAiTyping] = useState(false);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
 
   // Add this after other useEffect hooks
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -65,35 +67,10 @@ export default function ChatPage() {
   const [messageAttachments, setMessageAttachments] = useState<
     Record<string, FileAttachment>
   >({});
-
-  // Update when messages change
-  useEffect(() => {
-    // Generate suggested questions when AI responds
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === "assistant") {
-        // Hide suggestions while typing
-
-        // Generate new suggestions based on the last AI message
-        const newSuggestions = getSuggestedQuestions(lastMessage.content);
-        setSuggestedQuestions(newSuggestions);
-      }
-    }
-  }, [messages, status]);
-
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  // Set AI typing state based on status
-  useEffect(() => {
-    if (status === "streaming") {
-      setAiTyping(true);
-    } else {
-      setAiTyping(false);
-    }
-  }, [status, messages]);
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,289 +179,287 @@ export default function ChatPage() {
           </div>
 
           <div className="flex-1 min-h-0 max-h-[50vh] overflow-y-auto custom-scrollbar">
-              <div className="space-y-4 px-2">
-                <AnimatePresence>
-                  {messages.map((message) => (
-                    <motion.div
-                      key={message.id}
-                      initial={{
-                        opacity: 0,
-                        y: 20,
-                        rotateX: message.role === "user" ? 45 : 0,
-                      }}
-                      animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                      transition={{
-                        duration: 0.3,
-                        type: "spring",
-                        stiffness: 260,
-                        damping: 20,
-                      }}
-                      className={`flex ${
+            <div className="space-y-4 px-2">
+              <AnimatePresence>
+                {messages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{
+                      opacity: 0,
+                      y: 20,
+                      rotateX: message.role === "user" ? 45 : 0,
+                    }}
+                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 20,
+                    }}
+                    className={`flex ${
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`flex max-w-[80%] ${
                         message.role === "user"
-                          ? "justify-end"
-                          : "justify-start"
+                          ? "flex-row-reverse"
+                          : "flex-row"
                       }`}
                     >
                       <div
-                        className={`flex max-w-[80%] ${
+                        className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
                           message.role === "user"
-                            ? "flex-row-reverse"
-                            : "flex-row"
+                            ? "bg-blue-100 ml-3"
+                            : "bg-purple-100 mr-3"
                         }`}
                       >
+                        {message.role === "user" ? (
+                          <User className="h-5 w-5 text-blue-600" />
+                        ) : (
+                          <Bot className="h-5 w-5 text-purple-600" />
+                        )}
+                      </div>
+                      <div>
                         <div
-                          className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
+                          className={`text-sm font-medium ${
                             message.role === "user"
-                              ? "bg-blue-100 ml-3"
-                              : "bg-purple-100 mr-3"
+                              ? "text-right text-blue-600"
+                              : "text-left text-purple-600"
                           }`}
                         >
-                          {message.role === "user" ? (
-                            <User className="h-5 w-5 text-blue-600" />
-                          ) : (
-                            <Bot className="h-5 w-5 text-purple-600" />
-                          )}
+                          {message.role === "user" ? "You" : "AI Assistant"}
                         </div>
-                        <div>
-                          <div
-                            className={`text-sm font-medium ${
-                              message.role === "user"
-                                ? "text-right text-blue-600"
-                                : "text-left text-purple-600"
-                            }`}
-                          >
-                            {message.role === "user" ? "You" : "AI Assistant"}
+                        <div
+                          className={`mt-1 rounded-2xl px-4 py-2 break-words break-all prose ${
+                            message.role === "user"
+                              ? "bg-blue-500 text-white rounded-tr-none"
+                              : "bg-white text-gray-800 shadow-sm rounded-tl-none"
+                          }`}
+                        >
+                          <div className="markdown-content">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                p: ({ node, ...props }) => (
+                                  <p className="mb-2 last:mb-0" {...props} />
+                                ),
+                                a: ({ node, ...props }) => (
+                                  <a
+                                    className={`underline ${
+                                      message.role === "user"
+                                        ? "text-blue-100"
+                                        : "text-blue-600"
+                                    }`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    {...props}
+                                  />
+                                ),
+                                ul: ({ node, ...props }) => (
+                                  <ul
+                                    className="list-disc pl-5 mb-2"
+                                    {...props}
+                                  />
+                                ),
+                                ol: ({ node, ...props }) => (
+                                  <ol
+                                    className="list-decimal pl-5 mb-2"
+                                    {...props}
+                                  />
+                                ),
+                                li: ({ node, ...props }) => (
+                                  <li className="mb-1" {...props} />
+                                ),
+                                h1: ({ node, ...props }) => (
+                                  <h1
+                                    className="text-xl font-bold mb-2 mt-3"
+                                    {...props}
+                                  />
+                                ),
+                                h2: ({ node, ...props }) => (
+                                  <h2
+                                    className="text-lg font-bold mb-2 mt-3"
+                                    {...props}
+                                  />
+                                ),
+                                h3: ({ node, ...props }) => (
+                                  <h3
+                                    className="text-md font-bold mb-2 mt-3"
+                                    {...props}
+                                  />
+                                ),
+                                blockquote: ({ node, ...props }) => (
+                                  <blockquote
+                                    className={`border-l-4 ${
+                                      message.role === "user"
+                                        ? "border-blue-400 bg-blue-400/30"
+                                        : "border-gray-300 bg-gray-100"
+                                    } pl-3 py-1 mb-2 italic`}
+                                    {...props}
+                                  />
+                                ),
+                                hr: ({ node, ...props }) => (
+                                  <hr className="my-3 border-t" {...props} />
+                                ),
+                                table: ({ node, ...props }) => (
+                                  <div className="overflow-x-auto mb-2">
+                                    <table
+                                      className="min-w-full border-collapse"
+                                      {...props}
+                                    />
+                                  </div>
+                                ),
+                                th: ({ node, ...props }) => (
+                                  <th
+                                    className={`px-2 py-1 font-bold border ${
+                                      message.role === "user"
+                                        ? "border-blue-400"
+                                        : "border-gray-300"
+                                    }`}
+                                    {...props}
+                                  />
+                                ),
+                                td: ({ node, ...props }) => (
+                                  <td
+                                    className={`px-2 py-1 border ${
+                                      message.role === "user"
+                                        ? "border-blue-400"
+                                        : "border-gray-300"
+                                    }`}
+                                    {...props}
+                                  />
+                                ),
+                              }}
+                            >
+                              {message.content}
+                            </ReactMarkdown>
                           </div>
-                          <div
-                            className={`mt-1 rounded-2xl px-4 py-2 break-words break-all prose ${
-                              message.role === "user"
-                                ? "bg-blue-500 text-white rounded-tr-none"
-                                : "bg-white text-gray-800 shadow-sm rounded-tl-none"
-                            }`}
-                          >
-                            <div className="markdown-content">
-                              <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                components={{
-                                  p: ({ node, ...props }) => (
-                                    <p className="mb-2 last:mb-0" {...props} />
-                                  ),
-                                  a: ({ node, ...props }) => (
-                                    <a
-                                      className={`underline ${
-                                        message.role === "user"
-                                          ? "text-blue-100"
-                                          : "text-blue-600"
-                                      }`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      {...props}
-                                    />
-                                  ),
-                                  ul: ({ node, ...props }) => (
-                                    <ul
-                                      className="list-disc pl-5 mb-2"
-                                      {...props}
-                                    />
-                                  ),
-                                  ol: ({ node, ...props }) => (
-                                    <ol
-                                      className="list-decimal pl-5 mb-2"
-                                      {...props}
-                                    />
-                                  ),
-                                  li: ({ node, ...props }) => (
-                                    <li className="mb-1" {...props} />
-                                  ),
-                                  h1: ({ node, ...props }) => (
-                                    <h1
-                                      className="text-xl font-bold mb-2 mt-3"
-                                      {...props}
-                                    />
-                                  ),
-                                  h2: ({ node, ...props }) => (
-                                    <h2
-                                      className="text-lg font-bold mb-2 mt-3"
-                                      {...props}
-                                    />
-                                  ),
-                                  h3: ({ node, ...props }) => (
-                                    <h3
-                                      className="text-md font-bold mb-2 mt-3"
-                                      {...props}
-                                    />
-                                  ),
-                                  blockquote: ({ node, ...props }) => (
-                                    <blockquote
-                                      className={`border-l-4 ${
-                                        message.role === "user"
-                                          ? "border-blue-400 bg-blue-400/30"
-                                          : "border-gray-300 bg-gray-100"
-                                      } pl-3 py-1 mb-2 italic`}
-                                      {...props}
-                                    />
-                                  ),
-                                  hr: ({ node, ...props }) => (
-                                    <hr className="my-3 border-t" {...props} />
-                                  ),
-                                  table: ({ node, ...props }) => (
-                                    <div className="overflow-x-auto mb-2">
-                                      <table
-                                        className="min-w-full border-collapse"
-                                        {...props}
-                                      />
-                                    </div>
-                                  ),
-                                  th: ({ node, ...props }) => (
-                                    <th
-                                      className={`px-2 py-1 font-bold border ${
-                                        message.role === "user"
-                                          ? "border-blue-400"
-                                          : "border-gray-300"
-                                      }`}
-                                      {...props}
-                                    />
-                                  ),
-                                  td: ({ node, ...props }) => (
-                                    <td
-                                      className={`px-2 py-1 border ${
-                                        message.role === "user"
-                                          ? "border-blue-400"
-                                          : "border-gray-300"
-                                      }`}
-                                      {...props}
-                                    />
-                                  ),
-                                }}
-                              >
-                                {message.content}
-                              </ReactMarkdown>
-                            </div>
 
-                            {/* File attachment display */}
-                            {messageAttachments[message.id] && (
+                          {/* File attachment display */}
+                          {messageAttachments[message.id] && (
+                            <div
+                              className={`mt-2 pt-2 border-t ${
+                                message.role === "user"
+                                  ? "border-blue-400"
+                                  : "border-gray-200"
+                              }`}
+                            >
                               <div
-                                className={`mt-2 pt-2 border-t ${
+                                className={`flex items-center rounded-lg p-2 ${
                                   message.role === "user"
-                                    ? "border-blue-400"
-                                    : "border-gray-200"
+                                    ? "bg-blue-400"
+                                    : "bg-gray-100"
                                 }`}
                               >
-                                <div
-                                  className={`flex items-center rounded-lg p-2 ${
+                                <FileText
+                                  className={`h-5 w-5 mr-2 ${
                                     message.role === "user"
-                                      ? "bg-blue-400"
-                                      : "bg-gray-100"
+                                      ? "text-white"
+                                      : "text-gray-500"
                                   }`}
-                                >
-                                  <FileText
-                                    className={`h-5 w-5 mr-2 ${
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p
+                                    className={`text-sm font-medium truncate ${
                                       message.role === "user"
                                         ? "text-white"
-                                        : "text-gray-500"
-                                    }`}
-                                  />
-                                  <div className="flex-1 min-w-0">
-                                    <p
-                                      className={`text-sm font-medium truncate ${
-                                        message.role === "user"
-                                          ? "text-white"
-                                          : "text-gray-700"
-                                      }`}
-                                    >
-                                      {messageAttachments[message.id].name}
-                                    </p>
-                                    <p
-                                      className={`text-xs ${
-                                        message.role === "user"
-                                          ? "text-blue-100"
-                                          : "text-gray-500"
-                                      }`}
-                                    >
-                                      {formatFileSize(
-                                        messageAttachments[message.id].size
-                                      )}
-                                    </p>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    className={`p-1 rounded-full ${
-                                      message.role === "user"
-                                        ? "text-white hover:bg-blue-300"
-                                        : "text-gray-500 hover:bg-gray-200"
+                                        : "text-gray-700"
                                     }`}
                                   >
-                                    <Download className="h-4 w-4" />
-                                  </button>
+                                    {messageAttachments[message.id].name}
+                                  </p>
+                                  <p
+                                    className={`text-xs ${
+                                      message.role === "user"
+                                        ? "text-blue-100"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    {formatFileSize(
+                                      messageAttachments[message.id].size
+                                    )}
+                                  </p>
                                 </div>
+                                <button
+                                  type="button"
+                                  className={`p-1 rounded-full ${
+                                    message.role === "user"
+                                      ? "text-white hover:bg-blue-300"
+                                      : "text-gray-500 hover:bg-gray-200"
+                                  }`}
+                                >
+                                  <Download className="h-4 w-4" />
+                                </button>
                               </div>
-                            )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {/* AI Typing Indicator */}
+              <AnimatePresence>
+                {status === "submitting" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="flex justify-start"
+                  >
+                    <div className="flex flex-row">
+                      <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-purple-100 mr-3">
+                        <Bot className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-left text-purple-600">
+                          AI Assistant
+                        </div>
+                        <div className="mt-1 rounded-2xl px-4 py-2 bg-white text-gray-800 shadow-sm rounded-tl-none">
+                          <div className="flex space-x-1">
+                            <div className="typing-dot"></div>
+                            <div className="typing-dot animation-delay-200"></div>
+                            <div className="typing-dot animation-delay-400"></div>
                           </div>
                         </div>
                       </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Suggested Questions */}
+              <AnimatePresence>
+                {suggestedQuestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ delay: 0.3 }}
+                    className="flex flex-wrap gap-2 justify-center"
+                  >
+                    {suggestedQuestions.map((question, index) => (
+                      <motion.button
+                        key={index}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                        onClick={() => handleSuggestionClick(question)}
+                        className="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:text-purple-600 transition-colors flex items-center gap-2 group"
+                      >
+                        <MessageSquare className="h-4 w-4 text-purple-400 group-hover:text-purple-600 transition-colors" />
+                        {question}
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
-
-        {/* AI Typing Indicator */}
-        <AnimatePresence>
-          {aiTyping && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="flex justify-start"
-            >
-              <div className="flex flex-row">
-                <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-purple-100 mr-3">
-                  <Bot className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-left text-purple-600">
-                    AI Assistant
-                  </div>
-                  <div className="mt-1 rounded-2xl px-4 py-2 bg-white text-gray-800 shadow-sm rounded-tl-none">
-                    <div className="flex space-x-1">
-                      <div className="typing-dot"></div>
-                      <div className="typing-dot animation-delay-200"></div>
-                      <div className="typing-dot animation-delay-400"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Suggested Questions */}
-        <AnimatePresence>
-          {suggestedQuestions.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-wrap gap-2 justify-center"
-            >
-              {suggestedQuestions.map((question, index) => (
-                <motion.button
-                  key={index}
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  onClick={() => handleSuggestionClick(question)}
-                  className="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:text-purple-600 transition-colors flex items-center gap-2 group"
-                >
-                  <MessageSquare className="h-4 w-4 text-purple-400 group-hover:text-purple-600 transition-colors" />
-                  {question}
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         <div ref={messagesEndRef} />
       </div>
