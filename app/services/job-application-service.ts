@@ -4,7 +4,7 @@ import {
   type JobApplicationResponseDto,
   type JobDto,
 } from "@/lib/types/job-application";
-import axios from "axios";
+import { FileService } from "./file-service";
 
 export class JobApplicationService {
   private baseUrl = "/JobApplications";
@@ -15,24 +15,36 @@ export class JobApplicationService {
   async submitApplication(
     application: JobApplicationSubmitDto
   ): Promise<JobApplicationResponseDto> {
-    // Create FormData for multipart/form-data (needed for file upload)
-    const formData = new FormData();
-
-    // Add all application fields to formData
-    Object.entries(application).forEach(([key, value]) => {
-      if (key === "resume" && value) {
-        formData.append("resume", value);
-      } else if (value !== undefined && value !== null) {
-        formData.append(key, String(value));
+    // First, handle resume upload if present
+    let resumeUrl = undefined;
+    if (application.resume) {
+      try {
+        // Upload file to "resumes" folder
+        const uploadResponse = await FileService.uploadFile(application.resume, "resumes");
+        // Get the URL for the uploaded file
+        const fileKey = uploadResponse.fileKey;
+        resumeUrl = FileService.getFileUrl(fileKey);
+      } catch (error) {
+        console.error("Error uploading resume:", error);
+        throw new Error("Failed to upload resume");
       }
-    });
+    }
 
+    // Create data object for application submission
+    const applicationData = {
+      ...application,
+      // Remove the File object and replace with URL if we have one
+      resume: undefined,
+      resumeUrl
+    };
+
+    // Submit the application
     const response = await apiClient.post<JobApplicationResponseDto>(
-      "/JobApplications",
-      formData,
+      this.baseUrl,
+      applicationData,
       {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
           ...(apiClient["client"].defaults.headers.common || {}),
         },
       }

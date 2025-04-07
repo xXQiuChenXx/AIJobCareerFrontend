@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Route } from "../applications/+types/application";
@@ -52,6 +52,7 @@ import { jobApplicationService } from "@/services/job-application-service";
 import { useAuth } from "@/components/provider/auth-provider";
 import { type JobDto, JobType } from "@/lib/types/job-application";
 import { NavLink } from "react-router";
+import LoginRequired from "@/components/utils/login-required";
 
 export default function JobApplicationForm({ params }: Route.ComponentProps) {
   const { id } = params; // Job ID that user is applying for
@@ -65,7 +66,7 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [jobData, setJobData] = useState<JobDto | null>(null);
-  console.log(jobData);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Form hook
   const form = useForm<JobApplicationFormValues>({
@@ -116,7 +117,7 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
 
   // Now we can safely have conditional returns
   if (!user) {
-    return <div>Not Found</div>;
+    return <LoginRequired />;
   }
 
   // Format employment type for display
@@ -475,16 +476,63 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
                   </p>
                   <input
                     type="file"
+                    ref={fileInputRef}
                     accept=".pdf,.docx,.doc,.txt"
                     onChange={handleResumeChange}
                     className="hidden"
                     id="resume-upload"
                   />
-                  <label htmlFor="resume-upload">
-                    <Button type="button" variant="outline" size="sm">
-                      Select File
-                    </Button>
-                  </label>
+                  
+                  {!resumeFile ? (
+                    <label htmlFor="resume-upload">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          fileInputRef.current?.click();
+                        }}
+                      >
+                        Select File
+                      </Button>
+                    </label>
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <div className="bg-muted p-2 rounded-md my-2 flex items-center">
+                        <span className="text-sm font-medium truncate max-w-[200px]">
+                          {resumeFile.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                          ({(resumeFile.size / 1024).toFixed(0)} KB)
+                        </span>
+                      </div>
+                      <div className="flex gap-2 mt-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            fileInputRef.current?.click();
+                          }}
+                        >
+                          Change
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setResumeFile(null);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = '';
+                            }
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                   {resumeError && (
                     <p className="text-xs text-red-500 mt-2">{resumeError}</p>
                   )}
