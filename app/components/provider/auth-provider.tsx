@@ -11,6 +11,7 @@ import axios from "axios";
 import type { RegisterFormType } from "@/models/register_form";
 import type { LoginFormType } from "@/models/login_form";
 import Cookies from "js-cookie";
+import type { BusinessRegistration } from "@/models/business-registration";
 
 interface AuthContextType {
   user: ResponseUserType | null;
@@ -19,13 +20,15 @@ interface AuthContextType {
   login: (data: LoginFormType, onSuccess: () => void) => void;
   logout: () => void;
   register: (data: RegisterFormType, onSuccess: () => void) => void;
+  registerBusinessUser: (data: BusinessRegistration, onSuccess: () => void) => void;
   isAuthenticated: boolean;
   clearError: () => void;
 }
- interface ResponseUserType {
+interface ResponseUserType {
   userId: string;
   email: string;
   username: string;
+  user_company_id: string;
 }
 
 // Create the Auth Context
@@ -124,6 +127,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  // Register Business User function
+  const registerBusinessUser = (
+    { confirm_password, ...submitData }: BusinessRegistration,
+    onSuccess: () => void
+  ) => {
+    startLoding(async () => {
+      setError(null);
+      try {
+        const response = await axios.post(
+          "/api/auth/RegisterBusiness",
+          submitData
+        );
+        // Save token to cookies
+        Cookies.set("token", response.data.token, { expires: 30 });
+        Cookies.set("user", JSON.stringify(response.data.user), {
+          expires: 30,
+        });
+        setUser(response.data.user);
+        onSuccess();
+      } catch (err: any) {
+        setError(
+          err?.response?.data?.message ||
+            "An error occurred. Please try again later."
+        );
+      }
+    });
+  };
+
   const value = useMemo(
     () => ({
       user,
@@ -133,9 +164,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout,
       register,
       isAuthenticated: !!user,
+      registerBusinessUser,
       clearError,
     }),
-    [user, login, logout, register, isLoading, error]
+    [user, login, logout, register, registerBusinessUser, isLoading, error]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

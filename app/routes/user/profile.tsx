@@ -20,7 +20,6 @@ import AboutSection from "@/components/profile/sections/about-section";
 import SkillsSection from "@/components/profile/sections/skills-section";
 import ExperienceSection from "@/components/profile/sections/experience-section";
 import EducationSection from "@/components/profile/sections/education-section";
-import CertificationsSection from "@/components/profile/sections/certifications-section";
 import ProjectsSection from "@/components/profile/sections/projects-section";
 import PublicationsSection from "@/components/profile/sections/publications-section";
 import ProfileCompletionSection from "@/components/profile/sections/profile-completion-section";
@@ -37,7 +36,8 @@ import type { Publication } from "@/types/publication";
 import type { EducationFormValues } from "@/lib/schemas/education-schema";
 import type { ProjectFormValues } from "@/lib/schemas/project-schema";
 import type { WorkExperienceFormValues } from "@/lib/schemas/work-experience-schema";
-import type { CreateSkillDTO } from "@/types/skill";
+import { useAuth } from "@/components/provider/auth-provider";
+import { Navigate, useNavigate } from "react-router";
 
 // Helper to calculate profile completion
 const calculateProfileCompletion = (
@@ -60,9 +60,12 @@ const calculateProfileCompletion = (
 };
 
 export default function ProfilePage() {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<CompleteProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  console.log(user)
+  
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -124,7 +127,6 @@ export default function ProfilePage() {
 
     const updatedExperiences =
       await WorkExperienceService.getAllWorkExperiences();
-    console.log(updatedExperiences);
     setProfile({
       ...profile,
       workExperiences: updatedExperiences,
@@ -284,6 +286,9 @@ export default function ProfilePage() {
       publications: updatedPublications,
     });
   };
+
+  if (user?.user_company_id)
+    return <Navigate to={`/company/${user.user_company_id}`} />;
 
   if (loading) {
     return (

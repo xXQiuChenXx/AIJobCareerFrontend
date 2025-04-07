@@ -15,7 +15,6 @@ import {
   businessRegistrationSchema,
   type BusinessRegistration,
 } from "@/models/business-registration";
-import { apiClient } from "@/services/api-client";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { company_industries } from "@/sample-data/company";
@@ -27,10 +26,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useNavigate } from "react-router";
+import { useAuth } from "../provider/auth-provider";
 
 export const EmployerSignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { registerBusinessUser } = useAuth();
 
   const form = useForm<BusinessRegistration>({
     resolver: zodResolver(businessRegistrationSchema),
@@ -50,18 +51,13 @@ export const EmployerSignupForm = () => {
   const onSubmit = async (data: BusinessRegistration) => {
     try {
       setIsLoading(true);
-
-      // Call the API endpoint
-      await apiClient.post("/User/RegisterBusiness", data);
-
-      toast.success("Registration successful! Please sign in.");
-      navigate("/sign-in");
+      await registerBusinessUser(data, () => {
+        toast.success("Registration successful! Please sign in.");
+        navigate("/profile");
+      });
     } catch (error: any) {
       console.error("Registration error:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "Registration failed. Please try again."
-      );
+      toast.error(error.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

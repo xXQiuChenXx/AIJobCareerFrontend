@@ -1,4 +1,4 @@
-import { type Company } from "../models/company";
+import { type Company, type CompanyWithJobs } from "../models/company";
 import { apiClient } from "./api-client";
 
 export const CompanyService = {
@@ -19,6 +19,15 @@ export const CompanyService = {
       throw error;
     }
   },
+  
+  async getCompanyJobsById(id: string): Promise<CompanyWithJobs> {
+    try {
+      return await apiClient.get<CompanyWithJobs>(`/Company/${id}/jobs`);
+    } catch (error) {
+      console.error(`Failed to fetch company jobs with ID ${id}:`, error);
+      throw error;
+    }
+  },
 
   async createCompany(company: Omit<Company, "company_id">): Promise<Company> {
     try {
@@ -29,7 +38,7 @@ export const CompanyService = {
     }
   },
 
-  async updateCompany(company: Company): Promise<Company> {
+  async updateCompany(company: Partial<Company> & { company_id: string }): Promise<Company> {
     try {
       return await apiClient.put<Company>(`/Company/${company.company_id}`, company);
     } catch (error) {
@@ -38,7 +47,7 @@ export const CompanyService = {
     }
   },
 
-  async deleteCompany(id: number): Promise<void> {
+  async deleteCompany(id: string): Promise<void> {
     try {
       await apiClient.delete(`/Company/${id}`);
     } catch (error) {

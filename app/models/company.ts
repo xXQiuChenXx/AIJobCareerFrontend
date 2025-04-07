@@ -8,7 +8,8 @@ export const company = z.object({
   company_intro: z.string().optional(),
   company_website: z.string().url("Invalid URL format").optional(),
   company_area_id: z.number().nullable().optional(),
-  company_industry: z.enum([...company_industries] as [string, ...string[]]).optional(),
+  company_industry: z.string().optional(),
+  company_founded: z.string().optional(),
   area: z.object({
     area_id: z.number(),
     area_name: z.string(),
@@ -16,6 +17,24 @@ export const company = z.object({
 });
 
 export type Company = z.infer<typeof company>;
+
+// Add type for company with jobs
+export const jobBasic = z.object({
+  job_id: z.string(),
+  job_title: z.string(),
+  job_description: z.string().optional(),
+  job_type: z.string().optional(),
+  job_salary_min: z.number().optional(),
+  job_salary_max: z.number().optional(),
+});
+
+export type JobBasic = z.infer<typeof jobBasic>;
+
+export const companyWithJobs = company.extend({
+  jobs: z.array(jobBasic).optional()
+});
+
+export type CompanyWithJobs = z.infer<typeof companyWithJobs>;
 
 export const companyCreateSchema = company.omit({ company_id: true });
 export type CompanyCreate = z.infer<typeof companyCreateSchema>;

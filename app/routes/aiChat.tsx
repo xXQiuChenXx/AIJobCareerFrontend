@@ -29,17 +29,6 @@ interface FileAttachment {
   type: string;
 }
 
-// Sample suggested questions based on conversation context
-const getSuggestedQuestions = (lastMessage: string): string[] => {
-  // For testing, we'll return the same suggestions regardless of the AI response
-  return [
-    "Tell me more about this feature",
-    "How can I implement this in my project?",
-    "What are the best practices for this?",
-    "Can you provide an example?",
-  ];
-};
-
 export default function ChatPage() {
   const { user } = useAuth();
   if (!user) return <LoginRequired />;

@@ -63,7 +63,7 @@ export function useCozeChat({
 
       setMessages((prev) => [...prev, userMessage]);
       setInput("");
-      setSuggestedQuestions([]);
+      if (suggestedQuestions.length > 0) setSuggestedQuestions([]);
       setStatus("submitting");
 
       try {

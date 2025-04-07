@@ -5,11 +5,11 @@ import {
   Settings,
   ExternalLink,
   Calendar,
-  Users,
   MapPin,
   Clock,
   Briefcase,
   FileText,
+  Factory,
 } from "lucide-react";
 import {
   Dialog,
@@ -27,7 +27,6 @@ import { CompanyService } from "@/services/company-service";
 import { useAuth } from "@/components/provider/auth-provider";
 import { toast } from "sonner";
 import { FileService } from "@/services/file-service";
-import { useLoaderData } from "react-router";
 import type { Route } from "../company/+types/company-profile";
 
 const LOCATIONS = [
@@ -45,7 +44,7 @@ const LOCATIONS = [
 
 export const loader = async ({ params }: { params: { id?: string } }) => {
   try {
-    const companyId = params.id ? parseInt(params.id, 10) : null;
+    const companyId = params.id || null;
     return { companyId };
   } catch (error) {
     console.error("Error loading company data:", error);
@@ -68,16 +67,21 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
   const [avatarFileKey, setAvatarFileKey] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isAdmin = true;
 
   const [companyInfo, setCompanyInfo] = useState({
-    name: "",
-    tagline: "",
-    description: "",
-    founded: "",
-    size: "",
-    location: "",
-    website: "",
-    specialties: [] as string[],
+    company_id: "",
+    company_name: "",
+    company_intro: "",
+    company_founded: "",
+    company_industry: "",
+    company_website: "",
+    company_icon: "",
+    company_area_id: null as number | null,
+    area: {
+      area_id: 0,
+      area_name: "",
+    },
   });
 
   const [jobs, setJobs] = useState([
@@ -90,30 +94,6 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
       salary: "$120,000 - $180,000",
       description:
         "We're looking for a Senior AI Engineer to join our team and help develop our next generation of AI products.",
-      jobType: "Full-time",
-      remote: true,
-    },
-    {
-      id: 2,
-      title: "Machine Learning Researcher",
-      department: "Research",
-      location: "Miri",
-      posted: "Posted 1 week ago",
-      salary: "$110,000 - $150,000",
-      description:
-        "Join our research team to push the boundaries of machine learning and develop innovative solutions.",
-      jobType: "Full-time",
-      remote: false,
-    },
-    {
-      id: 3,
-      title: "AI Product Manager",
-      department: "Product",
-      location: "Sibu",
-      posted: "Posted 3 days ago",
-      salary: "$100,000 - $130,000",
-      description:
-        "Lead the development of our AI products from conception to launch, working closely with engineering and design teams.",
       jobType: "Full-time",
       remote: true,
     },
@@ -160,22 +140,46 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
         const company = await CompanyService.getCompanyById(companyId);
 
         setCompanyInfo({
-          name: company.company_name,
-          tagline: "",
-          description: company.company_intro || "",
-          founded: "",
-          size: "",
-          location: company.area?.area_name || "",
-          website: company.company_website || "",
-          specialties: company.company_industry
-            ? [company.company_industry]
-            : [],
+          company_id: company.company_id,
+          company_name: company.company_name,
+          company_intro: company.company_intro || "",
+          company_founded: company.company_founded || "",
+          company_industry: company.company_industry || "",
+          company_website: company.company_website || "",
+          company_icon: company.company_icon || "",
+          company_area_id: company.company_area_id,
+          area: company.area || { area_id: 0, area_name: "" },
         });
 
         if (company.company_icon) {
           const iconUrl = FileService.getFileUrl(company.company_icon);
           setAvatarUrl(iconUrl);
           setAvatarFileKey(company.company_icon);
+        }
+
+        try {
+          const companyWithJobs = await CompanyService.getCompanyJobsById(
+            companyId
+          );
+          if (companyWithJobs.jobs && companyWithJobs.jobs.length > 0) {
+            const formattedJobs = companyWithJobs.jobs.map((job) => ({
+              id: parseInt(job.job_id),
+              title: job.job_title,
+              department: "",
+              location: "",
+              posted: "Posted recently",
+              salary:
+                job.job_salary_min && job.job_salary_max
+                  ? `$${job.job_salary_min} - $${job.job_salary_max}`
+                  : "",
+              description: job.job_description || "",
+              jobType: job.job_type || "Full-time",
+              remote: false,
+            }));
+            setJobs(formattedJobs);
+          }
+        } catch (jobError) {
+          console.error("Error fetching company jobs:", jobError);
         }
 
         setIsLoading(false);
@@ -189,6 +193,34 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
     fetchCompanyData();
   }, [companyId, user]);
 
+  const formatFoundedDate = (dateString: string | undefined) => {
+    if (!dateString) return "Not specified";
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // If not a valid date, return the original string
+      
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(date);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateString; // If any error occurs, return the original string
+    }
+  };
+
+  const handleEditDialogOpenChange = (open: boolean) => {
+    setIsEditingAbout(open);
+    if (open) {
+      // Initialize the edit form with current company data
+      setEditedCompanyInfo({
+        ...companyInfo
+      });
+    }
+  };
+
   const handleSaveCompanyInfo = async () => {
     if (!companyId) {
       toast.error("No company ID available");
@@ -196,17 +228,21 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
     }
 
     try {
+      // Prepare the update data
       const updatedCompany = {
         company_id: companyId,
-        company_name: editedCompanyInfo.name,
-        company_intro: editedCompanyInfo.description,
-        company_website: editedCompanyInfo.website,
-        company_icon: avatarFileKey,
-        company_industry: editedCompanyInfo.specialties[0] as string,
-        company_area_id: null,
+        company_name: editedCompanyInfo.company_name,
+        company_intro: editedCompanyInfo.company_intro,
+        company_website: editedCompanyInfo.company_website,
+        company_icon: avatarFileKey, // Use the fileKey from avatar upload
+        company_industry: editedCompanyInfo.company_industry,
+        company_founded: editedCompanyInfo.company_founded,
+        company_area_id: editedCompanyInfo.company_area_id,
       };
 
       await CompanyService.updateCompany(updatedCompany);
+      
+      // Update the local state with the new company info
       setCompanyInfo({ ...editedCompanyInfo });
       setIsEditingAbout(false);
       toast.success("Company information updated successfully");
@@ -216,96 +252,16 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
     }
   };
 
-  const handleAddJob = () => {
-    const newJobWithId = {
-      id: jobs.length > 0 ? Math.max(...jobs.map((job) => job.id)) + 1 : 1,
-      ...newJob,
-      posted: `Posted just now`,
-    };
-    setJobs([...jobs, newJobWithId]);
-    setIsAddingJob(false);
-    setNewJob({
-      title: "",
-      department: "",
-      location: "Kuching",
-      salary: "",
-      description: "",
-      jobType: "Full-time",
-      remote: false,
-    });
-  };
-
-  const handleEditJob = (jobId: number) => {
-    const jobToEdit = jobs.find((job) => job.id === jobId);
-    if (jobToEdit) {
-      setEditedJob({ ...jobToEdit });
-      setEditingJobId(jobId);
-      setIsEditingJob(true);
-    }
-  };
-
-  const handleSaveEditedJob = () => {
-    setJobs(jobs);
-    setIsEditingJob(false);
-    setEditingJobId(null);
-  };
-
-  const handleDeleteJob = (jobId: number) => {
-    setJobToDelete(jobId);
-    setIsConfirmingDelete(true);
-  };
-
-  const confirmDeleteJob = () => {
-    if (jobToDelete !== null) {
-      setJobs(jobs.filter((job) => job.id !== jobToDelete));
-      setIsConfirmingDelete(false);
-      setJobToDelete(null);
-    }
-  };
-
-  const cancelDeleteJob = () => {
-    setIsConfirmingDelete(false);
-    setJobToDelete(null);
-  };
-
   const handleAvatarChange = async (file: File) => {
     try {
       const response = await FileService.uploadFile(file, "company-icons");
       setAvatarFileKey(response.fileKey);
       const fileUrl = FileService.getFileUrl(response.fileKey);
       setAvatarUrl(fileUrl);
+      toast.success("Company logo uploaded successfully");
     } catch (err) {
       console.error("Error uploading avatar:", err);
-      toast.error("Failed to upload avatar");
-    }
-  };
-
-  const handleEditDialogOpenChange = (open: boolean) => {
-    setIsEditingAbout(open);
-    if (open) {
-      setEditedCompanyInfo({ ...companyInfo });
-    }
-  };
-
-  const handleAddJobDialogOpenChange = (open: boolean) => {
-    setIsAddingJob(open);
-    if (open) {
-      setNewJob({
-        title: "",
-        department: "",
-        location: "Kuching",
-        salary: "",
-        description: "",
-        jobType: "Full-time",
-        remote: false,
-      });
-    }
-  };
-
-  const handleEditJobDialogOpenChange = (open: boolean) => {
-    setIsEditingJob(open);
-    if (!open) {
-      setEditingJobId(null);
+      toast.error("Failed to upload company logo");
     }
   };
 
@@ -330,25 +286,26 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
       <div className="container mx-auto py-6 px-4 md:px-6 mb-12">
         <div className="w-full bg-white p-4">
           <div className="w-full bg-gradient-to-r from-blue-500 to-pink-500 p-6 relative rounded-lg h-52">
-            <div className="absolute top-4 right-4">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setIsEditingAbout(true)}
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Button>
-            </div>
+            {isAdmin && (
+              <div className="absolute top-4 right-4">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsEditingAbout(true)}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </div>
+            )}
             <div className="absolute bottom-6 left-48 text-white">
-              <h1 className="text-4xl font-bold">{companyInfo.name}</h1>
-              <p className="text-base mt-1">{companyInfo.tagline}</p>
+              <h1 className="text-4xl font-bold">{companyInfo.company_name}</h1>
             </div>
             <div className="absolute bottom-0 left-10 transform translate-y-1/4">
               <div className="w-32 h-32 rounded-full bg-white p-1 border-2 border-white shadow-lg">
                 <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                   <img
-                    src={avatarUrl || "/placeholder.svg"}
+                    src={avatarUrl}
                     alt="Company Logo"
                     width={128}
                     height={128}
@@ -373,51 +330,43 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
             <TabsContent value="about" className="mt-4">
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h2 className="text-xl font-bold mb-4">About</h2>
-                <p className="text-gray-700 mb-6">{companyInfo.description}</p>
+                <p className="text-gray-700 mb-6">
+                  {companyInfo.company_intro}
+                </p>
                 <div className="flex flex-wrap gap-4 mb-6">
                   <Button
                     variant="outline"
                     className="gap-2"
-                    onClick={() => window.open(companyInfo.website, "_blank")}
+                    onClick={() =>
+                      window.open(companyInfo.company_website, "_blank")
+                    }
+                    disabled={!companyInfo.company_website}
                   >
                     <ExternalLink className="h-4 w-4" />
                     Visit Website
                   </Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-center gap-3">
                     <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
                     <div>
                       <h3 className="font-medium">Founded</h3>
-                      <p>{companyInfo.founded}</p>
+                      <p>{formatFoundedDate(companyInfo.company_founded)}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <Users className="h-5 w-5 text-gray-500 mt-0.5" />
+                  <div className="flex items-center gap-3">
+                    <Factory className="h-5 w-5 text-gray-500 mt-0.5" />
                     <div>
-                      <h3 className="font-medium">Company Size</h3>
-                      <p>{companyInfo.size}</p>
+                      <h3 className="font-medium">Industry</h3>
+                      <p>{companyInfo.company_industry || "Not specified"}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
                     <div>
                       <h3 className="font-medium">Location</h3>
-                      <p>{companyInfo.location}</p>
+                      <p>{companyInfo.area?.area_name || "Not specified"}</p>
                     </div>
-                  </div>
-                </div>
-                <div className="mt-8">
-                  <h3 className="font-medium mb-3">Specialties</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {companyInfo.specialties.map((specialty, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full"
-                      >
-                        {specialty}
-                      </span>
-                    ))}
                   </div>
                 </div>
               </div>
@@ -426,13 +375,15 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold">
-                    Open Positions at {companyInfo.name}
+                    Open Positions at {companyInfo.company_name}
                   </h2>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">
                       {jobs.length} jobs available
                     </span>
-                    <Button onClick={() => setIsAddingJob(true)}>Post</Button>
+                    {isAdmin && (
+                      <Button onClick={() => setIsAddingJob(true)}>Post</Button>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -470,21 +421,23 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
                       <p className="mt-4 mb-6 text-gray-700">
                         {job.description}
                       </p>
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteJob(job.id)}
-                        >
-                          Delete Post
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => handleEditJob(job.id)}
-                        >
-                          Edit
-                        </Button>
-                      </div>
+                      {isAdmin && (
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            // onClick={() => handleDeleteJob(job.id)}
+                          >
+                            Delete Post
+                          </Button>
+                          <Button
+                            variant="outline"
+                            // onClick={() => handleEditJob(job.id)}
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -506,24 +459,11 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
                 <Label htmlFor="company-name">Company Name</Label>
                 <Input
                   id="company-name"
-                  value={editedCompanyInfo.name}
+                  value={editedCompanyInfo.company_name}
                   onChange={(e) =>
                     setEditedCompanyInfo({
                       ...editedCompanyInfo,
-                      name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="tagline">Tagline</Label>
-                <Input
-                  id="tagline"
-                  value={editedCompanyInfo.tagline}
-                  onChange={(e) =>
-                    setEditedCompanyInfo({
-                      ...editedCompanyInfo,
-                      tagline: e.target.value,
+                      company_name: e.target.value,
                     })
                   }
                 />
@@ -532,11 +472,11 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
                 <Label htmlFor="website">Website URL</Label>
                 <Input
                   id="website"
-                  value={editedCompanyInfo.website}
+                  value={editedCompanyInfo.company_website || ""}
                   onChange={(e) =>
                     setEditedCompanyInfo({
                       ...editedCompanyInfo,
-                      website: e.target.value,
+                      company_website: e.target.value,
                     })
                   }
                   placeholder="https://example.com"
@@ -546,11 +486,11 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
-                  value={editedCompanyInfo.description}
+                  value={editedCompanyInfo.company_intro || ""}
                   onChange={(e) =>
                     setEditedCompanyInfo({
                       ...editedCompanyInfo,
-                      description: e.target.value,
+                      company_intro: e.target.value,
                     })
                   }
                   rows={4}
@@ -561,24 +501,25 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
                   <Label htmlFor="founded">Founded</Label>
                   <Input
                     id="founded"
-                    value={editedCompanyInfo.founded}
+                    value={editedCompanyInfo.company_founded || ""}
                     onChange={(e) =>
                       setEditedCompanyInfo({
                         ...editedCompanyInfo,
-                        founded: e.target.value,
+                        company_founded: e.target.value,
                       })
                     }
+                    placeholder="YYYY-MM-DD"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="size">Company Size</Label>
+                  <Label htmlFor="industry">Industry</Label>
                   <Input
-                    id="size"
-                    value={editedCompanyInfo.size}
+                    id="industry"
+                    value={editedCompanyInfo.company_industry || ""}
                     onChange={(e) =>
                       setEditedCompanyInfo({
                         ...editedCompanyInfo,
-                        size: e.target.value,
+                        company_industry: e.target.value,
                       })
                     }
                   />
@@ -587,11 +528,11 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
               <LocationAutocomplete
                 id="company-location"
                 label="Location"
-                value={editedCompanyInfo.location}
+                value={editedCompanyInfo.area?.area_name || ""}
                 onChange={(value) =>
                   setEditedCompanyInfo({
                     ...editedCompanyInfo,
-                    location: value,
+                    area: { ...editedCompanyInfo.area, area_name: value },
                   })
                 }
                 locations={LOCATIONS}
@@ -605,254 +546,6 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
                 Cancel
               </Button>
               <Button onClick={handleSaveCompanyInfo}>Save Changes</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-        <Dialog open={isAddingJob} onOpenChange={handleAddJobDialogOpenChange}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Post New Job</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="job-title">Job Title</Label>
-                <Input
-                  id="job-title"
-                  value={newJob.title}
-                  onChange={(e) =>
-                    setNewJob({
-                      ...newJob,
-                      title: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="department">Department</Label>
-                <Input
-                  id="department"
-                  value={newJob.department}
-                  onChange={(e) =>
-                    setNewJob({
-                      ...newJob,
-                      department: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="job-type">Job Type</Label>
-                <select
-                  id="job-type"
-                  value={newJob.jobType}
-                  onChange={(e) =>
-                    setNewJob({
-                      ...newJob,
-                      jobType: e.target.value,
-                    })
-                  }
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="Full-time">Full-time</option>
-                  <option value="Part-time">Part-time</option>
-                  <option value="Contract">Contract</option>
-                  <option value="Internship">Internship</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="remote"
-                  checked={newJob.remote}
-                  onChange={(e) =>
-                    setNewJob({
-                      ...newJob,
-                      remote: e.target.checked,
-                    })
-                  }
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <Label htmlFor="remote">Remote Position</Label>
-              </div>
-              <LocationAutocomplete
-                id="job-location"
-                label="Location"
-                value={newJob.location}
-                onChange={(value) =>
-                  setNewJob({
-                    ...newJob,
-                    location: value,
-                  })
-                }
-                locations={LOCATIONS}
-              />
-              <SalaryRangeInput
-                id="salary"
-                label="Salary Range"
-                value={newJob.salary}
-                onChange={(value) =>
-                  setNewJob({
-                    ...newJob,
-                    salary: value,
-                  })
-                }
-              />
-              <div className="grid gap-2">
-                <Label htmlFor="job-description">Job Description</Label>
-                <Textarea
-                  id="job-description"
-                  value={newJob.description}
-                  onChange={(e) =>
-                    setNewJob({
-                      ...newJob,
-                      description: e.target.value,
-                    })
-                  }
-                  rows={4}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsAddingJob(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddJob}>Post Job</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-        <Dialog
-          open={isEditingJob}
-          onOpenChange={handleEditJobDialogOpenChange}
-        >
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Edit Job</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-job-title">Job Title</Label>
-                <Input
-                  id="edit-job-title"
-                  value={editedJob.title}
-                  onChange={(e) =>
-                    setEditedJob({
-                      ...editedJob,
-                      title: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-department">Department</Label>
-                <Input
-                  id="edit-department"
-                  value={editedJob.department}
-                  onChange={(e) =>
-                    setEditedJob({
-                      ...editedJob,
-                      department: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-job-type">Job Type</Label>
-                <select
-                  id="edit-job-type"
-                  value={editedJob.jobType}
-                  onChange={(e) =>
-                    setEditedJob({
-                      ...editedJob,
-                      jobType: e.target.value,
-                    })
-                  }
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="Full-time">Full-time</option>
-                  <option value="Part-time">Part-time</option>
-                  <option value="Contract">Contract</option>
-                  <option value="Internship">Internship</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="edit-remote"
-                  checked={editedJob.remote}
-                  onChange={(e) =>
-                    setEditedJob({
-                      ...editedJob,
-                      remote: e.target.checked,
-                    })
-                  }
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <Label htmlFor="edit-remote">Remote Position</Label>
-              </div>
-              <LocationAutocomplete
-                id="edit-job-location"
-                label="Location"
-                value={editedJob.location}
-                onChange={(value) =>
-                  setEditedJob({
-                    ...editedJob,
-                    location: value,
-                  })
-                }
-                locations={LOCATIONS}
-              />
-              <SalaryRangeInput
-                id="edit-salary"
-                label="Salary Range"
-                value={editedJob.salary}
-                onChange={(value) =>
-                  setEditedJob({
-                    ...editedJob,
-                    salary: value,
-                  })
-                }
-              />
-              <div className="grid gap-2">
-                <Label htmlFor="edit-job-description">Job Description</Label>
-                <Textarea
-                  id="edit-job-description"
-                  value={editedJob.description}
-                  onChange={(e) =>
-                    setEditedJob({
-                      ...editedJob,
-                      description: e.target.value,
-                    })
-                  }
-                  rows={4}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsEditingJob(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveEditedJob}>Save Changes</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-        <Dialog open={isConfirmingDelete} onOpenChange={setIsConfirmingDelete}>
-          <DialogContent className="sm:max-w-[400px]">
-            <DialogHeader>
-              <DialogTitle>Confirm Deletion</DialogTitle>
-            </DialogHeader>
-            <div className="py-4">
-              <p>
-                Are you sure you want to delete this job posting? This action
-                cannot be undone.
-              </p>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={cancelDeleteJob}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={confirmDeleteJob}>
-                Delete
-              </Button>
             </div>
           </DialogContent>
         </Dialog>
