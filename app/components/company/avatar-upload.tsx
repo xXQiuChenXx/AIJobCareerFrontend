@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 
@@ -10,24 +8,41 @@ interface AvatarUploadProps {
   label?: string;
 }
 
-export default function AvatarUpload({ 
-  currentAvatar, 
-  onAvatarChange, 
-  label = "Upload Company Logo" 
+export default function AvatarUpload({
+  currentAvatar,
+  onAvatarChange,
+  label = "Upload Company Logo",
 }: AvatarUploadProps) {
   const [isHovering, setIsHovering] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      onAvatarChange(files[0]);
+      const file = files[0];
+      
+      // Create a preview URL for the selected file
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+      
+      // Store the file reference in the parent component
+      onAvatarChange(file);
     }
   };
 
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };
+
+  // Cleanup object URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -37,7 +52,7 @@ export default function AvatarUpload({
         onMouseLeave={() => setIsHovering(false)}
       >
         <img
-          src={currentAvatar}
+          src={previewUrl || currentAvatar}
           alt="Avatar"
           className="w-full h-full object-cover"
         />
@@ -51,7 +66,8 @@ export default function AvatarUpload({
         )}
       </div>
       <input
-        type="file"        ref={fileInputRef}
+        type="file"
+        ref={fileInputRef}
         onChange={handleFileChange}
         accept="image/*"
         className="hidden"
@@ -67,4 +83,3 @@ export default function AvatarUpload({
     </div>
   );
 }
-

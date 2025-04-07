@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const ALLOWED_CITIES = [
+export const ALLOWED_CITIES = [
   "Kuching",
   "Miri",
   "Sibu",

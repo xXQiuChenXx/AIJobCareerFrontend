@@ -10,7 +10,7 @@ interface LocationSelectProps {
   label?: string
 }
 
-const LOCATIONS = [
+export const LOCATIONS = [
   "Kuching",
   "Miri",
   "Sibu",

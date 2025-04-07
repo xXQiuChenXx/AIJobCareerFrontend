@@ -1,5 +1,4 @@
 import JobListings from "@/components/jobs/job-listings";
-import SearchBar from "@/components/jobs/search-bar";
 import { Badge } from "@/components/ui/badge";
 import {
   Briefcase,
@@ -31,9 +30,6 @@ const CareersPage = () => {
               Browse thousands of job listings from top companies and find the
               perfect role for your career.
             </p>
-            {/* <div className="mt-10 max-w-xl mx-auto">
-              <SearchBar />
-            </div> */}
           </div>
         </div>
       </div>
