@@ -55,7 +55,7 @@ export default function CompanyProfile({
     if (company) {
       setCompany({
         ...company,
-        Jobs: updatedJobs,
+        jobs: updatedJobs,
       });
     }
   };
@@ -145,7 +145,7 @@ export default function CompanyProfile({
       </div>
 
       <JobList
-        jobs={company.Jobs || []}
+        jobs={company.jobs || []}
         companyId={company.company_id}
         companyName={company.company_name}
         isAdmin={isAdmin}
