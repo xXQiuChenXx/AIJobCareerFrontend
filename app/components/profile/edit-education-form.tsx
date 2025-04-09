@@ -1,274 +1,272 @@
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { GraduationCap, Plus, Star, Trash2 } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState, forwardRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { GraduationCap, Plus, Trash2 } from "lucide-react";
+import type { Education } from "@/types/education";
+import { EducationService } from "@/services/education-service";
+import { toast } from "sonner";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  educationSchema,
+  type EducationFormValues,
+} from "@/lib/schemas/education-schema";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
-interface Education {
-  id: number
-  degree: string
-  school: string
-  startYear: string
-  endYear: string
-  description: string
+interface EditEducationFormProps {
+  educations?: Education[];
+  onSaveEducation: (educations: EducationFormValues[]) => Promise<void>;
+  onSubmitSuccess: () => void;
 }
 
-interface Certification {
-  id: number
-  name: string
-  issuer: string
-  date: string
-}
+// Create a wrapper schema for an array of education items
+const educationsArraySchema = z.object({
+  educations: z.array(educationSchema),
+});
 
-export function EditEducationForm() {
-  const [education, setEducation] = useState<Education[]>([
-    {
-      id: 1,
-      degree: "Master of Science in Computer Science",
-      school: "Stanford University",
-      startYear: "2016",
-      endYear: "2018",
-      description:
-        'Specialized in Artificial Intelligence and Machine Learning. Thesis: "Improving Transformer Models for Low-Resource Languages"',
-    },
-    {
-      id: 2,
-      degree: "Bachelor of Science in Computer Engineering",
-      school: "Massachusetts Institute of Technology",
-      startYear: "2012",
-      endYear: "2016",
-      description:
-        'Minor in Mathematics. Graduated with honors. Senior Project: "Neural Networks for Image Recognition"',
-    },
-  ])
+type FormValues = z.infer<typeof educationsArraySchema>;
 
-  const [certifications, setCertifications] = useState<Certification[]>([
-    {
-      id: 1,
-      name: "AWS Certified Machine Learning - Specialty",
-      issuer: "Amazon Web Services",
-      date: "2023-01",
+export const EditEducationForm = forwardRef<
+  HTMLFormElement,
+  EditEducationFormProps
+>(({ educations = [], onSaveEducation, onSubmitSuccess }, ref) => {
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Setup education form with properly structured defaultValues
+  const form = useForm<FormValues>({
+    resolver: zodResolver(educationsArraySchema),
+    defaultValues: {
+      educations: educations.length > 0 ? educations : [],
     },
-    {
-      id: 2,
-      name: "TensorFlow Developer Certificate",
-      issuer: "Google",
-      date: "2021-03",
-    },
-    {
-      id: 3,
-      name: "Deep Learning Specialization",
-      issuer: "Coursera",
-      date: "2019-11",
-    },
-  ])
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "educations",
+  });
 
   const addEducation = () => {
     const newEdu = {
-      id: Date.now(),
-      degree: "",
-      school: "",
-      startYear: "",
-      endYear: "",
+      education_id: `temp-${Date.now()}`,
+      user_id: educations[0]?.user_id || "",
+      degree_name: "",
+      institution_name: "",
+      start_year: new Date().getFullYear(),
+      end_year: undefined,
       description: "",
+    };
+    append(newEdu);
+  };
+
+  const removeEducation = async (index: number, id: string) => {
+    try {
+      // Only call API if it's not a temporary ID
+      if (!id.startsWith("temp-")) {
+        setLoading(true);
+        await EducationService.deleteEducation(id);
+        toast.success("Education deleted successfully");
+      }
+      remove(index);
+    } catch (error) {
+      console.error("Failed to delete education:", error);
+      toast.error("Failed to delete education");
+    } finally {
+      setLoading(false);
     }
-    setEducation([newEdu, ...education])
-  }
+  };
 
-  const removeEducation = (id: number) => {
-    setEducation(education.filter((edu) => edu.id !== id))
-  }
+  // Handle form submission
+  const onSubmit = async (data: FormValues) => {
+    try {
+      setSubmitting(true);
 
-  const addCertification = () => {
-    const newCert = {
-      id: Date.now(),
-      name: "",
-      issuer: "",
-      date: "",
+      await onSaveEducation(data.educations);
+
+      toast.success("Education updated successfully");
+
+      // Call the onSubmitSuccess callback to close the dialog
+
+      onSubmitSuccess();
+    } catch (error) {
+      console.error("Failed to save education:", error);
+      toast.error("Failed to save education");
+    } finally {
+      setSubmitting(false);
     }
-    setCertifications([newCert, ...certifications])
-  }
-
-  const removeCertification = (id: number) => {
-    setCertifications(certifications.filter((cert) => cert.id !== id))
-  }
+  };
 
   return (
-    <Tabs defaultValue="education" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="education">Degrees & Education</TabsTrigger>
-        <TabsTrigger value="certifications">Certifications</TabsTrigger>
-      </TabsList>
+    <Form {...form}>
+      <form ref={ref} onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="space-y-4 pt-4">
+          <Button
+            onClick={addEducation}
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            disabled={loading || submitting}
+            type="button"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Education
+          </Button>
 
-      <TabsContent value="education" className="space-y-4 pt-4">
-        <Button
-          onClick={addEducation}
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Education
-        </Button>
-
-        {education.map((edu) => (
-          <div key={edu.id} className="rounded-lg border p-4">
-            <div className="flex flex-col sm:flex-row justify-between mb-4 gap-4">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-                  <GraduationCap className="h-5 w-5 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <Input
-                    value={edu.degree}
-                    onChange={(e) => {
-                      const updated = education.map((item) =>
-                        item.id === edu.id ? { ...item, degree: e.target.value } : item,
-                      )
-                      setEducation(updated)
-                    }}
-                    placeholder="Degree"
-                    className="border-0 p-0 text-lg font-semibold h-7 focus-visible:ring-0"
-                  />
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    <div className="flex items-center">
-                      <Input
-                        value={edu.school}
-                        onChange={(e) => {
-                          const updated = education.map((item) =>
-                            item.id === edu.id ? { ...item, school: e.target.value } : item,
-                          )
-                          setEducation(updated)
-                        }}
-                        placeholder="School"
-                        className="border-0 p-0 h-6 w-40 text-sm text-muted-foreground focus-visible:ring-0"
-                      />
-                    </div>
+          {fields.map((field, index) => (
+            <div key={field.id} className="rounded-lg border p-4">
+              <div className="flex flex-col sm:flex-row justify-between mb-4 gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
+                    <GraduationCap className="h-5 w-5 text-purple-600" />
                   </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeEducation(edu.id)}
-                  className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 ml-auto"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="ml-0 sm:ml-13 space-y-4">
-              <div className="flex items-center gap-2">
-                <Input
-                  value={edu.startYear}
-                  onChange={(e) => {
-                    const updated = education.map((item) =>
-                      item.id === edu.id ? { ...item, startYear: e.target.value } : item,
-                    )
-                    setEducation(updated)
-                  }}
-                  placeholder="Start Year"
-                  className="w-20 text-sm"
-                />
-                <span className="mx-1 text-muted-foreground">-</span>
-                <Input
-                  value={edu.endYear}
-                  onChange={(e) => {
-                    const updated = education.map((item) =>
-                      item.id === edu.id ? { ...item, endYear: e.target.value } : item,
-                    )
-                    setEducation(updated)
-                  }}
-                  placeholder="End Year"
-                  className="w-20 text-sm"
-                />
-              </div>
-              <Textarea
-                value={edu.description}
-                onChange={(e) => {
-                  const updated = education.map((item) =>
-                    item.id === edu.id ? { ...item, description: e.target.value } : item,
-                  )
-                  setEducation(updated)
-                }}
-                placeholder="Describe your studies, achievements, thesis, etc."
-                className="min-h-20 resize-none"
-              />
-            </div>
-          </div>
-        ))}
-      </TabsContent>
-
-      <TabsContent value="certifications" className="space-y-4 pt-4">
-        <Button
-          onClick={addCertification}
-          className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Certification
-        </Button>
-
-        {certifications.map((cert) => (
-          <div key={cert.id} className="rounded-lg border p-4">
-            <div className="flex justify-between mb-2">
-              <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100">
-                  <Star className="h-4 w-4 text-amber-600" />
-                </div>
-                <div className="flex-1">
-                  <Input
-                    value={cert.name}
-                    onChange={(e) => {
-                      const updated = certifications.map((item) =>
-                        item.id === cert.id ? { ...item, name: e.target.value } : item,
-                      )
-                      setCertifications(updated)
-                    }}
-                    placeholder="Certification Name"
-                    className="border-0 p-0 text-base font-medium h-7 focus-visible:ring-0"
-                  />
-                  <div className="flex flex-wrap items-center gap-2 mt-1">
-                    <Input
-                      value={cert.issuer}
-                      onChange={(e) => {
-                        const updated = certifications.map((item) =>
-                          item.id === cert.id ? { ...item, issuer: e.target.value } : item,
-                        )
-                        setCertifications(updated)
-                      }}
-                      placeholder="Issuing Organization"
-                      className="border-0 p-0 h-6 text-sm text-muted-foreground focus-visible:ring-0"
+                  <div className="flex-1">
+                    <FormField
+                      control={form.control}
+                      name={`educations.${index}.degree_name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Degree"
+                              className="border-0 text-lg font-semibold h-7 focus-visible:ring-0"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                    <div className="flex items-center">
-                      <span className="text-muted-foreground">·</span>
-                      <Input
-                        type="month"
-                        value={cert.date}
-                        onChange={(e) => {
-                          const updated = certifications.map((item) =>
-                            item.id === cert.id ? { ...item, date: e.target.value } : item,
-                          )
-                          setCertifications(updated)
-                        }}
-                        placeholder="Issue Date"
-                        className="border-0 p-0 h-6 w-32 text-sm text-muted-foreground focus-visible:ring-0"
-                      />
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      <div className="flex items-center">
+                        <FormField
+                          control={form.control}
+                          name={`educations.${index}.institution_name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="School/University"
+                                  className="border-0 h-6 w-40 text-sm text-muted-foreground focus-visible:ring-0"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      removeEducation(
+                        index,
+                        form.getValues(`educations.${index}.education_id`) || ""
+                      )
+                    }
+                    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 ml-auto"
+                    disabled={loading || submitting}
+                    type="button"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeCertification(cert.id)}
-                className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </TabsContent>
-    </Tabs>
-  )
-}
 
+              <div className="ml-0 sm:ml-13 space-y-4">
+                <div className="flex items-center gap-2">
+                  <FormField
+                    control={form.control}
+                    name={`educations.${index}.start_year`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Start Year</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(
+                                parseInt(e.target.value) ||
+                                  new Date().getFullYear()
+                              )
+                            }
+                            placeholder="Start Year"
+                            className="w-20 text-sm"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <span className="mx-1 text-muted-foreground">-</span>
+                  <FormField
+                    control={form.control}
+                    name={`educations.${index}.end_year`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>End Year</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            value={field.value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(
+                                value ? parseInt(value) : undefined
+                              );
+                            }}
+                            placeholder="End Year"
+                            className="w-20 text-sm"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name={`educations.${index}.description`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Describe your studies, achievements, thesis, etc."
+                          className="min-h-20 resize-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          ))}
+
+          {fields.length === 0 && (
+            <div className="text-center py-6 text-muted-foreground border rounded-lg">
+              No education records yet. Add your educational history!
+            </div>
+          )}
+        </div>
+
+        {/* Hidden submit button that will be triggered by the dialog's save button */}
+        <button type="submit" hidden></button>
+      </form>
+    </Form>
+  );
+});
+
+// Add display name for React DevTools
+EditEducationForm.displayName = "EditEducationForm";

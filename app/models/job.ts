@@ -15,7 +15,7 @@ export const Job = z.object({
   job_status: z.string(),
   job_benefit: z.string(),
   job_requirement: z.string(),
-  posted_Date: z.date(),
+  posted_date: z.date(),
   job_type: z.nativeEnum(JobType),
   requiredSkills: z.array(z.string()),
 })

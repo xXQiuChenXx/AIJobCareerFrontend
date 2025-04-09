@@ -1,177 +1,230 @@
-import { useState } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Plus, Trash2, X } from "lucide-react"
+import { useState, forwardRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, Trash2 } from "lucide-react";
+import type { Project } from "@/types/project";
+import { ProjectService } from "@/services/project-service";
+import { toast } from "sonner";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  projectsFormSchema,
+  type ProjectFormValues,
+  type ProjectsFormValues,
+} from "@/lib/schemas/project-schema";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 
-interface Project {
-  id: number
-  name: string
-  year: string
-  description: string
-  tags: string[]
+interface EditProjectsFormProps {
+  projects?: Project[];
+  onSave: (projects: ProjectFormValues[]) => Promise<void>;
+  onSubmitSuccess?: () => void;
 }
 
-export function EditProjectsForm() {
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: 1,
-      name: "AI-Powered Resume Analyzer",
-      year: "2023",
-      description: "Built an AI tool that analyzes resumes and provides personalized improvement suggestions.",
-      tags: ["Python", "NLP", "GPT-4"],
-    },
-    {
-      id: 2,
-      name: "Sentiment Analysis API",
-      year: "2022",
-      description: "Developed a high-performance API for real-time sentiment analysis of customer feedback.",
-      tags: ["FastAPI", "BERT", "Docker"],
-    },
-    {
-      id: 3,
-      name: "Job Market Trend Predictor",
-      year: "2021",
-      description:
-        "Created a model to predict emerging job trends based on historical data and current market signals.",
-      tags: ["Time Series", "PyTorch", "Data Visualization"],
-    },
-    {
-      id: 4,
-      name: "Multilingual Chatbot",
-      year: "2020",
-      description: "Built a chatbot that can understand and respond in 10 different languages for customer support.",
-      tags: ["Transformers", "Flask", "AWS Lambda"],
-    },
-  ])
+export const EditProjectsForm = forwardRef<
+  HTMLFormElement,
+  EditProjectsFormProps
+>(({ projects = [], onSave, onSubmitSuccess }, ref) => {
+  const [loading, setLoading] = useState(false);
 
-  const [newTag, setNewTag] = useState("")
+  // Initialize form with React Hook Form
+  const form = useForm<ProjectsFormValues>({
+    resolver: zodResolver(projectsFormSchema),
+    defaultValues: {
+      projects: projects.map((project) => ({
+        project_id: project.project_id,
+        user_id: project.user_id,
+        project_name: project.project_name,
+        project_year: project.project_year,
+        description: project.description || "",
+        project_url: project.project_url || "",
+      })),
+    },
+  });
+
+  // Use field array to manage dynamic projects list
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "projects",
+  });
 
   const addProject = () => {
-    const newProj = {
-      id: Date.now(),
-      name: "",
-      year: "",
+    append({
+      project_id: `temp-${Date.now()}`,
+      user_id: projects[0]?.user_id || "",
+      project_name: "",
+      project_year: new Date().getFullYear(),
       description: "",
-      tags: [],
+      project_url: "",
+    });
+  };
+
+  const removeProject = async (index: number, id: string) => {
+    try {
+      // Only call API if it's not a temporary ID
+      if (!id.startsWith("temp-")) {
+        setLoading(true);
+        await ProjectService.deleteProject(id);
+        toast.success("Project deleted successfully");
+      }
+
+      // Remove from form field array
+      remove(index);
+    } catch (error) {
+      console.error("Failed to delete project:", error);
+      toast.error("Failed to delete project");
+    } finally {
+      setLoading(false);
     }
-    setProjects([newProj, ...projects])
-  }
+  };
+  // Handle form submission
+  const onSubmit = async (data: ProjectsFormValues) => {
+    try {
+      setLoading(true);
 
-  const removeProject = (id: number) => {
-    setProjects(projects.filter((proj) => proj.id !== id))
-  }
+      // Add tags to each project before saving
+      const projectsWithTags = data.projects.map((project) => ({
+        ...project,
+      }));
 
-  const addTag = (projectId: number) => {
-    if (newTag.trim()) {
-      const updated = projects.map((proj) => (proj.id === projectId ? { ...proj, tags: [...proj.tags, newTag] } : proj))
-      setProjects(updated)
-      setNewTag("")
+      await onSave(projectsWithTags);
+      toast.success("Projects saved successfully");
+
+      // Call the onSubmitSuccess callback to close the dialog
+      if (onSubmitSuccess) {
+        onSubmitSuccess();
+      }
+    } catch (error) {
+      console.error("Failed to save projects:", error);
+      toast.error("Failed to save projects");
+    } finally {
+      setLoading(false);
     }
-  }
-
-  const removeTag = (projectId: number, tag: string) => {
-    const updated = projects.map((proj) =>
-      proj.id === projectId ? { ...proj, tags: proj.tags.filter((t) => t !== tag) } : proj,
-    )
-    setProjects(updated)
-  }
+  };
 
   return (
     <div className="space-y-4">
       <Button
         onClick={addProject}
         className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+        disabled={loading}
+        type="button"
       >
         <Plus className="mr-2 h-4 w-4" />
         Add Project
       </Button>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {projects.map((project) => (
-          <div key={project.id} className="rounded-lg border p-4">
-            <div className="flex justify-between mb-2">
-              <div className="flex-1">
-                <Input
-                  value={project.name}
-                  onChange={(e) => {
-                    const updated = projects.map((item) =>
-                      item.id === project.id ? { ...item, name: e.target.value } : item,
-                    )
-                    setProjects(updated)
-                  }}
-                  placeholder="Project Name"
-                  className="border-0 p-0 text-lg font-semibold h-7 focus-visible:ring-0"
-                />
-                <div className="flex items-center mt-1">
-                  <Input
-                    value={project.year}
-                    onChange={(e) => {
-                      const updated = projects.map((item) =>
-                        item.id === project.id ? { ...item, year: e.target.value } : item,
-                      )
-                      setProjects(updated)
-                    }}
-                    placeholder="Year"
-                    className="border-0 p-0 h-6 w-16 text-sm text-muted-foreground focus-visible:ring-0"
-                  />
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeProject(project.id)}
-                className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-            <Textarea
-              value={project.description}
-              onChange={(e) => {
-                const updated = projects.map((item) =>
-                  item.id === project.id ? { ...item, description: e.target.value } : item,
-                )
-                setProjects(updated)
-              }}
-              placeholder="Describe your project, its purpose, and your role..."
-              className="min-h-20 resize-none mt-2"
-            />
-            <div className="mt-4">
-              <label className="text-sm font-medium">Technologies Used</label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {project.tags.map((tag, index) => (
-                  <Badge key={index} className="flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200">
-                    {tag}
-                    <button onClick={() => removeTag(project.id, tag)} className="ml-1 rounded-full hover:bg-green-200">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add technology"
-                    className="h-7 w-32"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && newTag.trim()) {
-                        addTag(project.id)
-                        e.preventDefault()
-                      }
-                    }}
-                  />
-                  <Button size="sm" onClick={() => addTag(project.id)} className="h-7">
-                    Add
+      <Form {...form}>
+        <form ref={ref} onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="grid gap-4">
+            {fields.map((field, index) => (
+              <div key={field.id} className="rounded-lg border p-4">
+                <div className="flex justify-between mb-2">
+                  <div className="flex-1">
+                    <FormField
+                      control={form.control}
+                      name={`projects.${index}.project_name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Project Name"
+                              className="border-0 p-0 text-lg font-semibold h-7 focus-visible:ring-0"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex items-center mt-1">
+                      <FormField
+                        control={form.control}
+                        name={`projects.${index}.project_year`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="number"
+                                placeholder="Year"
+                                className="border-0 p-0 h-6 w-16 text-sm text-muted-foreground focus-visible:ring-0"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeProject(index, field.project_id)}
+                    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                    disabled={loading}
+                    type="button"
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 
+                <FormField
+                  control={form.control}
+                  name={`projects.${index}.description`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Describe your project, its purpose, and your role..."
+                          className="min-h-20 resize-none mt-2"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="mt-3">
+                  <label className="text-sm font-medium">Project URL</label>
+                  <FormField
+                    control={form.control}
+                    name={`projects.${index}.project_url`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="https://example.com/project"
+                            className="mt-1"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            ))}
+
+            {fields.length === 0 && (
+              <div className="col-span-2 text-center py-6 text-muted-foreground border rounded-lg">
+                No projects yet. Add your first project to showcase your work!
+              </div>
+            )}
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+});
+
+// Add display name for React DevTools
+EditProjectsForm.displayName = "EditProjectsForm";

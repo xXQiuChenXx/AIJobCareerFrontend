@@ -377,7 +377,7 @@ export default function JobListings() {
                     <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
                     <span>
                       Posted{" "}
-                      {new Date(job.posted_Date).toLocaleDateString("en-GB", {
+                      {new Date(job.posted_date).toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",
@@ -399,9 +399,11 @@ export default function JobListings() {
                 </div>
               </CardContent>
               <CardFooter className="pt-2 gap-2">
-                <Button className="w-full sm:w-auto cursor-pointer">
-                  Apply Now
-                </Button>
+                <NavLink to={`./apply/${job.job_id}`}>
+                  <Button className="w-full sm:w-auto cursor-pointer">
+                    Apply Now
+                  </Button>
+                </NavLink>
                 <NavLink to={`./details/${job.job_id}`}>
                   <Button
                     className="w-full sm:w-auto cursor-pointer"
