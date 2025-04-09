@@ -109,7 +109,7 @@ export default function EditProfileDialog({
       company_intro: companyData.company_intro,
       company_website: companyData.company_website,
       company_industry: companyData.company_industry,
-      company_area_name: companyData.company_area_name,
+      company_area_name: companyData.company_area_name || "",
       company_founded: companyData.company_founded
         ? new Date(companyData.company_founded)
         : new Date(),
@@ -301,8 +301,7 @@ export default function EditProfileDialog({
                     <FormLabel>Location</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field?.value}
-                      {...field}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>

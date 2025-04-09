@@ -3,6 +3,7 @@ import { Briefcase, Clock, MapPin, Pencil, Trash2 } from "lucide-react";
 import type { JobData } from "@/components/jobs/job-dialog";
 import { jobTypeMap } from "@/lib/schemas/company-schema";
 import { format } from "date-fns";
+import { NavLink } from "react-router";
 
 interface JobCardProps {
   job: JobData;
@@ -20,7 +21,9 @@ export default function JobCard({
   return (
     <div className="border rounded-lg p-6">
       <div className="flex justify-between items-start">
-        <h3 className="text-xl font-bold">{job.job_title}</h3>
+        <NavLink to={`/careers/details/${job.job_id}`} className="flex-1">
+          <h3 className="text-xl font-bold">{job.job_title}</h3>
+        </NavLink>
         <div className="text-lg font-semibold">{`RM ${job.job_salary_min} - RM ${job.job_salary_max}`}</div>
       </div>
       <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3 text-gray-600">
@@ -34,9 +37,7 @@ export default function JobCard({
         </div>
         <div className="flex items-center gap-1.5">
           <Clock className="h-4 w-4 text-gray-500" />
-          <span>
-            {format(new Date(job.job_posted_date), "d MMMM yyyy")}
-          </span>
+          <span>{format(new Date(job.job_posted_date), "d MMMM yyyy")}</span>
         </div>
       </div>
       <p className="mt-4 mb-6 text-gray-700">{job.job_description}</p>
