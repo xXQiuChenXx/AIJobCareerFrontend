@@ -50,6 +50,7 @@ export const jobSchema = z.object({
   job_location: z.string().min(2, {
     message: "Job location must be at least 2 characters.",
   }),
+  job_deadline: z.date().optional(),
 })
 
 export type JobFormValues = z.infer<typeof jobSchema>

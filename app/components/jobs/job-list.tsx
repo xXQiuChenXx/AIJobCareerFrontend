@@ -60,6 +60,7 @@ export default function JobList({
         job_location: data.job_location,
         job_company_id: companyId,
         job_status: "Open",
+        job_deadline: data.job_deadline ? data.job_deadline.toISOString() : undefined,
       };
 
       // Create job via API
@@ -75,6 +76,7 @@ export default function JobList({
         job_salary_max: createdJob.job_salary_max,
         job_location: createdJob.job_location,
         job_posted_date: createdJob.posted_date,
+        job_deadline: createdJob.job_deadline,
       };
 
       onJobsChange([...jobs, newJob]);
@@ -109,6 +111,7 @@ export default function JobList({
         job_company_id: companyId,
         job_status: "Open",
         Posted_Date: currentJob.job_posted_date,
+        job_deadline: data.job_deadline ? data.job_deadline.toISOString() : undefined,
       };
 
       // Update job via API
@@ -125,6 +128,7 @@ export default function JobList({
               job_salary_min: data.job_salary_min,
               job_salary_max: data.job_salary_max,
               job_location: data.job_location,
+              job_deadline: data.job_deadline ? data.job_deadline.toISOString() : undefined,
             }
           : job
       );
@@ -175,7 +179,7 @@ export default function JobList({
     setIsDeleteDialogOpen(true);
   };
 
-  // Convert JobBasicDTO to JobData for compatibility with JobCard component
+  // Ensure the convertToJobData function accounts for possible missing job_deadline
   const convertToJobData = (job: JobBasicDTO): JobData => ({
     job_id: job.job_id,
     job_title: job.job_title,
@@ -185,6 +189,7 @@ export default function JobList({
     job_salary_max: job.job_salary_max,
     job_location: job.job_location,
     job_posted_date: job.job_posted_date,
+    job_deadline: job.job_deadline,
   });
 
   return (

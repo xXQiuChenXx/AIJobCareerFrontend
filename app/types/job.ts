@@ -100,6 +100,7 @@ export interface JobBasicDTO {
   job_salary_max: number;
   job_location: string;
   job_posted_date: string;
+  job_deadline?: string;
 }
 
 export interface CompanyWithJobsDTO {
