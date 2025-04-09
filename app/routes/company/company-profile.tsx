@@ -1,55 +1,64 @@
-import { useState, useEffect } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Calendar, ExternalLink, Factory, MapPin, Settings } from "lucide-react"
-import EditProfileDialog from "@/components/profile/edit-profile-dialog"
-import JobList from "@/components/jobs/job-list"
-import type { JobBasicDTO, CompanyWithJobsDTO } from "@/types/job"
-import { useAuth } from "@/components/provider/auth-provider"
-import type { Route } from "../company/+types/company-profile"
-import { CompanyService } from "@/services/company-service"
-import { Skeleton } from "@/components/ui/skeleton"
-import { toast } from "sonner"
+import { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import {
+  Calendar,
+  ExternalLink,
+  Factory,
+  MapPin,
+  Settings,
+} from "lucide-react";
+import EditProfileDialog from "@/components/profile/edit-profile-dialog";
+import JobList from "@/components/jobs/job-list";
+import type { JobBasicDTO, CompanyWithJobsDTO } from "@/types/job";
+import { useAuth } from "@/components/provider/auth-provider";
+import type { Route } from "../company/+types/company-profile";
+import { CompanyService } from "@/services/company-service";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 // Helper function to format the founded date
 const formatFoundedDate = (dateString: string) => {
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  })
-}
+  });
+};
 
 export default function CompanyProfile({ params }: Route.ComponentProps) {
   const { id: companyId } = params;
   const { user } = useAuth();
-  const [companyInfo, setCompanyInfo] = useState<CompanyWithJobsDTO | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState("about")
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [companyInfo, setCompanyInfo] = useState<CompanyWithJobsDTO | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("about");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const isAdmin = companyId === user?.user_company_id;
+  console.log(companyInfo);
 
   // Fetch company data on mount
   useEffect(() => {
     const fetchCompanyData = async () => {
       try {
-        setLoading(true)
-        const data = await CompanyService.getCompanyWithJobs(companyId)
-        setCompanyInfo(data)
-        setError(null)
+        setLoading(true);
+        const data = await CompanyService.getCompanyWithJobs(companyId);
+        setCompanyInfo(data);
+        setError(null);
       } catch (err) {
-        console.error('Failed to fetch company data:', err)
-        setError('Failed to load company information')
-        toast('Failed to load company information')
+        console.error("Failed to fetch company data:", err);
+        setError("Failed to load company information");
+        toast("Failed to load company information");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchCompanyData()
-  }, [companyId])
+    fetchCompanyData();
+  }, [companyId]);
 
   const handleUpdateCompany = async (updatedData: CompanyWithJobsDTO) => {
     try {
@@ -61,29 +70,29 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
         company_founded: updatedData.company_founded,
         company_industry: updatedData.company_industry,
         company_area_name: updatedData.company_area_name,
-      })
-      setCompanyInfo(updatedData)
-      toast('Company profile updated successfully')
+      });
+      setCompanyInfo(updatedData);
+      toast("Company profile updated successfully");
     } catch (err) {
-      console.error('Failed to update company data:', err)
-      toast('Failed to update company profile')
+      console.error("Failed to update company data:", err);
+      toast("Failed to update company profile");
     } finally {
-      setIsEditDialogOpen(false)
+      setIsEditDialogOpen(false);
     }
-  }
+  };
 
   const handleUpdateJobs = (updatedJobs: JobBasicDTO[]) => {
     if (companyInfo) {
       setCompanyInfo({
         ...companyInfo,
-        Jobs: updatedJobs,
-      })
+        jobs: updatedJobs,
+      });
     }
-  }
+  };
 
   // Display loading state
   if (loading) {
-    return <CompanyProfileSkeleton />
+    return <CompanyProfileSkeleton />;
   }
 
   // Display error state
@@ -91,17 +100,17 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
     return (
       <div className="container mx-auto py-12 text-center">
         <h2 className="text-2xl font-bold text-red-500 mb-2">Error</h2>
-        <p className="mb-4">{error || 'Company information not available'}</p>
+        <p className="mb-4">{error || "Company information not available"}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Try Again
         </Button>
       </div>
-    )
+    );
   }
 
-  const companyLogoUrl = companyInfo.company_icon 
+  const companyLogoUrl = companyInfo.company_icon
     ? CompanyService.getCompanyLogoUrl(companyInfo.company_icon)
-    : '/placeholder.svg?height=128&width=128'
+    : "/placeholder.svg?height=128&width=128";
 
   return (
     <div className="bg-gray-50">
@@ -110,7 +119,11 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
           <div className="w-full bg-gradient-to-r from-blue-500 to-pink-500 p-6 relative rounded-lg h-52">
             {isAdmin && (
               <div className="absolute top-4 right-4">
-                <Button variant="secondary" size="sm" onClick={() => setIsEditDialogOpen(true)}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsEditDialogOpen(true)}
+                >
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </Button>
@@ -135,7 +148,12 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
           </div>
         </div>
         <div className="w-full px-4 mt-12">
-          <Tabs defaultValue="about" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            defaultValue="about"
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="jobs">Job Openings</TabsTrigger>
@@ -143,12 +161,16 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
             <TabsContent value="about" className="mt-4">
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h2 className="text-xl font-bold mb-4">About</h2>
-                <p className="text-gray-700 mb-6">{companyInfo.company_intro}</p>
+                <p className="text-gray-700 mb-6">
+                  {companyInfo.company_intro}
+                </p>
                 <div className="flex flex-wrap gap-4 mb-6">
                   <Button
                     variant="outline"
                     className="gap-2"
-                    onClick={() => window.open(companyInfo.company_website, "_blank")}
+                    onClick={() =>
+                      window.open(companyInfo.company_website, "_blank")
+                    }
                     disabled={!companyInfo.company_website}
                   >
                     <ExternalLink className="h-4 w-4" />
@@ -182,7 +204,7 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
             </TabsContent>
             <TabsContent value="jobs" className="mt-4">
               <JobList
-                jobs={companyInfo.Jobs || []}
+                jobs={companyInfo.jobs || []}
                 companyId={companyId}
                 companyName={companyInfo.company_name}
                 isAdmin={isAdmin}
@@ -200,7 +222,7 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
         onUpdate={handleUpdateCompany}
       />
     </div>
-  )
+  );
 }
 
 // Skeleton loader component for loading state
@@ -224,9 +246,9 @@ function CompanyProfileSkeleton() {
             <Skeleton className="h-4 w-full mb-2" />
             <Skeleton className="h-4 w-full mb-2" />
             <Skeleton className="h-4 w-3/4 mb-6" />
-            
+
             <Skeleton className="h-10 w-32 mb-6" />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="flex items-center gap-3">
                 <Skeleton className="h-5 w-5" />
@@ -254,6 +276,5 @@ function CompanyProfileSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

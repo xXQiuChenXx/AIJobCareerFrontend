@@ -34,6 +34,7 @@ import {
 } from "@/lib/schemas/company-schema";
 import { type JobBasicDTO } from "@/types/job";
 import { toast } from "sonner";
+import { ALLOWED_CITIES } from "@/types/about-form-schema";
 
 interface JobDialogProps {
   open: boolean;
@@ -50,6 +51,9 @@ export type JobData = {
   job_id: number;
   job_title: string;
   job_description: string;
+  job_requirement?: string;
+  job_benefit?: string;
+  job_responsible?: string;
   job_type: number;
   job_salary_min: number;
   job_salary_max: number;
@@ -76,6 +80,9 @@ export default function JobDialog({
       ? {
           job_title: initialData.job_title,
           job_description: initialData.job_description,
+          job_requirement: initialData.job_requirement || "",
+          job_benefit: initialData.job_benefit || "",
+          job_responsible: initialData.job_responsible || "",
           job_type: initialData.job_type,
           job_salary_min: initialData.job_salary_min,
           job_salary_max: initialData.job_salary_max,
@@ -84,6 +91,9 @@ export default function JobDialog({
       : {
           job_title: "",
           job_description: "",
+          job_requirement: "",
+          job_benefit: "",
+          job_responsible: "",
           job_type: 0,
           job_salary_min: 0,
           job_salary_max: 0,
@@ -153,6 +163,60 @@ export default function JobDialog({
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="job_requirement"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job Requirements</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter job requirements"
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="job_benefit"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job Benefits</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter job benefits"
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="job_responsible"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job Responsibilities</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter job responsibilities"
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -190,9 +254,23 @@ export default function JobDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter job location" {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select location" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {ALLOWED_CITIES.map((city) => (
+                          <SelectItem key={city} value={city}>
+                            {city}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

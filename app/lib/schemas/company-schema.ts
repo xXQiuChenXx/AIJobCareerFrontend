@@ -41,6 +41,9 @@ export const jobSchema = z.object({
   job_description: z.string().min(10, {
     message: "Job description must be at least 10 characters.",
   }),
+  job_requirement: z.string(),
+  job_benefit: z.string(),
+  job_responsible: z.string(),
   job_type: z.number().min(0).max(4),
   job_salary_min: z.number().min(0),
   job_salary_max: z.number().min(0),

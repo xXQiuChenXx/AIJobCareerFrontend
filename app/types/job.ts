@@ -111,7 +111,7 @@ export interface CompanyWithJobsDTO {
   company_founded: string;
   company_industry: string;
   company_area_name?: string;
-  Jobs: JobBasicDTO[];
+  jobs: JobBasicDTO[];
 }
 
 export interface UpdateCompanyDTO {

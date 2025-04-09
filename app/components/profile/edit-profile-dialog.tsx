@@ -77,7 +77,7 @@ type CompanyData = {
   company_website: string;
   company_industry: string;
   company_area_name?: string;
-  Jobs: JobBasicDTO[];
+  jobs: JobBasicDTO[];
 };
 
 interface EditProfileDialogProps {
