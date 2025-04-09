@@ -339,7 +339,7 @@ export default function EditProfileDialog({
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "PPP")
+                              format(field.value, "d MMMM yyyy")
                             ) : (
                               <span>Pick a date</span>
                             )}

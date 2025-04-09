@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Briefcase, Clock, MapPin, Pencil, Trash2 } from "lucide-react";
 import type { JobData } from "@/components/jobs/job-dialog";
 import { jobTypeMap } from "@/lib/schemas/company-schema";
+import { format } from "date-fns";
 
 interface JobCardProps {
   job: JobData;
@@ -9,16 +10,6 @@ interface JobCardProps {
   onDelete: (jobId: number) => void;
   isAdmin: boolean;
 }
-
-// Helper function to format the date
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
 
 export default function JobCard({
   job,
@@ -43,7 +34,9 @@ export default function JobCard({
         </div>
         <div className="flex items-center gap-1.5">
           <Clock className="h-4 w-4 text-gray-500" />
-          <span>{formatDate(job.job_posted_date)}</span>
+          <span>
+            {format(new Date(job.job_posted_date), "d MMMM yyyy")}
+          </span>
         </div>
       </div>
       <p className="mt-4 mb-6 text-gray-700">{job.job_description}</p>

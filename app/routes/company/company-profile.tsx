@@ -16,16 +16,7 @@ import type { Route } from "../company/+types/company-profile";
 import { CompanyService } from "@/services/company-service";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-
-// Helper function to format the founded date
-const formatFoundedDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { format } from "date-fns";
 
 export default function CompanyProfile({ params }: Route.ComponentProps) {
   const { id: companyId } = params;
@@ -182,7 +173,12 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
                     <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
                     <div>
                       <h3 className="font-medium">Founded</h3>
-                      <p>{formatFoundedDate(companyInfo.company_founded)}</p>
+                      <p>
+                        {format(
+                          new Date(companyInfo.company_founded),
+                          "d MMMM yyyy"
+                        )}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">

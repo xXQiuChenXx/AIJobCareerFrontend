@@ -130,7 +130,7 @@ export default function CompanyProfile({
               <div className="flex">
                 <span className="text-gray-500 w-24">Founded:</span>
                 <span>
-                  {format(new Date(company.company_founded), "MMMM yyyy")}
+                  {format(new Date(company.company_founded), "d MMMM yyyy")}
                 </span>
               </div>
             )}
