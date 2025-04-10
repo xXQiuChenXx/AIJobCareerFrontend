@@ -14,10 +14,9 @@ import {
   Keyboard,
   Info,
 } from "lucide-react";
-import { useCozeChat } from "../../hooks/useCozeChat";
+import { useDifyChat } from "../../hooks/useDifyChat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { cozeAIConfig } from "../../config/cozeAIConfig";
 import { formatFileSize } from "@/lib/utils";
 import { useAuth } from "@/components/provider/auth-provider";
 import LoginRequired from "@/components/utils/login-required";
@@ -32,6 +31,7 @@ interface FileAttachment {
 export default function ChatPage() {
   const { user } = useAuth();
   if (!user) return <LoginRequired />;
+
   const {
     messages,
     input,
@@ -39,13 +39,15 @@ export default function ChatPage() {
     handleSubmit,
     status,
     suggestedQuestions,
-  } = useCozeChat({
-    apiKey: cozeAIConfig.apiKey,
-    botId: cozeAIConfig.botId,
-    user: user,
+    uploadFile,
+  } = useDifyChat({
+    userId: user.userId,
+    username: user.username,
+    email: user.email,
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,9 +58,12 @@ export default function ChatPage() {
   const [messageAttachments, setMessageAttachments] = useState<
     Record<string, FileAttachment>
   >({});
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change - modified to scroll the container
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current && messagesEndRef.current) {
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   // Handle file selection
@@ -83,11 +88,12 @@ export default function ChatPage() {
   };
 
   // Custom submit handler to include file information
-  const handleFormSubmit = (
+  const handleFormSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
     customInput?: string
   ) => {
     e.preventDefault();
+    let uploadedFileId;
 
     // Use custom input if provided (for suggested questions), otherwise use the input state
     const messageText = customInput || input;
@@ -97,31 +103,38 @@ export default function ChatPage() {
     // Get the current message count to identify the new message later
     const currentMessageCount = messages.length;
 
-    // Submit the message
-    handleSubmit(e);
-
-    // If there's a file attached, we'll need to track it separately
+    // If there's a file, upload it first
     if (attachedFile) {
-      // We need to wait for the message to be added to the messages state
-      setTimeout(() => {
-        // Check if a new message was added
-        if (messages.length > currentMessageCount) {
-          // Get the latest message (which should be the user message we just sent)
-          const newMessage = messages[currentMessageCount];
-          if (newMessage && newMessage.role === "user") {
-            // Add the file attachment to our messageAttachments state
-            setMessageAttachments((prev) => ({
-              ...prev,
-              [newMessage.id]: {
-                name: attachedFile.name,
-                size: attachedFile.size,
-                type: attachedFile.type,
-              },
-            }));
+      try {
+        // Upload the file and get its ID
+        uploadedFileId = await uploadFile(attachedFile);
+
+        // Track the file attachment for display purposes
+        setTimeout(() => {
+          // Check if a new message was added
+          if (messages.length > currentMessageCount) {
+            // Get the latest message (which should be the user message we just sent)
+            const newMessage = messages[currentMessageCount];
+            if (newMessage && newMessage.role === "user") {
+              // Add the file attachment to our messageAttachments state
+              setMessageAttachments((prev) => ({
+                ...prev,
+                [newMessage.id]: {
+                  name: attachedFile.name,
+                  size: attachedFile.size,
+                  type: attachedFile.type,
+                },
+              }));
+            }
           }
-        }
-      }, 50);
+        }, 50);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
     }
+
+    // Submit the message
+    handleSubmit(e, uploadedFileId);
 
     // Clear the file attachment
     setAttachedFile(null);
@@ -167,227 +180,234 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <div className="flex-1 min-h-0 max-h-[50vh] overflow-y-auto custom-scrollbar">
+          <div
+            ref={messagesContainerRef}
+            className="flex-1 min-h-0 max-h-[53vh] overflow-y-auto custom-scrollbar"
+          >
             <div className="space-y-4 px-2">
               <AnimatePresence>
-                {messages.map((message) => (
-                  <motion.div
-                    key={message.id}
-                    initial={{
-                      opacity: 0,
-                      y: 20,
-                      rotateX: message.role === "user" ? 45 : 0,
-                    }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    transition={{
-                      duration: 0.3,
-                      type: "spring",
-                      stiffness: 260,
-                      damping: 20,
-                    }}
-                    className={`flex ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`flex max-w-[80%] ${
+                {messages
+                  .filter((msg) => msg.content)
+                  .map((message) => (
+                    <motion.div
+                      key={message.id}
+                      initial={{
+                        opacity: 0,
+                        y: 20,
+                        rotateX: message.role === "user" ? 45 : 0,
+                      }}
+                      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 20,
+                      }}
+                      className={`flex ${
                         message.role === "user"
-                          ? "flex-row-reverse"
-                          : "flex-row"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
                       <div
-                        className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
+                        className={`flex max-w-[80%] ${
                           message.role === "user"
-                            ? "bg-blue-100 ml-3"
-                            : "bg-purple-100 mr-3"
+                            ? "flex-row-reverse"
+                            : "flex-row"
                         }`}
                       >
-                        {message.role === "user" ? (
-                          <User className="h-5 w-5 text-blue-600" />
-                        ) : (
-                          <Bot className="h-5 w-5 text-purple-600" />
-                        )}
-                      </div>
-                      <div>
                         <div
-                          className={`text-sm font-medium ${
+                          className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
                             message.role === "user"
-                              ? "text-right text-blue-600"
-                              : "text-left text-purple-600"
+                              ? "bg-blue-100 ml-3"
+                              : "bg-purple-100 mr-3"
                           }`}
                         >
-                          {message.role === "user" ? "You" : "AI Assistant"}
-                        </div>
-                        <div
-                          className={`mt-1 rounded-2xl px-4 py-2 break-words break-all prose ${
-                            message.role === "user"
-                              ? "bg-blue-500 text-white rounded-tr-none"
-                              : "bg-white text-gray-800 shadow-sm rounded-tl-none"
-                          }`}
-                        >
-                          <div className="markdown-content">
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
-                              components={{
-                                p: ({ node, ...props }) => (
-                                  <p className="mb-2 last:mb-0" {...props} />
-                                ),
-                                a: ({ node, ...props }) => (
-                                  <a
-                                    className={`underline ${
-                                      message.role === "user"
-                                        ? "text-blue-100"
-                                        : "text-blue-600"
-                                    }`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    {...props}
-                                  />
-                                ),
-                                ul: ({ node, ...props }) => (
-                                  <ul
-                                    className="list-disc pl-5 mb-2"
-                                    {...props}
-                                  />
-                                ),
-                                ol: ({ node, ...props }) => (
-                                  <ol
-                                    className="list-decimal pl-5 mb-2"
-                                    {...props}
-                                  />
-                                ),
-                                li: ({ node, ...props }) => (
-                                  <li className="mb-1" {...props} />
-                                ),
-                                h1: ({ node, ...props }) => (
-                                  <h1
-                                    className="text-xl font-bold mb-2 mt-3"
-                                    {...props}
-                                  />
-                                ),
-                                h2: ({ node, ...props }) => (
-                                  <h2
-                                    className="text-lg font-bold mb-2 mt-3"
-                                    {...props}
-                                  />
-                                ),
-                                h3: ({ node, ...props }) => (
-                                  <h3
-                                    className="text-md font-bold mb-2 mt-3"
-                                    {...props}
-                                  />
-                                ),
-                                blockquote: ({ node, ...props }) => (
-                                  <blockquote
-                                    className={`border-l-4 ${
-                                      message.role === "user"
-                                        ? "border-blue-400 bg-blue-400/30"
-                                        : "border-gray-300 bg-gray-100"
-                                    } pl-3 py-1 mb-2 italic`}
-                                    {...props}
-                                  />
-                                ),
-                                hr: ({ node, ...props }) => (
-                                  <hr className="my-3 border-t" {...props} />
-                                ),
-                                table: ({ node, ...props }) => (
-                                  <div className="overflow-x-auto mb-2">
-                                    <table
-                                      className="min-w-full border-collapse"
-                                      {...props}
-                                    />
-                                  </div>
-                                ),
-                                th: ({ node, ...props }) => (
-                                  <th
-                                    className={`px-2 py-1 font-bold border ${
-                                      message.role === "user"
-                                        ? "border-blue-400"
-                                        : "border-gray-300"
-                                    }`}
-                                    {...props}
-                                  />
-                                ),
-                                td: ({ node, ...props }) => (
-                                  <td
-                                    className={`px-2 py-1 border ${
-                                      message.role === "user"
-                                        ? "border-blue-400"
-                                        : "border-gray-300"
-                                    }`}
-                                    {...props}
-                                  />
-                                ),
-                              }}
-                            >
-                              {message.content}
-                            </ReactMarkdown>
-                          </div>
-
-                          {/* File attachment display */}
-                          {messageAttachments[message.id] && (
-                            <div
-                              className={`mt-2 pt-2 border-t ${
-                                message.role === "user"
-                                  ? "border-blue-400"
-                                  : "border-gray-200"
-                              }`}
-                            >
-                              <div
-                                className={`flex items-center rounded-lg p-2 ${
-                                  message.role === "user"
-                                    ? "bg-blue-400"
-                                    : "bg-gray-100"
-                                }`}
-                              >
-                                <FileText
-                                  className={`h-5 w-5 mr-2 ${
-                                    message.role === "user"
-                                      ? "text-white"
-                                      : "text-gray-500"
-                                  }`}
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <p
-                                    className={`text-sm font-medium truncate ${
-                                      message.role === "user"
-                                        ? "text-white"
-                                        : "text-gray-700"
-                                    }`}
-                                  >
-                                    {messageAttachments[message.id].name}
-                                  </p>
-                                  <p
-                                    className={`text-xs ${
-                                      message.role === "user"
-                                        ? "text-blue-100"
-                                        : "text-gray-500"
-                                    }`}
-                                  >
-                                    {formatFileSize(
-                                      messageAttachments[message.id].size
-                                    )}
-                                  </p>
-                                </div>
-                                <button
-                                  type="button"
-                                  className={`p-1 rounded-full ${
-                                    message.role === "user"
-                                      ? "text-white hover:bg-blue-300"
-                                      : "text-gray-500 hover:bg-gray-200"
-                                  }`}
-                                >
-                                  <Download className="h-4 w-4" />
-                                </button>
-                              </div>
-                            </div>
+                          {message.role === "user" ? (
+                            <User className="h-5 w-5 text-blue-600" />
+                          ) : (
+                            <Bot className="h-5 w-5 text-purple-600" />
                           )}
                         </div>
+                        <div>
+                          <div
+                            className={`text-sm font-medium ${
+                              message.role === "user"
+                                ? "text-right text-blue-600"
+                                : "text-left text-purple-600"
+                            }`}
+                          >
+                            {message.role === "user" ? "You" : "AI Assistant"}
+                          </div>
+                          <div
+                            className={`mt-1 rounded-2xl px-4 py-2 break-words wrap-anywhere prose ${
+                              message.role === "user"
+                                ? "bg-blue-500 text-white rounded-tr-none"
+                                : "bg-white text-gray-800 shadow-sm rounded-tl-none"
+                            }`}
+                          >
+                            <div className="markdown-content">
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                  p: ({ node, ...props }) => (
+                                    <p className="mb-2 last:mb-0" {...props} />
+                                  ),
+                                  a: ({ node, ...props }) => (
+                                    <a
+                                      className={`underline ${
+                                        message.role === "user"
+                                          ? "text-blue-100"
+                                          : "text-blue-600"
+                                      }`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      {...props}
+                                    />
+                                  ),
+                                  ul: ({ node, ...props }) => (
+                                    <ul
+                                      className="list-disc pl-5 mb-2"
+                                      {...props}
+                                    />
+                                  ),
+                                  ol: ({ node, ...props }) => (
+                                    <ol
+                                      className="list-decimal pl-5 mb-2"
+                                      {...props}
+                                    />
+                                  ),
+                                  li: ({ node, ...props }) => (
+                                    <li className="mb-1" {...props} />
+                                  ),
+                                  h1: ({ node, ...props }) => (
+                                    <h1
+                                      className="text-xl font-bold mb-2 mt-3"
+                                      {...props}
+                                    />
+                                  ),
+                                  h2: ({ node, ...props }) => (
+                                    <h2
+                                      className="text-lg font-bold mb-2 mt-3"
+                                      {...props}
+                                    />
+                                  ),
+                                  h3: ({ node, ...props }) => (
+                                    <h3
+                                      className="text-md font-bold mb-2 mt-3"
+                                      {...props}
+                                    />
+                                  ),
+                                  blockquote: ({ node, ...props }) => (
+                                    <blockquote
+                                      className={`border-l-4 ${
+                                        message.role === "user"
+                                          ? "border-blue-400 bg-blue-400/30"
+                                          : "border-gray-300 bg-gray-100"
+                                      } pl-3 py-1 mb-2 italic`}
+                                      {...props}
+                                    />
+                                  ),
+                                  hr: ({ node, ...props }) => (
+                                    <hr className="my-3 border-t" {...props} />
+                                  ),
+                                  table: ({ node, ...props }) => (
+                                    <div className="overflow-x-auto mb-2">
+                                      <table
+                                        className="min-w-full border-collapse"
+                                        {...props}
+                                      />
+                                    </div>
+                                  ),
+                                  th: ({ node, ...props }) => (
+                                    <th
+                                      className={`px-2 py-1 font-bold border ${
+                                        message.role === "user"
+                                          ? "border-blue-400"
+                                          : "border-gray-300"
+                                      }`}
+                                      {...props}
+                                    />
+                                  ),
+                                  td: ({ node, ...props }) => (
+                                    <td
+                                      className={`px-2 py-1 border ${
+                                        message.role === "user"
+                                          ? "border-blue-400"
+                                          : "border-gray-300"
+                                      }`}
+                                      {...props}
+                                    />
+                                  ),
+                                }}
+                              >
+                                {message.content}
+                              </ReactMarkdown>
+                            </div>
+
+                            {/* File attachment display */}
+                            {messageAttachments[message.id] && (
+                              <div
+                                className={`mt-2 pt-2 border-t ${
+                                  message.role === "user"
+                                    ? "border-blue-400"
+                                    : "border-gray-200"
+                                }`}
+                              >
+                                <div
+                                  className={`flex items-center rounded-lg p-2 ${
+                                    message.role === "user"
+                                      ? "bg-blue-400"
+                                      : "bg-gray-100"
+                                  }`}
+                                >
+                                  <FileText
+                                    className={`h-5 w-5 mr-2 ${
+                                      message.role === "user"
+                                        ? "text-white"
+                                        : "text-gray-500"
+                                    }`}
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <p
+                                      className={`text-sm font-medium truncate ${
+                                        message.role === "user"
+                                          ? "text-white"
+                                          : "text-gray-700"
+                                      }`}
+                                    >
+                                      {messageAttachments[message.id].name}
+                                    </p>
+                                    <p
+                                      className={`text-xs ${
+                                        message.role === "user"
+                                          ? "text-blue-100"
+                                          : "text-gray-500"
+                                      }`}
+                                    >
+                                      {formatFileSize(
+                                        messageAttachments[message.id].size
+                                      )}
+                                    </p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className={`p-1 rounded-full ${
+                                      message.role === "user"
+                                        ? "text-white hover:bg-blue-300"
+                                        : "text-gray-500 hover:bg-gray-200"
+                                    }`}
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))}
               </AnimatePresence>
 
               {/* AI Typing Indicator */}
@@ -399,7 +419,7 @@ export default function ChatPage() {
                     exit={{ opacity: 0, y: 10 }}
                     className="flex justify-start"
                   >
-                    <div className="flex flex-row">
+                    <div className="flex flex-row mb-3">
                       <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-purple-100 mr-3">
                         <Bot className="h-5 w-5 text-purple-600" />
                       </div>
@@ -446,11 +466,12 @@ export default function ChatPage() {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Move message end ref inside the container */}
+              <div ref={messagesEndRef} />
             </div>
           </div>
         </div>
-
-        <div ref={messagesEndRef} />
       </div>
 
       <div className="border-t bg-white p-4 sm:p-6">
