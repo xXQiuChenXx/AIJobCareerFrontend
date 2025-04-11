@@ -27,17 +27,16 @@ import JobMatchSection from "@/components/profile/sections/job-match-section";
 import EndorsementsSection from "@/components/profile/sections/endorsements-section";
 import { SkillService } from "@/services/skill-service";
 import { EducationService } from "@/services/education-service";
-import { CertificationService } from "@/services/certification-service";
 import { ProjectService } from "@/services/project-service";
 import { PublicationService } from "@/services/publication-service";
 import type { Skill } from "@/types/skill";
-import type { Certification } from "@/types/certification";
 import type { Publication } from "@/types/publication";
 import type { EducationFormValues } from "@/lib/schemas/education-schema";
 import type { ProjectFormValues } from "@/lib/schemas/project-schema";
 import type { WorkExperienceFormValues } from "@/lib/schemas/work-experience-schema";
 import { useAuth } from "@/components/provider/auth-provider";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate } from "react-router";
+import type { Route } from "./+types/user-profile";
 
 // Helper to calculate profile completion
 const calculateProfileCompletion = (
@@ -52,27 +51,24 @@ const calculateProfileCompletion = (
     profile.skills && profile.skills.length > 0,
     profile.projects && profile.projects.length > 0,
     profile.publications && profile.publications.length > 0,
-    profile.certifications && profile.certifications.length > 0,
   ];
 
   const completedSections = sections.filter(Boolean).length;
   return Math.round((completedSections / sections.length) * 100);
 };
 
-export default function ProfilePage() {
+export default function ProfilePage({ params }: Route.ComponentProps) {
+  const { id } = params;
   const { user } = useAuth();
   const [profile, setProfile] = useState<CompleteProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  console.log(user)
-  
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const profileData = await ProfileService.getCompleteProfile();
-        console.log(profileData);
+        const profileData = await ProfileService.getCompleteProfile(id);
         setProfile(profileData);
       } catch (err) {
         console.error("Failed to fetch profile data:", err);
@@ -190,40 +186,6 @@ export default function ProfilePage() {
     });
   };
 
-  const handleSaveCertifications = async (certifications: Certification[]) => {
-    if (!profile || !profile.basicInfo) return;
-
-    const userId = profile.basicInfo.user_id;
-
-    // Process each certification
-    for (const cert of certifications) {
-      if (cert.certification_id.startsWith("temp-")) {
-        // Create new certification
-        const { certification_id, ...newCert } = cert;
-        await CertificationService.createCertification({
-          ...newCert,
-          user_id: userId,
-        });
-      } else {
-        // Update existing certification
-        await CertificationService.updateCertification(cert.certification_id, {
-          ...cert,
-          user_id: userId,
-        });
-      }
-    }
-
-    // Get updated certifications list
-    const updatedCerts = await CertificationService.getCertificationsByUserId(
-      userId
-    );
-
-    setProfile({
-      ...profile,
-      certifications: updatedCerts,
-    });
-  };
-
   const handleSaveProjects = async (projects: ProjectFormValues[]) => {
     if (!profile || !profile.basicInfo) return;
 
@@ -311,6 +273,7 @@ export default function ProfilePage() {
   }
 
   const isPrivate = profile.basicInfo?.privacy_status === "private";
+  const isAdmin = profile.basicInfo.user_id === user?.userId;
   const profileCompletion = calculateProfileCompletion(profile);
   const userInitials = profile.basicInfo?.first_name
     ? (
@@ -413,6 +376,7 @@ export default function ProfilePage() {
               <AboutSection
                 handleSaveBasicInfo={handleSaveBasicInfo}
                 isPrivate={isPrivate}
+                isAdmin={isAdmin}
                 profile={profile}
                 userInitials={userInitials}
               />
@@ -420,6 +384,7 @@ export default function ProfilePage() {
               <SkillsSection
                 profile={profile}
                 isPrivate={isPrivate}
+                isAdmin={isAdmin}
                 handleSaveSkills={handleSaveSkills}
               />
             </TabsContent>
@@ -427,6 +392,7 @@ export default function ProfilePage() {
             <TabsContent value="experience" className="space-y-6 pt-4">
               <ExperienceSection
                 profile={profile}
+                isAdmin={isAdmin}
                 isPrivate={isPrivate}
                 handleSaveWorkExperiences={handleSaveWorkExperiences}
               />
@@ -435,26 +401,23 @@ export default function ProfilePage() {
             <TabsContent value="education" className="space-y-6 pt-4">
               <EducationSection
                 profile={profile}
+                isAdmin={isAdmin}
                 isPrivate={isPrivate}
                 handleSaveEducation={handleSaveEducation}
               />
-
-              {/* <CertificationsSection
-                profile={profile}
-                isPrivate={isPrivate}
-                handleSaveCertifications={handleSaveCertifications}
-              /> */}
             </TabsContent>
 
             <TabsContent value="portfolio" className="space-y-6 pt-4">
               <ProjectsSection
                 profile={profile}
+                isAdmin={isAdmin}
                 isPrivate={isPrivate}
                 handleSaveProjects={handleSaveProjects}
               />
 
               <PublicationsSection
                 profile={profile}
+                isAdmin={isAdmin}
                 isPrivate={isPrivate}
                 handleSavePublications={handleSavePublications}
               />

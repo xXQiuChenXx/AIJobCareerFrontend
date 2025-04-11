@@ -1,4 +1,3 @@
-import type { Certification } from "./certification";
 import type { Education } from "./education";
 import type { Project } from "./project";
 import type { Publication } from "./publication";
@@ -29,5 +28,4 @@ export interface CompleteProfile {
   projects: Project[];
   publications: Publication[];
   skills: Skill[];
-  certifications: Certification[];
 }

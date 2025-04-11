@@ -16,6 +16,7 @@ import { useRef, useState, type RefObject } from "react";
 interface AboutSectionProps {
   profile: CompleteProfile;
   isPrivate: boolean;
+  isAdmin: boolean;
   handleSaveBasicInfo: (data: Partial<BasicInfo>) => Promise<void>;
   userInitials: string;
 }
@@ -23,6 +24,7 @@ interface AboutSectionProps {
 const AboutSection = ({
   isPrivate,
   profile,
+  isAdmin,
   handleSaveBasicInfo,
   userInitials,
 }: AboutSectionProps) => {
@@ -61,7 +63,7 @@ const AboutSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {isPrivate ? (
+        {isPrivate && !isAdmin ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="mb-4 rounded-full bg-amber-100 p-3">
               <Lock className="h-6 w-6 text-amber-600" />

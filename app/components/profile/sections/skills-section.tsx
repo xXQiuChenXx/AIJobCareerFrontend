@@ -10,6 +10,7 @@ import { useRef, useState, type RefObject } from "react";
 
 interface SkillsSectionProps {
   profile: CompleteProfile;
+  isAdmin: boolean;
   isPrivate: boolean;
   handleSaveSkills?: (skills: Skill[]) => Promise<void>;
 }
@@ -29,6 +30,7 @@ const getLevelPercentage = (level: string): number => {
 const SkillsSection = ({
   profile,
   isPrivate,
+  isAdmin,
   handleSaveSkills,
 }: SkillsSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -65,7 +67,7 @@ const SkillsSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {isPrivate ? (
+        {isPrivate && !isAdmin ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="mb-4 rounded-full bg-amber-100 p-3">
               <Lock className="h-6 w-6 text-amber-600" />

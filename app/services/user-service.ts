@@ -12,6 +12,7 @@ export const UserService = {
       user_email: data?.email,
       user_icon: data?.icon,
       area_name: data?.location,
+      privacy_status: data?.privacy_status,
     });
   },
 

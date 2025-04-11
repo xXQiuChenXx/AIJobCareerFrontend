@@ -118,11 +118,15 @@ export const SiteHeader = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <NavLink
-                    to="/profile"
+                    to={
+                      user?.user_company_id
+                        ? `/company/${user?.user_company_id}`
+                        : `/profile/${user?.userId}`
+                    }
                     className="flex w-full cursor-pointer items-center"
                   >
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    <span>Profile</span>
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem

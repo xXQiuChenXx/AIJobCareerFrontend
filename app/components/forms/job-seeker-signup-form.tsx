@@ -5,7 +5,10 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/components/provider/auth-provider";
+import {
+  useAuth,
+  type ResponseUserType,
+} from "@/components/provider/auth-provider";
 import {
   RegisterFormSchema,
   type RegisterFormType,
@@ -46,9 +49,9 @@ export const JobSeekerSignupForm = () => {
     },
   });
 
-  const onSuccess = () => {
+  const onSuccess = (user: ResponseUserType) => {
     form.reset();
-    navigate("/profile");
+    navigate(`/profile/${user?.userId}`);
     toast("Account created successfully!");
   };
 
@@ -100,7 +103,7 @@ export const JobSeekerSignupForm = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />  
+          />
 
           <FormField
             control={form.control}

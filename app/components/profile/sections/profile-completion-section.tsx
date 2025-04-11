@@ -12,26 +12,6 @@ interface ProfileCompletionSectionProps {
   profileCompletion: number;
 }
 
-// Helper to calculate profile completion
-const calculateProfileCompletion = (
-  profile: CompleteProfile | null
-): number => {
-  if (!profile) return 0;
-
-  const sections = [
-    !!profile.basicInfo,
-    profile.workExperiences && profile.workExperiences.length > 0,
-    profile.education && profile.education.length > 0,
-    profile.skills && profile.skills.length > 0,
-    profile.projects && profile.projects.length > 0,
-    profile.publications && profile.publications.length > 0,
-    profile.certifications && profile.certifications.length > 0,
-  ];
-
-  const completedSections = sections.filter(Boolean).length;
-  return Math.round((completedSections / sections.length) * 100);
-};
-
 const ProfileCompletionSection = ({
   profile,
   isPrivate,

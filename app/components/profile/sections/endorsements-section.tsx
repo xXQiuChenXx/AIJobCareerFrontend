@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThumbsUp } from "lucide-react";
 import type { CompleteProfile } from "@/types/user";
-import { useRef } from "react";
 
 interface EndorsementsSectionProps {
   profile: CompleteProfile;

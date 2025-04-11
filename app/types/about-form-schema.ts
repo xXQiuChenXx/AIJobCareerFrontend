@@ -13,6 +13,8 @@ export const ALLOWED_CITIES = [
   "Betong",
 ] as const;
 
+export const PRIVACY_STATUS = ["private", "public"] as const;
+
 export const aboutFormSchema = z.object({
   user_first_name: z.string().min(1, { message: "First name is required." }),
   user_last_name: z.string().min(1, { message: "Last name is required." }),
@@ -32,6 +34,9 @@ export const aboutFormSchema = z.object({
     })
     .optional()
     .or(z.literal("")),
+  user_privacy_status: z.enum(PRIVACY_STATUS, {
+    errorMap: () => ({ message: "Please select a valid privacy status" }),
+  }).default("private"),
   user_intro: z
     .string()
     .min(10, { message: "About me must be at least 10 characters." })

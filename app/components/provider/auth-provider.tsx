@@ -19,12 +19,15 @@ interface AuthContextType {
   error: string | null;
   login: (data: LoginFormType, onSuccess: () => void) => void;
   logout: () => void;
-  register: (data: RegisterFormType, onSuccess: () => void) => void;
-  registerBusinessUser: (data: BusinessRegistration, onSuccess: () => void) => void;
+  register: (data: RegisterFormType, onSuccess: (user: ResponseUserType) => void) => void;
+  registerBusinessUser: (
+    data: BusinessRegistration,
+    onSuccess: () => void
+  ) => void;
   isAuthenticated: boolean;
   clearError: () => void;
 }
-interface ResponseUserType {
+export interface ResponseUserType {
   userId: string;
   email: string;
   user_name: string;
@@ -105,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Register function
   const register = (
     { terms_accepted, confirm_password, ...submitData }: RegisterFormType,
-    onSuccess: () => void
+    onSuccess: (user: ResponseUserType) => void
   ) => {
     startLoding(async () => {
       setError(null);
@@ -117,7 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           expires: 30,
         });
         setUser(response.data.user);
-        onSuccess();
+        onSuccess(response.data.user);
       } catch (err: any) {
         setError(
           err?.response?.data?.message ||

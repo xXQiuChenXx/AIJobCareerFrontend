@@ -1,10 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface JobMatchSectionProps {
-  // Add any props you may need
-}
-
 const JobMatchSection = () => {
   return (
     <Card>

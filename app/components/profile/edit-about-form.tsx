@@ -18,6 +18,8 @@ import { toast } from "sonner";
 import { FileService } from "@/services/file-service";
 import {
   aboutFormSchema,
+  ALLOWED_CITIES,
+  PRIVACY_STATUS,
   type AboutFormValues,
 } from "@/types/about-form-schema";
 import {
@@ -36,19 +38,6 @@ interface EditAboutFormProps {
   registerSubmit?: (submitFn: () => Promise<void>) => void;
 }
 
-const ALLOWED_CITIES = [
-  "Kuching",
-  "Miri",
-  "Sibu",
-  "Bintulu",
-  "Samarahan",
-  "Sri Aman",
-  "Kapit",
-  "Limbang",
-  "Sarikei",
-  "Betong",
-];
-
 export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
   ({ profile, onSave, userInitials, registerSubmit }, ref) => {
     const [iconKey, setIconKey] = useState<string>(profile?.icon || "");
@@ -62,6 +51,8 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
       area_name: profile?.location || ("" as any),
       user_intro: profile?.intro || "",
       user_contact_number: profile?.contact_number || "",
+      user_privacy_status:
+        profile?.privacy_status === "public" ? "public" : "private",
     };
 
     const form = useForm<AboutFormValues>({
@@ -71,6 +62,7 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
     });
 
     const handleSubmit = async (values: AboutFormValues) => {
+      console.log(JSON.stringify(values))
       if (onSave) {
         try {
           let profileIconUrl = FileService.getFileUrl(iconKey);
@@ -83,6 +75,7 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
             intro: values.user_intro,
             contact_number: values.user_contact_number,
             icon: iconKey ? profileIconUrl : undefined,
+            privacy_status: values?.user_privacy_status,
           };
 
           // Send the profile update
@@ -198,34 +191,69 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="area_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your city" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {ALLOWED_CITIES.map((city) => (
-                        <SelectItem key={city} value={city}>
-                          {city}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>Select your city in Sarawak</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="area_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your city" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {ALLOWED_CITIES.map((city) => (
+                          <SelectItem key={city} value={city}>
+                            {city}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select your city in Sarawak
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="user_privacy_status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Profile Privacy</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select privacy status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {PRIVACY_STATUS.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Control who can see your profile
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}

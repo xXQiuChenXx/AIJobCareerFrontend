@@ -10,12 +10,14 @@ import type { EducationFormValues } from "@/lib/schemas/education-schema";
 interface EducationSectionProps {
   profile: CompleteProfile;
   isPrivate: boolean;
+  isAdmin: boolean;
   handleSaveEducation: (education: EducationFormValues[]) => Promise<void>;
 }
 
 const EducationSection = ({
   profile,
   isPrivate,
+  isAdmin,
   handleSaveEducation,
 }: EducationSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -54,7 +56,7 @@ const EducationSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {isPrivate ? (
+        {isPrivate && !isAdmin ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="mb-4 rounded-full bg-amber-100 p-3">
               <Lock className="h-6 w-6 text-amber-600" />

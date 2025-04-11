@@ -9,6 +9,7 @@ import type { WorkExperienceFormValues } from "@/lib/schemas/work-experience-sch
 
 interface ExperienceSectionProps {
   profile: CompleteProfile;
+  isAdmin: boolean;
   isPrivate: boolean;
   handleSaveWorkExperiences: (
     experiences: WorkExperienceFormValues[]
@@ -25,6 +26,7 @@ const formatDate = (dateString?: string): string => {
 const ExperienceSection = ({
   profile,
   isPrivate,
+  isAdmin,
   handleSaveWorkExperiences,
 }: ExperienceSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -63,7 +65,7 @@ const ExperienceSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {isPrivate ? (
+        {isPrivate && !isAdmin ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="mb-4 rounded-full bg-amber-100 p-3">
               <Lock className="h-6 w-6 text-amber-600" />

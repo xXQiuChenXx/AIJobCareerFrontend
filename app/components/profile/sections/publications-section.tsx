@@ -11,12 +11,14 @@ import { Button } from "@/components/ui/button";
 
 interface PublicationsSectionProps {
   profile: CompleteProfile;
+  isAdmin: boolean;
   isPrivate: boolean;
   handleSavePublications: (publications: Publication[]) => Promise<void>;
 }
 
 const PublicationsSection = ({
   profile,
+  isAdmin,
   isPrivate,
   handleSavePublications,
 }: PublicationsSectionProps) => {
@@ -56,7 +58,7 @@ const PublicationsSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {isPrivate ? (
+        {isPrivate && !isAdmin ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="mb-4 rounded-full bg-amber-100 p-3">
               <Lock className="h-6 w-6 text-amber-600" />

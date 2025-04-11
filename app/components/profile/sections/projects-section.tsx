@@ -18,12 +18,14 @@ import { Button } from "@/components/ui/button";
 interface ProjectsSectionProps {
   profile: CompleteProfile;
   isPrivate: boolean;
+  isAdmin: boolean;
   handleSaveProjects: (projects: ProjectFormValues[]) => Promise<void>;
 }
 
 const ProjectsSection = ({
   profile,
   isPrivate,
+  isAdmin,
   handleSaveProjects,
 }: ProjectsSectionProps) => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -61,7 +63,7 @@ const ProjectsSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {isPrivate ? (
+        {isPrivate && !isAdmin ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="mb-4 rounded-full bg-amber-100 p-3">
               <Lock className="h-6 w-6 text-amber-600" />
