@@ -120,13 +120,6 @@ const ProfileCompletionSection = ({
                 {profile.projects?.length > 0 ? "Complete" : "Incomplete"}
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-rose-500"></div>
-                <span className="text-sm">Recommendations</span>
-              </div>
-              <span className="text-xs text-muted-foreground">Missing</span>
-            </div>
           </div>
           <Button size="sm" className="w-full">
             Complete Your Profile

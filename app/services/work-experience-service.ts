@@ -68,7 +68,6 @@ export const WorkExperienceService = {
 };
 
 function processWorkExperienceResponse(project: any): WorkExperience {
-  console.log(project);
   return {
     company_name: project.companyName || project.company_name,
     description: project.description || project.description,

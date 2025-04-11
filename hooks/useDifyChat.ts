@@ -58,7 +58,6 @@ export function useDifyChat({
       fileId?: string,
       attachedFile?: File
     ) => {
-      console.log("handleSubmit called", { fileId });
       e.preventDefault();
 
       if (!input.trim() && !fileId) return;

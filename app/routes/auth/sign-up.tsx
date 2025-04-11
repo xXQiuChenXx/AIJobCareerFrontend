@@ -2,9 +2,12 @@ import { EmployerSignupForm } from "@/components/forms/employer-signup-form";
 import { JobSeekerSignupForm } from "@/components/forms/job-seeker-signup-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
-import { NavLink } from "react-router";
+import { NavLink, useSearchParams } from "react-router";
 
 export default function SignupPage() {
+  const [searchParams] = useSearchParams();
+  const type = searchParams.get("type") || "jobseeker";
+
   return (
     <div className="flex-1 flex flex-col p-6 md:p-10 lg:p-16">
       <div className="mb-8">
@@ -27,7 +30,7 @@ export default function SignupPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="jobseeker" className="w-full">
+        <Tabs defaultValue={type} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="jobseeker">Job Seeker</TabsTrigger>
             <TabsTrigger value="employer">Employer</TabsTrigger>

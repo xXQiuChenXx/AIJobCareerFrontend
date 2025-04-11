@@ -233,8 +233,6 @@ export default function JobListings() {
     </div>
   );
 
-  console.log(jobsData);
-
   return (
     <div className="grid md:grid-cols-[250px_1fr] gap-6">
       {/* Filters - Desktop */}

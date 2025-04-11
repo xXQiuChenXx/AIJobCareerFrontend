@@ -241,7 +241,6 @@ export default function ProfilePage({ params }: Route.ComponentProps) {
 
     // Get updated publications list
     const updatedPublications = await PublicationService.getAllPublications();
-    console.log(updatedPublications);
 
     setProfile({
       ...profile,

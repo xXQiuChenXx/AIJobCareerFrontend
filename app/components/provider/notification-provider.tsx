@@ -33,7 +33,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setError(null)
     try {
       const response = await getNotifications()
-      console.log(response);
       const uiNotifications = response.notifications.map(mapNotificationToUi)
       setNotifications(uiNotifications)
       

@@ -37,14 +37,14 @@ export const SignInForm = () => {
   }, [error, clearError]);
 
   const onSuccess = ({
-    userId,
+    username,
     companyId,
   }: {
-    userId?: string;
+    username?: string;
     companyId?: string;
   }) => {
     form.reset();
-    navigate(`/profile/${userId || companyId}`);
+    navigate(`/profile/${username || companyId}`);
     toast.success("Logged in successfully!");
   };
 

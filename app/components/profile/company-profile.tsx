@@ -78,7 +78,7 @@ export default function CompanyProfile({
             <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200">
               {company.company_icon ? (
                 <img
-                  src={CompanyService.getCompanyLogoUrl(company.company_icon)}
+                  src={CompanyService.getCompanyLogoUrl(company.company_icon) || "/profile/company.png"}
                   alt={company.company_name}
                   className="object-cover"
                 />
@@ -155,7 +155,6 @@ export default function CompanyProfile({
       <EditProfileDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
-        // @ts-ignore
         companyData={company}
         onUpdate={handleProfileUpdate}
       />

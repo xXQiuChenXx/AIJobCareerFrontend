@@ -16,7 +16,7 @@ import { useNavigate } from "react-router";
 
 type CompanyOrUser = {
   companyId?: string;
-  userId?: string;
+  username?: string;
 }
 
 interface AuthContextType {
@@ -36,7 +36,8 @@ interface AuthContextType {
 export interface ResponseUserType {
   userId: string;
   email: string;
-  user_name: string;
+  user_fullname: string;
+  username: string;
   user_icon?: string;
   user_company_id: string;
 }
@@ -99,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(response.data?.user);
         onSuccess({
           companyId: response.data?.user?.user_company_id,
-          userId: response.data?.user?.userId,
+          username: response.data?.user?.username,
         });
       } catch (err: any) {
         const errorMessage =

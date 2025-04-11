@@ -198,7 +198,6 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
         submission
       );
 
-      console.log("Application submitted successfully:", response);
       setIsSubmitted(true);
       toast("Application Submitted.", {
         description:

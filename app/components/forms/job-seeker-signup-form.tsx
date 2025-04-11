@@ -51,7 +51,7 @@ export const JobSeekerSignupForm = () => {
 
   const onSuccess = (user: ResponseUserType) => {
     form.reset();
-    navigate(`/profile/${user?.userId}`);
+    navigate(`/profile/${user?.username}`);
     toast("Account created successfully!");
   };
 

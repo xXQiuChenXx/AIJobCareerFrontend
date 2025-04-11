@@ -27,7 +27,6 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
   useEffect(() => {
     getJobById(id).then((job) => {
       setJobData(job);
-      console.log(job);
     });
   }, [id]);
 
@@ -57,7 +56,7 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               <div className="flex-shrink-0">
                 <img
-                  src={jobData?.company?.company_icon || "/placeholder.svg"}
+                  src={jobData?.company?.company_icon || "/profile/company.png"}
                   alt={jobData?.company.company_name}
                   width={80}
                   height={80}
@@ -106,7 +105,9 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
               </div>
               <div className="flex flex-col gap-2 md:items-end mt-4 md:mt-0">
                 <NavLink to={`/careers/apply/${jobData.job_id}`}>
-                  <Button className="w-full md:w-auto cursor-pointer">Apply Now</Button>
+                  <Button className="w-full md:w-auto cursor-pointer">
+                    Apply Now
+                  </Button>
                 </NavLink>
                 <Button
                   variant="outline"
@@ -206,16 +207,18 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
                     <Briefcase className="h-4 w-4 mr-2" />
                     <span>{jobData.company.company_industry}</span>
                   </div>
-                  <div className="flex items-center text-muted-foreground">
-                    <Globe className="h-4 w-4 mr-2" />
-                    <NavLink
-                      to={jobData?.company.company_website}
-                      target="_blank"
-                      className="text-primary hover:underline"
-                    >
-                      <span>{jobData?.company.company_website}</span>
-                    </NavLink>
-                  </div>
+                  {jobData?.company.company_website && (
+                    <div className="flex items-center text-muted-foreground">
+                      <Globe className="h-4 w-4 mr-2" />
+                      <NavLink
+                        to={jobData?.company.company_website}
+                        target="_blank"
+                        className="text-primary hover:underline"
+                      >
+                        <span>{jobData?.company.company_website}</span>
+                      </NavLink>
+                    </div>
+                  )}
                 </div>
                 <p className="mt-4 text-muted-foreground">
                   {jobData.company.company_intro}
