@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "AI Job Web App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "AI Job Career" },
+    { name: "description", content: "Welcome to AI Job Career!" },
   ];
 }
 
@@ -184,8 +184,10 @@ export default function Home() {
               <p className="text-sm text-muted-foreground text-center mt-2">
                 Build models that learn from data and make predictions
               </p>
-              <Button variant="link" className="mt-4">
-                View Jobs <ChevronRight className="ml-1 h-4 w-4" />
+              <Button variant="link" className="mt-4" asChild>
+                <NavLink to="/careers">
+                  View Jobs <ChevronRight className="ml-1 h-4 w-4" />
+                </NavLink>
               </Button>
             </div>
             <div className="flex flex-col items-center p-6 bg-background rounded-lg shadow-sm border hover:shadow-md transition-shadow">
@@ -197,8 +199,10 @@ export default function Home() {
                 Extract insights and knowledge from structured and unstructured
                 data
               </p>
-              <Button variant="link" className="mt-4">
-                View Jobs <ChevronRight className="ml-1 h-4 w-4" />
+              <Button variant="link" className="mt-4" asChild>
+                <NavLink to="/careers">
+                  View Jobs <ChevronRight className="ml-1 h-4 w-4" />
+                </NavLink>
               </Button>
             </div>
             <div className="flex flex-col items-center p-6 bg-background rounded-lg shadow-sm border hover:shadow-md transition-shadow">
@@ -209,8 +213,10 @@ export default function Home() {
               <p className="text-sm text-muted-foreground text-center mt-2">
                 Deploy and maintain machine learning models in production
               </p>
-              <Button variant="link" className="mt-4">
-                View Jobs <ChevronRight className="ml-1 h-4 w-4" />
+              <Button variant="link" className="mt-4" asChild>
+                <NavLink to="/careers">
+                  View Jobs <ChevronRight className="ml-1 h-4 w-4" />
+                </NavLink>
               </Button>
             </div>
             <div className="flex flex-col items-center p-6 bg-background rounded-lg shadow-sm border hover:shadow-md transition-shadow">
@@ -222,8 +228,10 @@ export default function Home() {
                 Push the boundaries of what's possible with artificial
                 intelligence
               </p>
-              <Button variant="link" className="mt-4">
-                View Jobs <ChevronRight className="ml-1 h-4 w-4" />
+              <Button variant="link" className="mt-4" asChild>
+                <NavLink to="/careers">
+                  View Jobs <ChevronRight className="ml-1 h-4 w-4" />
+                </NavLink>
               </Button>
             </div>
           </div>
@@ -236,14 +244,16 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
               <h2 className="text-3xl font-bold tracking-tighter">
-                Featured AI Jobs
+                Featured Jobs
               </h2>
               <p className="text-muted-foreground mt-1">
                 Handpicked opportunities from top companies
               </p>
             </div>
-            <Button variant="outline">
-              View All Jobs <ChevronRight className="ml-1 h-4 w-4" />
+            <Button variant="outline" asChild>
+              <NavLink to="/careers">
+                View All Jobs <ChevronRight className="ml-1 h-4 w-4" />
+              </NavLink>
             </Button>
           </div>
           <div className="grid gap-6">
@@ -256,49 +266,48 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                      Senior Machine Learning Engineer
+                      Senior Software Developer
                     </h3>
                     <div className="flex flex-wrap gap-2 mt-1">
                       <span className="text-sm text-muted-foreground">
-                        TechCorp AI
+                        Sarawak Energy
                       </span>
                       <span className="text-sm text-muted-foreground">•</span>
                       <span className="text-sm text-muted-foreground">
-                        San Francisco, CA (Remote)
+                        Kuching, Sarawak
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col sm:items-end gap-2">
-                  <span className="text-sm font-medium">$150K - $200K</span>
+                  <span className="text-sm font-medium">RM5,000 - RM7,500</span>
                   <span className="text-xs text-muted-foreground">
-                    Posted 2 days ago
+                    Posted 20 days ago
                   </span>
                 </div>
               </div>
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                  Design and implement machine learning models to solve complex
-                  problems. Work with large datasets and deploy models to
-                  production.
+                  Develop and maintain enterprise software applications for
+                  energy management systems.
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  Python
+                  Software Development
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  TensorFlow
+                  Computer Science
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  PyTorch
+                  Enterprise Apps
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  MLOps
+                  Full-Time
                 </span>
               </div>
               <NavLink
-                to="#"
+                to="/careers/details/1"
                 className="absolute inset-0"
                 aria-label="View job details"
               >
@@ -314,49 +323,49 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                      AI Research Scientist
+                      Petroleum Engineer
                     </h3>
                     <div className="flex flex-wrap gap-2 mt-1">
                       <span className="text-sm text-muted-foreground">
-                        InnovateAI Labs
+                        Petronas
                       </span>
                       <span className="text-sm text-muted-foreground">•</span>
                       <span className="text-sm text-muted-foreground">
-                        Boston, MA (Hybrid)
+                        Miri, Sarawak
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col sm:items-end gap-2">
-                  <span className="text-sm font-medium">$180K - $220K</span>
+                  <span className="text-sm font-medium">RM6,500 - RM9,000</span>
                   <span className="text-xs text-muted-foreground">
-                    Posted 1 week ago
+                    Posted 10 days ago
                   </span>
                 </div>
               </div>
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                  Conduct cutting-edge research in natural language processing
-                  and develop novel algorithms to advance the state of the art
-                  in AI.
+                  Design and implement strategies for efficient oil and gas
+                  extraction. Collaborate with multidisciplinary teams to solve
+                  complex drilling challenges.
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  NLP
+                  Petroleum Engineering
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  Deep Learning
+                  Oil & Gas
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  Research
+                  Contract
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  PhD
+                  Field Experience
                 </span>
               </div>
               <NavLink
-                to="#"
+                to="/careers/details/2"
                 className="absolute inset-0"
                 aria-label="View job details"
               >
@@ -373,48 +382,49 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                      Computer Vision Engineer
+                      Full Stack Developer
                     </h3>
                     <div className="flex flex-wrap gap-2 mt-1">
                       <span className="text-sm text-muted-foreground">
-                        VisionTech AI
+                        Sarawak Forestry Corporation
                       </span>
                       <span className="text-sm text-muted-foreground">•</span>
                       <span className="text-sm text-muted-foreground">
-                        Remote (US)
+                        Samarahan, Sarawak
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col sm:items-end gap-2">
-                  <span className="text-sm font-medium">$130K - $170K</span>
+                  <span className="text-sm font-medium">RM4,800 - RM7,000</span>
                   <span className="text-xs text-muted-foreground">
-                    Posted 3 days ago
+                    Posted 34 days ago
                   </span>
                 </div>
               </div>
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                  Develop computer vision algorithms for object detection, image
-                  segmentation, and visual understanding in autonomous systems.
+                  Develop and maintain web applications that support Sarawak's
+                  digital economy initiatives, from database design to user
+                  interface implementation.
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  Computer Vision
+                  Full Stack
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  OpenCV
+                  Web Development
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  CUDA
+                  Computer Science
                 </span>
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                  C++
+                  Full-Time
                 </span>
               </div>
               <NavLink
-                to="#"
+                to="/careers/details/6"
                 className="absolute inset-0"
                 aria-label="View job details"
               >

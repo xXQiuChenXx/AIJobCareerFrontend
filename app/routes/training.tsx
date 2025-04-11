@@ -5,6 +5,15 @@ import { LocalUniversities } from "@/components/training/local-universities";
 import OrganizationTraining from "@/components/training/organization-training";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "react-router";
+import type { Route } from "./+types/training";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "AI Job Career | Training" },
+    { name: "description", content: "Welcome to AI Job Career!" },
+  ];
+}
+
 
 const TrainingPage = () => {
   return (

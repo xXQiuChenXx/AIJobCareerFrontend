@@ -3,7 +3,6 @@ import { DifyService, type ChatMessage } from "../app/services/dify-service";
 
 interface UseDifyChatProps {
   userId: string;
-  username: string;
   email?: string;
 }
 
@@ -24,7 +23,6 @@ interface UseDifyChatResult {
 
 export function useDifyChat({
   userId,
-  username,
 }: UseDifyChatProps): UseDifyChatResult {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");

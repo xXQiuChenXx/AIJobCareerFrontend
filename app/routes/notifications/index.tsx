@@ -7,9 +7,18 @@ import {
 import { CheckCheck, Info, AlertCircle, CheckCircle, Bell, Loader2 } from "lucide-react";
 import { NavLink } from "react-router";
 import type { NotificationUi } from "@/types/notifications";
+import type { Route } from "./+types/notification";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "AI Job Career | Notifications" },
+    { name: "description", content: "Welcome to AI Job Career!" },
+  ];
+}
+
 
 export default function NotificationsPage() {
-  const { notifications, markAsRead, markAllAsRead, loading, error, refreshNotifications } = useNotifications();
+  const { notifications, markAllAsRead, loading, error, refreshNotifications } = useNotifications();
 
   const unreadNotifications = notifications.filter((n) => !n.read);
   const readNotifications = notifications.filter((n) => n.read);

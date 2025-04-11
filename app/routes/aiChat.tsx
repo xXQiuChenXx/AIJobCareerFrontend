@@ -19,6 +19,15 @@ import remarkGfm from "remark-gfm";
 import { formatFileSize } from "@/lib/utils";
 import { useAuth } from "@/components/provider/auth-provider";
 import LoginRequired from "@/components/utils/login-required";
+import type { Route } from "./+types/aiChat";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "AI Job Career | AIChat" },
+    { name: "description", content: "Welcome to AI Job Career!" },
+  ];
+}
+
 
 export default function ChatPage() {
   const { user } = useAuth();
@@ -34,7 +43,6 @@ export default function ChatPage() {
     uploadFile,
   } = useDifyChat({
     userId: user.userId,
-    username: user.username,
     email: user.email,
   });
 

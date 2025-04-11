@@ -29,7 +29,6 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
   const [activeTab, setActiveTab] = useState("about");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const isAdmin = companyId === user?.user_company_id;
-  console.log(companyInfo);
 
   // Fetch company data on mount
   useEffect(() => {
