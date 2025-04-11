@@ -38,27 +38,25 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
               <NavLink
-                to="#sign-up"
+                to="/careers"
                 className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 Search Jobs
                 <ArrowRight className="ml-2 h-4 w-4" />
               </NavLink>
               <NavLink
-                to="#"
+                to="/sign-up?type=employer"
                 className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 Post a job
               </NavLink>
             </div>
           </div>
-          <div className="mx-auto w-full max-w-[500px] lg:ml-auto">
+          <div className="mx-auto w-full max-w-[500px] lg:ml-auto my-20">
             <img
-              src="/placeholder.svg?height=550&width=550"
-              width={550}
-              height={550}
+              src="/hero.png"
               alt="AI Job Matching"
-              className="mx-auto aspect-square overflow-hidden rounded-xl object-cover"
+              className="mx-auto overflow-hidden rounded-xl object-contain"
             />
           </div>
         </div>

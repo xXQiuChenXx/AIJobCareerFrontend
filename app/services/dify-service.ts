@@ -5,6 +5,12 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   files?: string[];
+  attachments?: { 
+    name: string;
+    size: number;
+    type: string;
+    id: string;
+  }[];
 }
 
 export interface ChatRequest {

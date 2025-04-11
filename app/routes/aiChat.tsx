@@ -9,7 +9,6 @@ import {
   Paperclip,
   Send,
   FileText,
-  Download,
   MessageSquare,
   Keyboard,
   Info,
@@ -20,13 +19,6 @@ import remarkGfm from "remark-gfm";
 import { formatFileSize } from "@/lib/utils";
 import { useAuth } from "@/components/provider/auth-provider";
 import LoginRequired from "@/components/utils/login-required";
-
-// Define a type for our file attachment
-interface FileAttachment {
-  name: string;
-  size: number;
-  type: string;
-}
 
 export default function ChatPage() {
   const { user } = useAuth();
@@ -48,16 +40,12 @@ export default function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [attachedFile, setAttachedFile] = useState<File | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Add this after other useEffect hooks
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Track file attachments for each message
-  const [messageAttachments, setMessageAttachments] = useState<
-    Record<string, FileAttachment>
-  >({});
   // Scroll to bottom when messages change - modified to scroll the container
   useEffect(() => {
     if (messagesContainerRef.current && messagesEndRef.current) {
@@ -81,7 +69,7 @@ export default function ChatPage() {
 
   // Remove attached file
   const handleRemoveFile = () => {
-    setAttachedFile(null);
+    setAttachedFile(undefined);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -100,44 +88,21 @@ export default function ChatPage() {
 
     if (!messageText.trim() && !attachedFile) return;
 
-    // Get the current message count to identify the new message later
-    const currentMessageCount = messages.length;
-
     // If there's a file, upload it first
     if (attachedFile) {
       try {
         // Upload the file and get its ID
         uploadedFileId = await uploadFile(attachedFile);
-
-        // Track the file attachment for display purposes
-        setTimeout(() => {
-          // Check if a new message was added
-          if (messages.length > currentMessageCount) {
-            // Get the latest message (which should be the user message we just sent)
-            const newMessage = messages[currentMessageCount];
-            if (newMessage && newMessage.role === "user") {
-              // Add the file attachment to our messageAttachments state
-              setMessageAttachments((prev) => ({
-                ...prev,
-                [newMessage.id]: {
-                  name: attachedFile.name,
-                  size: attachedFile.size,
-                  type: attachedFile.type,
-                },
-              }));
-            }
-          }
-        }, 50);
       } catch (error) {
         console.error("Error uploading file:", error);
       }
     }
 
     // Submit the message
-    handleSubmit(e, uploadedFileId);
+    handleSubmit(e, uploadedFileId, attachedFile);
 
     // Clear the file attachment
-    setAttachedFile(null);
+    setAttachedFile(undefined);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -344,11 +309,12 @@ export default function ChatPage() {
                                 {message.content}
                               </ReactMarkdown>
                             </div>
-
-                            {/* File attachment display */}
-                            {messageAttachments[message.id] && (
+                          </div>
+                          {/* File attachment display */}
+                          {message.attachments &&
+                            message.attachments.length > 0 && (
                               <div
-                                className={`mt-2 pt-2 border-t ${
+                                className={`pt-2 ${
                                   message.role === "user"
                                     ? "border-blue-400"
                                     : "border-gray-200"
@@ -370,13 +336,13 @@ export default function ChatPage() {
                                   />
                                   <div className="flex-1 min-w-0">
                                     <p
-                                      className={`text-sm font-medium truncate ${
+                                      className={`text-sm font-medium truncate text-ellipsis w-44 ${
                                         message.role === "user"
                                           ? "text-white"
                                           : "text-gray-700"
                                       }`}
                                     >
-                                      {messageAttachments[message.id].name}
+                                      {message.attachments[0].name}
                                     </p>
                                     <p
                                       className={`text-xs ${
@@ -386,24 +352,13 @@ export default function ChatPage() {
                                       }`}
                                     >
                                       {formatFileSize(
-                                        messageAttachments[message.id].size
+                                        message.attachments[0].size
                                       )}
                                     </p>
                                   </div>
-                                  <button
-                                    type="button"
-                                    className={`p-1 rounded-full ${
-                                      message.role === "user"
-                                        ? "text-white hover:bg-blue-300"
-                                        : "text-gray-500 hover:bg-gray-200"
-                                    }`}
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </button>
                                 </div>
                               </div>
                             )}
-                          </div>
                         </div>
                       </div>
                     </motion.div>

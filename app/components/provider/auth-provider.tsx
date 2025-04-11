@@ -27,7 +27,7 @@ interface AuthContextType {
 interface ResponseUserType {
   userId: string;
   email: string;
-  username: string;
+  user_name: string;
   user_company_id: string;
 }
 

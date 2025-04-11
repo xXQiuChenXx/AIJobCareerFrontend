@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink } from "react-router";
 
 const SiteFooter = () => {
@@ -76,7 +75,7 @@ const SiteFooter = () => {
                 <rect width="4" height="12" x="2" y="9" />
                 <circle cx="4" cy="4" r="2" />
               </svg>
-              <span className="sr-only">NavLinkedIn</span>
+              <span className="sr-only">LinkedIn</span>
             </NavLink>
           </div>
         </div>
@@ -86,7 +85,7 @@ const SiteFooter = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <NavLink
-                  to="#"
+                  to="/"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   About
@@ -94,26 +93,26 @@ const SiteFooter = () => {
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/plan"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Careers
+                  Pricing Plans
                 </NavLink>
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/training"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Press
+                  License
                 </NavLink>
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/training"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  News
+                  Organization Training
                 </NavLink>
               </li>
             </ul>
@@ -123,7 +122,7 @@ const SiteFooter = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <NavLink
-                  to="#"
+                  to="/careers"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Browse Jobs
@@ -131,26 +130,26 @@ const SiteFooter = () => {
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/training"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Career Resources
+                  Training Resources
                 </NavLink>
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/profile"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Resume Tips
+                  Your Profile
                 </NavLink>
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/aichat"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Interview Prep
+                  AI Career Advisor
                 </NavLink>
               </li>
             </ul>
@@ -160,7 +159,7 @@ const SiteFooter = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <NavLink
-                  to="#"
+                  to="/plan"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Post a Job
@@ -168,7 +167,7 @@ const SiteFooter = () => {
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/plan"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Talent Solutions
@@ -176,7 +175,7 @@ const SiteFooter = () => {
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/plan"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Pricing
@@ -184,10 +183,10 @@ const SiteFooter = () => {
               </li>
               <li>
                 <NavLink
-                  to="#"
+                  to="/aichat"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Enterprise
+                  AI Recruiting Tools
                 </NavLink>
               </li>
             </ul>

@@ -251,6 +251,12 @@ export const EmployerSignupForm = () => {
           {isLoading ? "Creating account..." : "Create account"}
         </Button>
       </form>
+      <p className="text-center text-sm text-muted-foreground mt-5">
+        Already have an account?{" "}
+        <a href="/login" className="text-primary hover:underline">
+          Sign in
+        </a>
+      </p>
     </Form>
   );
 };

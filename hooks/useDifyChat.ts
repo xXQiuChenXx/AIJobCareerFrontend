@@ -12,11 +12,14 @@ interface UseDifyChatResult {
   input: string;
   setInput: (input: string) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>, fileId?: string) => void;
+  handleSubmit: (
+    e: React.FormEvent<HTMLFormElement>,
+    fileId?: string,
+    attachedFile?: File
+  ) => void;
   status: "idle" | "streaming" | "submitting";
   suggestedQuestions: string[];
   uploadFile: (file: File) => Promise<string>;
-  uploadedFileId: string | undefined;
 }
 
 export function useDifyChat({
@@ -30,7 +33,6 @@ export function useDifyChat({
   );
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [conversationId, setConversationId] = useState<string | undefined>();
-  const [uploadedFileId, setUploadedFileId] = useState<string | undefined>();
 
   // Initialize the Dify service
   const difyService = new DifyService();
@@ -46,22 +48,18 @@ export function useDifyChat({
   // Function to upload a file
   const uploadFile = useCallback(
     async (file: File): Promise<string> => {
-      try {
-        const fileId = await difyService.uploadFile(file, userId);
-        console.log(fileId);
-        setUploadedFileId(fileId);
-        return fileId;
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        throw error;
-      }
+      return await difyService.uploadFile(file, userId);
     },
     [difyService]
   );
 
   // Function to handle message submission
   const handleSubmit = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>, fileId?: string) => {
+    async (
+      e: React.FormEvent<HTMLFormElement>,
+      fileId?: string,
+      attachedFile?: File
+    ) => {
       console.log("handleSubmit called", { fileId });
       e.preventDefault();
 
@@ -76,7 +74,16 @@ export function useDifyChat({
         role: "user",
         content: input,
         timestamp: new Date(),
-        files: fileId ? [fileId] : undefined,
+        attachments: attachedFile
+          ? [
+              {
+                name: attachedFile.name,
+                size: attachedFile.size,
+                type: attachedFile.type,
+                id: fileId as string,
+              },
+            ]
+          : [],
       };
 
       setInput("");
@@ -138,9 +145,8 @@ export function useDifyChat({
         console.error("Failed to send message:", error);
         setStatus("idle");
       }
-      setUploadedFileId(undefined);
     },
-    [input, difyService, conversationId, uploadedFileId, userId]
+    [input, difyService, conversationId, userId]
   );
 
   // Load conversation history if we have a conversation ID
@@ -157,7 +163,7 @@ export function useDifyChat({
                 role: msg.belongs_to === "user" ? "user" : "assistant",
                 content: msg.belongs_to === "user" ? msg.query : msg.answer,
                 timestamp: new Date(msg.created_at * 1000),
-                files: msg.message_files?.map((file: any) => file.id) || [],
+                attachments: msg.message_files || [],
               })
             );
             setMessages(formattedMessages);
@@ -174,7 +180,6 @@ export function useDifyChat({
     input,
     setInput,
     handleInputChange,
-    uploadedFileId,
     handleSubmit,
     status,
     suggestedQuestions,

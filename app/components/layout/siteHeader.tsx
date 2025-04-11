@@ -109,9 +109,9 @@ export const SiteHeader = () => {
               <DropdownMenuContent align="end" className="w-fit">
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium">John Doe</p>
+                    <p className="font-medium">{user?.user_name}</p>
                     <p className="text-sm text-muted-foreground">
-                      john.doe@example.com
+                      {user?.email}
                     </p>
                   </div>
                 </div>
@@ -145,7 +145,7 @@ export const SiteHeader = () => {
                 </Button>
               </NavLink>
               <NavLink
-                to="#sign-up"
+                to="/sign-up?type=employer"
                 className="hidden sm:inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 Post a job

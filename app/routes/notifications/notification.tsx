@@ -13,10 +13,12 @@ import type { Route } from "../notifications/+types/notification";
 import { NavLink } from "react-router";
 import { getNotificationById } from "@/services/notifications";
 import type { NotificationUi } from "@/types/notifications";
+import { useAuth } from "@/components/provider/auth-provider";
 
 export default function NotificationDetailContent({
   params,
 }: Route.ComponentProps) {
+  const { user } = useAuth();
   const { notifications, markAsRead } = useNotifications();
   const notificationId = params.id as string;
   const [notification, setNotification] = useState<NotificationUi | null>(null);
@@ -52,7 +54,7 @@ export default function NotificationDetailContent({
     }
 
     fetchNotificationDetail();
-  }, [notificationId, notifications]);
+  }, [notificationId, notifications, user]);
 
   useEffect(() => {
     if (notification && !notification.read) {
