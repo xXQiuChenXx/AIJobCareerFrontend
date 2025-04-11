@@ -39,7 +39,7 @@ interface EditAboutFormProps {
 }
 
 export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
-  ({ profile, onSave, userInitials, registerSubmit }, ref) => {
+  ({ profile, onSave, userInitials, registerSubmit, onSubmitSuccess }, ref) => {
     const [iconKey, setIconKey] = useState<string>(profile?.icon || "");
 
     // Set default values from the profile data if provided
@@ -62,7 +62,6 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
     });
 
     const handleSubmit = async (values: AboutFormValues) => {
-      console.log(JSON.stringify(values))
       if (onSave) {
         try {
           let profileIconUrl = FileService.getFileUrl(iconKey);
@@ -80,6 +79,8 @@ export const EditAboutForm = forwardRef<HTMLFormElement, EditAboutFormProps>(
 
           // Send the profile update
           await onSave(updateData);
+
+          await onSubmitSuccess?.();
 
           toast.success("Profile updated successfully");
         } catch (error) {

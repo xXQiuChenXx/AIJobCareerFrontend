@@ -12,12 +12,18 @@ import type { RegisterFormType } from "@/models/register_form";
 import type { LoginFormType } from "@/models/login_form";
 import Cookies from "js-cookie";
 import type { BusinessRegistration } from "@/models/business-registration";
+import { useNavigate } from "react-router";
+
+type CompanyOrUser = {
+  companyId?: string;
+  userId?: string;
+}
 
 interface AuthContextType {
   user: ResponseUserType | null;
   isLoading: boolean;
   error: string | null;
-  login: (data: LoginFormType, onSuccess: () => void) => void;
+  login: (data: LoginFormType, onSuccess: (data: CompanyOrUser) => void) => void;
   logout: () => void;
   register: (data: RegisterFormType, onSuccess: (user: ResponseUserType) => void) => void;
   registerBusinessUser: (
@@ -31,6 +37,7 @@ export interface ResponseUserType {
   userId: string;
   email: string;
   user_name: string;
+  user_icon?: string;
   user_company_id: string;
 }
 
@@ -43,6 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, startLoding] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const clearError = () => setError(null);
+  const navigate = useNavigate();
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -75,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Login function
-  const login = (data: LoginFormType, onSuccess: () => void) => {
+  const login = (data: LoginFormType, onSuccess: (data: CompanyOrUser) => void) => {
     startLoding(async () => {
       try {
         clearError();
@@ -89,7 +97,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Set user data
         setUser(response.data?.user);
-        onSuccess();
+        onSuccess({
+          companyId: response.data?.user?.user_company_id,
+          userId: response.data?.user?.userId,
+        });
       } catch (err: any) {
         const errorMessage =
           err?.response?.data?.message || "Failed to login, please try again.";
@@ -103,6 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     Cookies.remove("token");
     Cookies.remove("user");
     setUser(null);
+    navigate("/login");
   };
 
   // Register function

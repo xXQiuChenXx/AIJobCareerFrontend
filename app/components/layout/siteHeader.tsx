@@ -98,7 +98,7 @@ export const SiteHeader = () => {
               <DropdownMenuTrigger asChild>
                 <Avatar className="h-8 w-8 cursor-pointer">
                   <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
+                    src={user?.user_icon}
                     alt="User avatar"
                   />
                   <AvatarFallback>

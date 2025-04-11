@@ -62,6 +62,7 @@ const SkillsSection = ({
               skills={profile.skills || []}
               onSave={handleSaveSkills}
               ref={formRef}
+              onSubmitSuccess={() => setOpen(false)}
             />
           </EditSectionDialog>
         </CardTitle>

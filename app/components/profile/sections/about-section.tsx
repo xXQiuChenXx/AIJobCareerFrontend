@@ -57,6 +57,7 @@ const AboutSection = ({
               userInitials={userInitials}
               profile={profile.basicInfo}
               onSave={handleSaveBasicInfo}
+              onSubmitSuccess={() => setOpen(false)}
               ref={formRef}
             />
           </EditSectionDialog>

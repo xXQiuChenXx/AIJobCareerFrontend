@@ -36,9 +36,15 @@ export const SignInForm = () => {
     }
   }, [error, clearError]);
 
-  const onSuccess = () => {
+  const onSuccess = ({
+    userId,
+    companyId,
+  }: {
+    userId?: string;
+    companyId?: string;
+  }) => {
     form.reset();
-    navigate("/profile");
+    navigate(`/profile/${userId || companyId}`);
     toast.success("Logged in successfully!");
   };
 
