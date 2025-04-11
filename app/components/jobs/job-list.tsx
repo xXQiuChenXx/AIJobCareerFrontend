@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import JobCard from "./job-card";
@@ -60,7 +60,9 @@ export default function JobList({
         job_location: data.job_location,
         job_company_id: companyId,
         job_status: "Open",
-        job_deadline: data.job_deadline ? data.job_deadline.toISOString() : undefined,
+        job_deadline: data.job_deadline
+          ? data.job_deadline.toISOString()
+          : undefined,
       };
 
       // Create job via API
@@ -111,7 +113,9 @@ export default function JobList({
         job_company_id: companyId,
         job_status: "Open",
         Posted_Date: currentJob.job_posted_date,
-        job_deadline: data.job_deadline ? data.job_deadline.toISOString() : undefined,
+        job_deadline: data.job_deadline
+          ? data.job_deadline.toISOString()
+          : undefined,
       };
 
       // Update job via API
@@ -128,7 +132,9 @@ export default function JobList({
               job_salary_min: data.job_salary_min,
               job_salary_max: data.job_salary_max,
               job_location: data.job_location,
-              job_deadline: data.job_deadline ? data.job_deadline.toISOString() : undefined,
+              job_deadline: data.job_deadline
+                ? data.job_deadline.toISOString()
+                : undefined,
             }
           : job
       );
@@ -240,16 +246,18 @@ export default function JobList({
       />
 
       {/* Edit Job Dialog */}
-      <JobDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        initialData={currentJob ? convertToJobData(currentJob) : null}
-        onSubmit={handleEditJob}
-        title="Edit Job"
-        description="Update the job posting details."
-        submitLabel="Save Changes"
-        companyId={companyId}
-      />
+      {currentJob && (
+        <JobDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          initialData={currentJob ? convertToJobData(currentJob) : null}
+          onSubmit={handleEditJob}
+          title="Edit Job"
+          description="Update the job posting details."
+          submitLabel="Save Changes"
+          companyId={companyId}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog

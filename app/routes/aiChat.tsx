@@ -28,10 +28,8 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-
 export default function ChatPage() {
   const { user } = useAuth();
-  if (!user) return <LoginRequired />;
 
   const {
     messages,
@@ -42,8 +40,8 @@ export default function ChatPage() {
     suggestedQuestions,
     uploadFile,
   } = useDifyChat({
-    userId: user.userId,
-    email: user.email,
+    userId: user?.userId || "",
+    email: user?.email || "",
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -131,6 +129,7 @@ export default function ChatPage() {
     // Submit the form with the suggested question
     handleFormSubmit(syntheticEvent, question);
   };
+  if (!user) return <LoginRequired />;
 
   return (
     <div className="flex-1 flex flex-col bg-gray-100 min-h-0">

@@ -188,7 +188,7 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
             <h2 className="text-xl font-semibold mb-4">About the Company</h2>
             <div className="flex flex-col md:flex-row gap-4 items-start">
               <img
-                src={jobData.company?.company_icon || "/placeholder.svg"}
+                src={jobData.company?.company_icon || "/profile/company.png"}
                 alt={jobData.company.company_name}
                 width={100}
                 height={100}
@@ -199,10 +199,6 @@ const JobDetailPage = ({ params }: Route.ComponentProps) => {
                   {jobData.company.company_name}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 text-sm">
-                  {/* <div className="flex items-center text-muted-foreground">
-                    <Building2 className="h-4 w-4 mr-2" />
-                    <span>{jobData.companyInfo.employees} employees</span>
-                  </div> */}
                   <div className="flex items-center text-muted-foreground">
                     <Briefcase className="h-4 w-4 mr-2" />
                     <span>{jobData.company.company_industry}</span>

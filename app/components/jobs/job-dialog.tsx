@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -80,7 +80,6 @@ export default function JobDialog({
   title,
   description,
   submitLabel,
-  companyId,
 }: JobDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 

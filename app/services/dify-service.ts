@@ -5,7 +5,7 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   files?: string[];
-  attachments?: { 
+  attachments?: {
     name: string;
     size: number;
     type: string;
@@ -94,17 +94,20 @@ export class DifyService {
       const decoder = new TextDecoder();
       let conversationId = request.conversation_id;
       let messageId = "";
+      let last_line = "";
+      let haveChunk = false;
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
 
         if (value) {
-          const chunk = decoder.decode(value, { stream: true });
+          const chunk = last_line + decoder.decode(value, { stream: true });
 
           // Process SSE data
           const lines = chunk.trim().split("\n\n");
-          for (const line of lines) {
+          last_line = lines[lines.length - 1].trim();
+          for (const line of lines.slice(0, -1)) {
             if (line.startsWith("data: ")) {
               const eventData = line.substring(6); // Remove 'data: ' prefix
 
@@ -122,12 +125,15 @@ export class DifyService {
                 if (parsedData.answer || parsedData.text) {
                   const text = parsedData.answer || parsedData.text;
                   onChunk(text);
+                  haveChunk = true;
                 }
               } catch (e) {
                 // Ignore parsing errors for partial chunks
               }
             }
           }
+          if (!haveChunk) onChunk("Server busy, please try again later.");
+          haveChunk = false;
         }
       }
 

@@ -22,7 +22,7 @@ export function LearningPlatforms() {
           <CardHeader className="pb-4">
             <div className="mb-4">
               <img
-                src={platform.imageUrl || "/placeholder.svg"}
+                src={platform.imageUrl || "/profile/company.png"}
                 alt={`${platform.name} logo`}
                 // width={80}
                 height={80}

@@ -53,7 +53,7 @@ export const EmployerSignupForm = () => {
       setIsLoading(true);
       await registerBusinessUser(data, () => {
         toast.success("Registration successful! Please sign in.");
-        navigate("/profile");
+        navigate(`/profile/${data.CompanyID}`);
       });
     } catch (error: any) {
       console.error("Registration error:", error);

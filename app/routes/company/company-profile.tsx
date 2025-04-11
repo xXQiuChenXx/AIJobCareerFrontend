@@ -100,7 +100,7 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
 
   const companyLogoUrl = companyInfo.company_icon
     ? CompanyService.getCompanyLogoUrl(companyInfo.company_icon)
-    : "/placeholder.svg?height=128&width=128";
+    : "/profile/company.png";
 
   return (
     <div className="bg-gray-50">

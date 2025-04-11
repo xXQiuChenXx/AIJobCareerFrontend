@@ -23,7 +23,7 @@ export function InnovationHubs() {
         <Card className="overflow-hidden flex flex-col h-full pt-0" key={hub.division}>
           <div className="relative h-48 w-full overflow-hidden">
             <img
-              src={hub.imageUrl || "/placeholder.svg"}
+              src={hub.imageUrl || "/profile/company.png"}
               className="object-contain w-full h-full object-center"
             />
           </div>
