@@ -95,7 +95,7 @@ const PlanPage = () => {
             <CardContent className="flex-1">
               <div className="mb-6">
                 <span className="text-4xl font-bold">
-                  ${isAnnual ? plan.price.annual : plan.price.monthly}
+                  RM{isAnnual ? plan.price.annual : plan.price.monthly}
                 </span>
                 <span className="text-muted-foreground ml-2">
                   {plan.price.monthly === 0
@@ -106,7 +106,7 @@ const PlanPage = () => {
                 </span>
                 {isAnnual && plan.price.monthly > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    ${plan.price.monthly}/mo when billed monthly
+                    RM{plan.price.monthly}/mo when billed monthly
                   </p>
                 )}
               </div>
