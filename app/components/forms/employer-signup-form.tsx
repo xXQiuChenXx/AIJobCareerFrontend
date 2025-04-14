@@ -55,9 +55,14 @@ export const EmployerSignupForm = () => {
         toast.success("Registration successful! Please sign in.");
         navigate(`/profile/${data.CompanyID}`);
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Registration error:", error);
-      toast.error(error.message || "Registration failed. Please try again.");
+      // Type guard to safely access properties on the error
+      if (error instanceof Error) {
+        toast.error(error.message || "Registration failed. Please try again.");
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

@@ -106,7 +106,7 @@ export default function JobList({
         job_requirement: data.job_requirement,
         job_benefit: data.job_benefit,
         job_responsible: data.job_responsible,
-        job_type: data.job_type,
+        job_type: data.job_type,  
         job_salary_min: data.job_salary_min,
         job_salary_max: data.job_salary_max,
         job_location: data.job_location,
