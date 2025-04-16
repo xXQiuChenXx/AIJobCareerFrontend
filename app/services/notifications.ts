@@ -171,4 +171,5 @@ function formatTimeAgo(date: Date): string {
   return date.toLocaleDateString();
 }
 
-import type { NotificationUi } from "../types/notifications";
+import type { NotificationUi } from "../types/notifications";import { toast } from "sonner";
+

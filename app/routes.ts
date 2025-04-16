@@ -7,7 +7,6 @@ import {
 
 export default [
   index("routes/home.tsx"),
-  route("weather", "routes/weather.tsx"),
   route("training", "routes/training.tsx"),
   route("plan", "routes/plan.tsx"),
   route("aichat", "routes/aiChat.tsx"),

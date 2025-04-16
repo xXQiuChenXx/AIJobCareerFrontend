@@ -1,16 +1,17 @@
 import { type JobFilterParams, type PaginatedResponse } from "@/types/job";
-import Cookies from "js-cookie";
 import { type jobType } from "@/models/job";
+import { apiClient } from "./api-client";
+import { toast } from "sonner";
 
 export async function getJobs(
   filters: JobFilterParams
 ): Promise<PaginatedResponse<jobType>> {
   // Create URL with query parameters
-  const url = new URL("/api/Jobs", window.location.origin);
+  const queryParams = new URLSearchParams();
 
   // Add query parameters based on filters
   if (filters.searchTerm) {
-    url.searchParams.append("SearchTerm", filters.searchTerm);
+    queryParams.append("SearchTerm", filters.searchTerm);
   }
 
   // Handle JobType filter - support multiple values
@@ -18,27 +19,27 @@ export async function getJobs(
     if (Array.isArray(filters.jobType)) {
       // Add each job type as a separate parameter value
       filters.jobType.forEach((jobType) => {
-        url.searchParams.append("JobType", jobType.toString());
+        queryParams.append("JobType", jobType.toString());
       });
     } else {
-      url.searchParams.append("JobType", filters.jobType.toString());
+      queryParams.append("JobType", filters.jobType.toString());
     }
   }
 
   if (filters.location) {
-    url.searchParams.append("Location", filters.location);
+    queryParams.append("Location", filters.location);
   }
 
   if (filters.minSalary) {
-    url.searchParams.append("MinSalary", filters.minSalary.toString());
+    queryParams.append("MinSalary", filters.minSalary.toString());
   }
 
   if (filters.sortBy) {
-    url.searchParams.append("SortBy", filters.sortBy);
+    queryParams.append("SortBy", filters.sortBy);
   }
 
   if (filters.sortDescending !== undefined) {
-    url.searchParams.append(
+    queryParams.append(
       "SortDescending",
       filters.sortDescending.toString()
     );
@@ -46,59 +47,32 @@ export async function getJobs(
 
   // Pagination
   if (filters.pageIndex) {
-    url.searchParams.append("PageIndex", filters.pageIndex.toString());
+    queryParams.append("PageIndex", filters.pageIndex.toString());
   }
 
   if (filters.pageSize) {
-    url.searchParams.append("PageSize", filters.pageSize.toString());
+    queryParams.append("PageSize", filters.pageSize.toString());
   }
 
-  // Get token from localStorage or wherever auth token is stored
-  // const token = Cookies.get("token");
-
-  // if (!token) {
-  //   throw new Error("Authentication token is missing");
-  // }
-
   try {
-    const response = await fetch(url.toString(), {
-      headers: {
-        // Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      // if (response.status === 401) {
-      //   throw new Error("Unauthorized access. Please login again.");
-      // }
-      throw new Error(`Failed to fetch jobs: ${response.statusText}`);
-    }
-
-    return await response.json();
+    return await apiClient.get<PaginatedResponse<jobType>>(`/Jobs?${queryParams.toString()}`);
   } catch (error) {
     console.error("Error fetching jobs:", error);
+    toast("Failed to load jobs", {
+      description: error instanceof Error ? error.message : "An unexpected error occurred",
+    });
     throw error;
   }
 }
 
 export async function getJobById(jobId: string): Promise<jobType> {
-  const url = new URL(`/api/Jobs/${jobId}`, window.location.origin);
   try {
-    const response = await fetch(url.toString(), {
-      headers: {
-        // Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch jobs: ${response.statusText}`);
-    }
-
-    return await response.json();
+    return await apiClient.get<jobType>(`/Jobs/${jobId}`);
   } catch (error) {
-    console.error("Error fetching jobs:", error);
+    console.error("Error fetching job details:", error);
+    toast("Failed to load job details", {
+      description: error instanceof Error ? error.message : "An unexpected error occurred",
+    });
     throw error;
   }
 }

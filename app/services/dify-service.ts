@@ -1,3 +1,7 @@
+import Cookies from "js-cookie";
+import { apiClient, type ApiClient } from "./api-client";
+import { toast } from "sonner";
+
 // src/services/difyService.ts
 export interface ChatMessage {
   id: string;
@@ -28,10 +32,10 @@ export interface SuggestedQuestionsResponse {
 }
 
 export class DifyService {
-  private baseUrl: string;
+  private _apiClient: ApiClient;
 
-  constructor(baseUrl: string = "/api/chat") {
-    this.baseUrl = baseUrl;
+  constructor() {
+    this._apiClient = apiClient;
   }
 
   async uploadFile(file: File, user_id: string): Promise<string> {
@@ -39,17 +43,24 @@ export class DifyService {
     formData.append("file", file);
     formData.append("user_id", user_id);
 
-    const response = await fetch(`${this.baseUrl}/upload`, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`File upload failed: ${response.statusText}`);
+    try {
+      const data = await this._apiClient.post<{ fileId: string }>(
+        "/api/chat/upload",
+        {
+          formData,
+        }
+      );
+      return data.fileId;
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast("File upload failed", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      });
+      throw error;
     }
-
-    const data = await response.json();
-    return data.fileId;
   }
 
   async streamChatMessage(
@@ -77,17 +88,25 @@ export class DifyService {
         ];
         delete requestBody.fileId;
       }
+      const token = Cookies.get("token");
 
-      const response = await fetch(`${this.baseUrl}/message`, {
+      // For streaming responses, we still need to use fetch directly
+      // as axios/apiClient doesn't handle streaming well
+      const response = await fetch(`/api/chat/message`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok || !response.body) {
-        throw new Error(`Chat request failed: ${response.statusText}`);
+        const errorMsg = `Chat request failed: ${response.statusText}`;
+        toast("Chat Error", {
+          description: errorMsg,
+        });
+        throw new Error(errorMsg);
       }
 
       const reader = response.body.getReader();
@@ -163,24 +182,18 @@ export class DifyService {
     userId: string
   ): Promise<string[]> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}/suggestions/${messageId}?user_id=${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const data = await this._apiClient.get<SuggestedQuestionsResponse>(
+        `/chat/suggestions/${messageId}?user_id=${userId}`
       );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch suggestions: ${response.statusText}`);
-      }
-
-      const data: SuggestedQuestionsResponse = await response.json();
       return data.data || [];
     } catch (error) {
       console.error("Error fetching suggestions:", error);
+      toast("Failed to load suggestions", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      });
       return [];
     }
   }
@@ -191,24 +204,29 @@ export class DifyService {
     firstId: string = "",
     limit: number = 20
   ): Promise<any> {
-    const response = await fetch(
-      `${
-        this.baseUrl
-      }/conversation_history?conversationId=${conversationId}&user=${userId}${
-        firstId ? `&firstId=${firstId}` : ""
-      }&limit=${limit}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      const queryParams = new URLSearchParams({
+        conversationId,
+        user: userId,
+        limit: limit.toString(),
+      });
+
+      if (firstId) {
+        queryParams.append("firstId", firstId);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch conversation: ${response.statusText}`);
+      return await this._apiClient.get(
+        `/dify/conversation_history?${queryParams.toString()}`
+      );
+    } catch (error) {
+      console.error("Error fetching conversation history:", error);
+      toast("Failed to load conversation history", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      });
+      throw error;
     }
-
-    return await response.json();
   }
 }
