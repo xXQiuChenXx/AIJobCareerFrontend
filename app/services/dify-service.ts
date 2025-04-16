@@ -92,14 +92,17 @@ export class DifyService {
 
       // For streaming responses, we still need to use fetch directly
       // as axios/apiClient doesn't handle streaming well
-      const response = await fetch(`/api/chat/message`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        import.meta.env.VITE_BACKEND_API_URL + `/chat/message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       if (!response.ok || !response.body) {
         const errorMsg = `Chat request failed: ${response.statusText}`;

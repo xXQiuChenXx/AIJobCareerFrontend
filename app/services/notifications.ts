@@ -8,7 +8,7 @@ import type {
   DeleteNotificationResponse,
 } from "../types/notifications";
 
-const API_BASE_URL = "/api/Notifications";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL + "/Notifications";
 
 // Helper function to get the auth token
 const getAuthToken = (): string => {

@@ -50,9 +50,9 @@ const JobMatchSection = () => {
             <span className="text-sm font-medium">75% match</span>
           </div>
         </div>
-        <Button size="sm" className="mt-4 w-full">
+        {/* <Button size="sm" className="mt-4 w-full">
           View All Matches
-        </Button>
+        </Button> */}
       </CardContent>
     </Card>
   );

@@ -17,15 +17,21 @@ import { useNavigate } from "react-router";
 type CompanyOrUser = {
   companyId?: string;
   username?: string;
-}
+};
 
 interface AuthContextType {
   user: ResponseUserType | null;
   isLoading: boolean;
   error: string | null;
-  login: (data: LoginFormType, onSuccess: (data: CompanyOrUser) => void) => void;
+  login: (
+    data: LoginFormType,
+    onSuccess: (data: CompanyOrUser) => void
+  ) => void;
   logout: () => void;
-  register: (data: RegisterFormType, onSuccess: (user: ResponseUserType) => void) => void;
+  register: (
+    data: RegisterFormType,
+    onSuccess: (user: ResponseUserType) => void
+  ) => void;
   registerBusinessUser: (
     data: BusinessRegistration,
     onSuccess: () => void
@@ -52,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const clearError = () => setError(null);
   const navigate = useNavigate();
+  const baseUrl = import.meta.env.VITE_BACKEND_API_URL;
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -65,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         ) as ResponseUserType;
         if (cookie_token && cookie_user) {
           // Validate token with your API
-          const response = await axios.post("/api/auth/validate", {
+          const response = await axios.post(baseUrl + "/auth/validate", {
             token: cookie_token,
             ...cookie_user,
           });
@@ -84,11 +91,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Login function
-  const login = (data: LoginFormType, onSuccess: (data: CompanyOrUser) => void) => {
+  const login = (
+    data: LoginFormType,
+    onSuccess: (data: CompanyOrUser) => void
+  ) => {
     startLoding(async () => {
       try {
         clearError();
-        const response = await axios.post("/api/auth/login", data);
+        const response = await axios.post(baseUrl + "/auth/login", data);
 
         // Save token to cookies
         Cookies.set("token", response.data.token, { expires: 30 });
@@ -126,7 +136,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     startLoding(async () => {
       setError(null);
       try {
-        const response = await axios.post("/api/auth/register", submitData);
+        const response = await axios.post(
+          baseUrl + "/auth/register",
+          submitData
+        );
         // Save token to cookies
         Cookies.set("token", response.data.token, { expires: 30 });
         Cookies.set("user", JSON.stringify(response.data.user), {
@@ -152,7 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setError(null);
       try {
         const response = await axios.post(
-          "/api/auth/RegisterBusiness",
+          baseUrl + "/auth/RegisterBusiness",
           submitData
         );
         // Save token to cookies

@@ -121,9 +121,9 @@ const ProfileCompletionSection = ({
               </span>
             </div>
           </div>
-          <Button size="sm" className="w-full">
+          {/* <Button size="sm" className="w-full">
             Complete Your Profile
-          </Button>
+          </Button> */}
         </div>
       </CardContent>
     </Card>
