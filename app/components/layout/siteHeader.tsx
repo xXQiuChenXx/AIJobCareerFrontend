@@ -109,7 +109,7 @@ export const SiteHeader = () => {
               <DropdownMenuContent align="end" className="w-fit">
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium">{user?.user_name}</p>
+                    <p className="font-medium">{user?.user_fullname}</p>
                     <p className="text-sm text-muted-foreground">
                       {user?.email}
                     </p>
@@ -121,7 +121,7 @@ export const SiteHeader = () => {
                     to={
                       user?.user_company_id
                         ? `/company/${user?.user_company_id}`
-                        : `/profile/${user?.userId}`
+                        : `/profile/${user?.username}`
                     }
                     className="flex w-full cursor-pointer items-center"
                   >
