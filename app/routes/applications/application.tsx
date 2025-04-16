@@ -194,9 +194,7 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
       };
 
       // Submit the application using our service
-      const response = await jobApplicationService.submitApplication(
-        submission
-      );
+      await jobApplicationService.submitApplication(submission);
 
       setIsSubmitted(true);
       toast("Application Submitted.", {
@@ -481,7 +479,7 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
                     className="hidden"
                     id="resume-upload"
                   />
-                  
+
                   {!resumeFile ? (
                     <label htmlFor="resume-upload">
                       <Button
@@ -523,7 +521,7 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
                           onClick={() => {
                             setResumeFile(null);
                             if (fileInputRef.current) {
-                              fileInputRef.current.value = '';
+                              fileInputRef.current.value = "";
                             }
                           }}
                         >

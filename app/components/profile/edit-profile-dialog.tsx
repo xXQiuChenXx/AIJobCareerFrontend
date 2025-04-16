@@ -35,7 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarIcon, Upload } from "lucide-react";
+import { CalendarIcon, Files, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CompanyService } from "@/services/company-service";
@@ -43,6 +43,7 @@ import { toast } from "sonner";
 import type { JobBasicDTO } from "@/types/job";
 import { ALLOWED_CITIES } from "@/types/about-form-schema";
 import { company_industries } from "@/sample-data/company";
+import { FileService } from "@/services/file-service";
 
 // Define the schema for company profile validation
 const companyProfileSchema = z.object({
@@ -133,7 +134,8 @@ export default function EditProfileDialog({
       // Upload new logo if selected
       if (logoFile) {
         try {
-          logoKey = await CompanyService.uploadCompanyLogo(logoFile);
+          let key = await CompanyService.uploadCompanyLogo(logoFile);
+          logoKey = CompanyService.getCompanyLogoUrl(key);
         } catch (error) {
           console.error("Error uploading logo:", error);
           toast("Failed to upload company logo");

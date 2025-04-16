@@ -54,7 +54,7 @@ export default function JobList({
         job_requirement: data.job_requirement,
         job_benefit: data.job_benefit,
         job_responsible: data.job_responsible,
-        job_type: data.job_type,
+        job_type: data.job_type,  
         job_salary_min: data.job_salary_min,
         job_salary_max: data.job_salary_max,
         job_location: data.job_location,
@@ -112,7 +112,7 @@ export default function JobList({
         job_location: data.job_location,
         job_company_id: companyId,
         job_status: "Open",
-        Posted_Date: currentJob.job_posted_date,
+        posted_date: currentJob.job_posted_date,
         job_deadline: data.job_deadline
           ? data.job_deadline.toISOString()
           : undefined,

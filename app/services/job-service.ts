@@ -89,7 +89,7 @@ export function formatSalaryRange(
   } else if (minSalary) {
     return `RM ${formatCurrency(minSalary)}+`;
   } else if (maxSalary) {
-    return `Up to $${formatCurrency(maxSalary)}`;
+    return `Up to RM ${formatCurrency(maxSalary)}`;
   }
 
   return "Not specified";

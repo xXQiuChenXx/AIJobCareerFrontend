@@ -47,8 +47,8 @@ export default function SalaryRangeInput({ id, value, onChange, label }: SalaryR
       return Number(num).toLocaleString()
     }
 
-    const formattedMin = min ? `$${formatNumber(min)}` : ""
-    const formattedMax = max ? `$${formatNumber(max)}` : ""
+    const formattedMin = min ? `RM ${formatNumber(min)}` : ""
+    const formattedMax = max ? `RM ${formatNumber(max)}` : ""
 
     if (formattedMin && formattedMax) {
       return `${formattedMin} - ${formattedMax}`

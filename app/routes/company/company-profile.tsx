@@ -99,7 +99,7 @@ export default function CompanyProfile({ params }: Route.ComponentProps) {
   }
 
   const companyLogoUrl = companyInfo.company_icon
-    ? CompanyService.getCompanyLogoUrl(companyInfo.company_icon)
+    ? companyInfo.company_icon
     : "/profile/company.png";
 
   return (
