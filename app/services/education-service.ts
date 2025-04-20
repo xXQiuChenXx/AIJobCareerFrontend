@@ -11,11 +11,11 @@ export const EducationService = {
   },
 
   async getCurrentUserEducations(): Promise<Education[]> {
-    return apiClient.get<Education[]>('/Education/user/current');
+    return apiClient.get<Education[]>('/Education/user');
   },
   
-  async getEducationsByUserId(): Promise<Education[]> {
-    return apiClient.get<Education[]>(`/Education/user/current`);
+  async getEducationsByUserId(id: string): Promise<Education[]> {
+    return apiClient.get<Education[]>(`/Education/user/${id}`);
   },
 
   async createEducation(data: CreateEducationDto): Promise<Education> {
