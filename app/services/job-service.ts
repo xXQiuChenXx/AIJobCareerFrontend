@@ -33,6 +33,9 @@ export async function getJobs(
   if (filters.minSalary) {
     queryParams.append("MinSalary", filters.minSalary.toString());
   }
+  if (filters.maxSalary) {
+    queryParams.append("MaxSalary", filters.maxSalary.toString());
+  }
 
   if (filters.sortBy) {
     queryParams.append("SortBy", filters.sortBy);
@@ -105,9 +108,9 @@ export function parseSalaryRange(rangeString: string): {
   min?: number;
   max?: number;
 } {
-  if (rangeString === "0-50k") return { max: 50000 };
-  if (rangeString === "50k-100k") return { min: 50000, max: 100000 };
-  if (rangeString === "100k-150k") return { min: 100000, max: 150000 };
-  if (rangeString === "150k+") return { min: 150000 };
+  if (rangeString === "1700-2500") return { min: 1700, max: 2500 };
+  if (rangeString === "2500-4000") return { min: 2500, max: 4000 };
+  if (rangeString === "4000-6000") return { min: 4000, max: 6000 };
+  if (rangeString === "6000+") return { min: 6000 };
   return {};
 }

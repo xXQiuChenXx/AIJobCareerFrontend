@@ -19,7 +19,7 @@ import { MapPin, Clock, Building, Filter, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import {
   type JobFilterParams,
@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import type { jobType } from "@/models/job";
 import { IconCash } from "@tabler/icons-react";
 import { NavLink } from "react-router";
+import { VisuallyHidden } from "radix-ui";
 
 export default function JobListings() {
   const [filters, setFilters] = useState<{
@@ -219,10 +220,10 @@ export default function JobListings() {
             <SelectValue placeholder="Select salary range" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="0-50k">$0 - $50,000</SelectItem>
-            <SelectItem value="50k-100k">$50,000 - $100,000</SelectItem>
-            <SelectItem value="100k-150k">$100,000 - $150,000</SelectItem>
-            <SelectItem value="150k+">$150,000+</SelectItem>
+            <SelectItem value="1700-2500">RM 1,700 - RM 2,500</SelectItem>
+            <SelectItem value="2500-4000">RM 2,500 - RM 4,000</SelectItem>
+            <SelectItem value="4000-6000">RM 4,000 - RM 6,000</SelectItem>
+            <SelectItem value="6000+">RM 6000+</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -246,13 +247,22 @@ export default function JobListings() {
         </div>
       ) : (
         <Sheet>
+          <VisuallyHidden.Root>
+            <SheetHeader>
+              <SheetTitle>Are you absolutely sure?</SheetTitle>
+              <SheetDescription>
+                This action cannot be undone. This will permanently delete your
+                account and remove your data from our servers.
+              </SheetDescription>
+            </SheetHeader>
+          </VisuallyHidden.Root>
           <SheetTrigger asChild>
             <Button variant="outline" className="mb-4 w-full">
               Filters
             </Button>
           </SheetTrigger>
-          <SheetContent side="left">
-            <h2 className="text-xl font-bold mb-6">Filters</h2>
+          <SheetContent side="left" className="p-4">
+            <h2 className="text-xl font-bold mb-3">Filters</h2>
             <FilterContent />
           </SheetContent>
         </Sheet>
