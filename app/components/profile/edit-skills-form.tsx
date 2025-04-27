@@ -1,8 +1,6 @@
 import { useState, forwardRef } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -37,16 +35,12 @@ interface EditSkillsFormProps {
 export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
   ({ skills = [], onSave, onSubmitSuccess }, ref) => {
     const [skillsList, setSkillsList] = useState<Skill[]>(skills);
-    const [skillTags, setSkillTags] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
     const [newSkill, setNewSkill] = useState("");
     const [newSkillLevel, setNewSkillLevel] =
       useState<ProficiencyLevel>("intermediate");
-    const [newSkillType, setNewSkillType] = useState("");
-    const [newSkillInfo, setNewSkillInfo] = useState("");
-    const [newTag, setNewTag] = useState("");
 
     const addSkill = () => {
       if (newSkill.trim()) {
@@ -59,8 +53,6 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
         setSkillsList([...skillsList, newSkillItem]);
         setNewSkill("");
         setNewSkillLevel("intermediate");
-        setNewSkillType("");
-        setNewSkillInfo("");
       }
     };
 
@@ -79,17 +71,6 @@ export const EditSkillsForm = forwardRef<HTMLFormElement, EditSkillsFormProps>(
       } finally {
         setLoading(false);
       }
-    };
-
-    const addTag = () => {
-      if (newTag.trim() && !skillTags.includes(newTag)) {
-        setSkillTags([...skillTags, newTag]);
-        setNewTag("");
-      }
-    };
-
-    const removeTag = (tag: string) => {
-      setSkillTags(skillTags.filter((t) => t !== tag));
     };
 
     // Handle form submission
