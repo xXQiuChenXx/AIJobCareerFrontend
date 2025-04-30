@@ -24,7 +24,7 @@ This project was developed as part of an Object-Oriented Programming course curr
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/AIJobCareerFrontend.git
+    git clone https://github.com/xXQiuChenXx/AIJobCareerFrontend.git
     cd AIJobCareerFrontend
     ```
 2.  **Create environment file:**
