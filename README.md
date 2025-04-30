@@ -13,7 +13,6 @@ A job career website connecting employers and job seekers.
 This project was developed as part of an Object-Oriented Programming course curriculum in alignment with the Sarawak Blueprint 2030. As such, it is not actively maintained, and no guarantees are provided regarding security or future updates. You are welcome to fork this project and modify it for your own purposes. Please note that this project incorporates AI-generated code alongside human-written code.
 
 ## Technologies Used
-*(Add the main technologies used, e.g.,)*
 *   React Router
 *   TypeScript
 *   Tailwind CSS
