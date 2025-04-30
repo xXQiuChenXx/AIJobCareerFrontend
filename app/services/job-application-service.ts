@@ -4,7 +4,6 @@ import {
   type JobApplicationResponseDto,
   type JobDto,
 } from "@/lib/types/job-application";
-import { FileService } from "./file-service";
 
 export class JobApplicationService {
   private baseUrl = "/JobApplications";
@@ -15,39 +14,31 @@ export class JobApplicationService {
   async submitApplication(
     application: JobApplicationSubmitDto
   ): Promise<JobApplicationResponseDto> {
-    // First, handle resume upload if present
-    let resumeUrl = undefined;
-    if (application.resume) {
-      try {
-        // Upload file to "resumes" folder
-        const uploadResponse = await FileService.uploadFile(application.resume, "resumes");
-        // Get the URL for the uploaded file
-        const fileKey = uploadResponse.fileKey;
-        resumeUrl = FileService.getFileUrl(fileKey);
-      } catch (error) {
-        console.error("Error uploading resume:", error);
-        throw new Error("Failed to upload resume");
+    // Create FormData for multipart/form-data submission
+    const formData = new FormData();
+    
+    // Add all application fields to FormData
+    Object.entries(application).forEach(([key, value]) => {
+      // Skip resume as it will be added separately
+      if (key !== 'resume' && value !== undefined) {
+        // Handle arrays and objects by stringifying them
+        if (typeof value === 'object' && value !== null && !(value instanceof File)) {
+          formData.append(key, JSON.stringify(value));
+        } else if (value !== null) {
+          formData.append(key, value);
+        }
       }
+    });
+    
+    // Add resume file to FormData if present
+    if (application.resume) {
+      formData.append('resume', application.resume);
     }
 
-    // Create data object for application submission
-    const applicationData = {
-      ...application,
-      // Remove the File object and replace with URL if we have one
-      resume: undefined,
-      resumeUrl
-    };
-
-    // Submit the application
+    // Submit the application using FormData
     const response = await apiClient.post<JobApplicationResponseDto>(
       this.baseUrl,
-      applicationData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          ...(apiClient["client"].defaults.headers.common || {}),
-        },
-      }
+      formData
     );
 
     return response;
