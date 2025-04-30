@@ -17,28 +17,49 @@ export class JobApplicationService {
     // Create FormData for multipart/form-data submission
     const formData = new FormData();
     
-    // Add all application fields to FormData
-    Object.entries(application).forEach(([key, value]) => {
-      // Skip resume as it will be added separately
-      if (key !== 'resume' && value !== undefined) {
-        // Handle arrays and objects by stringifying them
-        if (typeof value === 'object' && value !== null && !(value instanceof File)) {
-          formData.append(key, JSON.stringify(value));
-        } else if (value !== null) {
-          formData.append(key, value);
-        }
+    // Helper function to add complex objects with proper .NET Core model binding format
+    const appendToFormData = (data: any, prefix = '') => {
+      if (data === null || data === undefined) return;
+      
+      if (data instanceof File) {
+        formData.append(prefix, data);
+      } else if (Array.isArray(data)) {
+        data.forEach((item, index) => {
+          const newPrefix = `${prefix}[${index}]`;
+          if (typeof item === 'object' && item !== null) {
+            appendToFormData(item, newPrefix);
+          } else {
+            formData.append(newPrefix, item?.toString() ?? '');
+          }
+        });
+      } else if (typeof data === 'object' && !(data instanceof File) && data !== null) {
+        Object.entries(data).forEach(([key, value]) => {
+          const newPrefix = prefix ? `${prefix}.${key}` : key;
+          appendToFormData(value, newPrefix);
+        });
+      } else {
+        formData.append(prefix, data?.toString() ?? '');
       }
-    });
+    };
     
-    // Add resume file to FormData if present
-    if (application.resume) {
-      formData.append('resume', application.resume);
+    // Process all application fields except resume
+    const { resume, ...applicationData } = application;
+    appendToFormData(applicationData);
+    
+    // Add resume file if present
+    if (resume) {
+      formData.append('Resume', resume);
     }
 
     // Submit the application using FormData
     const response = await apiClient.post<JobApplicationResponseDto>(
       this.baseUrl,
-      formData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
 
     return response;
