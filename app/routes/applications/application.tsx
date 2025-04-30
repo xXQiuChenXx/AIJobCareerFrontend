@@ -201,10 +201,10 @@ export default function JobApplicationForm({ params }: Route.ComponentProps) {
         description:
           "Thank you for your application. We will be in touch soon.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to submit application:", error);
       toast.error("Submission Failed", {
-        description: "You have already applied for this position",
+        description: error.message || "You have already applied for this position",
       });
     } finally {
       setIsSubmitting(false);
