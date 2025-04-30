@@ -56,7 +56,7 @@ This project was developed as part of an Object-Oriented Programming course curr
         ```
 
 ## Contact
-If you have any inquiries about the project, please contact the author [Provide contact method, e.g., GitHub profile link or email].
+If you have any inquiries about the project, please contact the [author](https://taihong.myitscm.com).
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
