@@ -54,7 +54,7 @@ export default function JobList({
         job_requirement: data.job_requirement,
         job_benefit: data.job_benefit,
         job_responsible: data.job_responsible,
-        job_type: data.job_type,  
+        job_type: data.job_type,
         job_salary_min: data.job_salary_min,
         job_salary_max: data.job_salary_max,
         job_location: data.job_location,
@@ -106,7 +106,7 @@ export default function JobList({
         job_requirement: data.job_requirement,
         job_benefit: data.job_benefit,
         job_responsible: data.job_responsible,
-        job_type: data.job_type,  
+        job_type: data.job_type,
         job_salary_min: data.job_salary_min,
         job_salary_max: data.job_salary_max,
         job_location: data.job_location,
@@ -185,33 +185,24 @@ export default function JobList({
     setIsDeleteDialogOpen(true);
   };
 
-  // Ensure the convertToJobData function accounts for possible missing job_deadline
-  const convertToJobData = (job: JobBasicDTO): JobData => ({
-    job_id: job.job_id,
-    job_title: job.job_title,
-    job_description: job.job_description,
-    job_type: job.job_type,
-    job_salary_min: job.job_salary_min,
-    job_salary_max: job.job_salary_max,
-    job_location: job.job_location,
-    job_posted_date: job.job_posted_date,
-    job_deadline: job.job_deadline,
-  });
-
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Open Positions at {companyName}</h2>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">
+    <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl font-bold">
+          Open Positions at {companyName}
+        </h2>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <span className="text-xs sm:text-sm text-gray-500 mr-auto sm:mr-0">
             {jobs.length} jobs available
           </span>
           {isAdmin && (
             <Button
               onClick={() => setIsAddDialogOpen(true)}
               disabled={isLoading}
+              size="sm"
+              className="sm:size-default"
             >
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
               Post Job
             </Button>
           )}
@@ -221,11 +212,11 @@ export default function JobList({
       {jobs.length === 0 ? (
         <NoJobsAvailable companyName={companyName} />
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {jobs.map((job) => (
             <JobCard
               key={job.job_id}
-              job={convertToJobData(job)}
+              job={job}
               onEdit={() => openEditDialog(job)}
               onDelete={() => openDeleteDialog(job.job_id)}
               isAdmin={isAdmin}
@@ -250,7 +241,7 @@ export default function JobList({
         <JobDialog
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
-          initialData={currentJob ? convertToJobData(currentJob) : null}
+          initialData={currentJob}
           onSubmit={handleEditJob}
           title="Edit Job"
           description="Update the job posting details."

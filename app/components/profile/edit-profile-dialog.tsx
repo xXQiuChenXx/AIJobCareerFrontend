@@ -1,3 +1,7 @@
+"use client";
+
+import type React from "react";
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -35,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarIcon, Files, Upload } from "lucide-react";
+import { CalendarIcon, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CompanyService } from "@/services/company-service";
@@ -43,7 +47,6 @@ import { toast } from "sonner";
 import type { JobBasicDTO } from "@/types/job";
 import { ALLOWED_CITIES } from "@/types/about-form-schema";
 import { company_industries } from "@/sample-data/company";
-import { FileService } from "@/services/file-service";
 
 // Define the schema for company profile validation
 const companyProfileSchema = z.object({
@@ -98,8 +101,6 @@ export default function EditProfileDialog({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(
     companyData.company_icon
-      ? CompanyService.getCompanyLogoUrl(companyData.company_icon)
-      : null
   );
 
   // Initialize the form with company data
@@ -134,7 +135,7 @@ export default function EditProfileDialog({
       // Upload new logo if selected
       if (logoFile) {
         try {
-          let key = await CompanyService.uploadCompanyLogo(logoFile);
+          const key = await CompanyService.uploadCompanyLogo(logoFile);
           logoKey = CompanyService.getCompanyLogoUrl(key);
         } catch (error) {
           console.error("Error uploading logo:", error);
@@ -176,7 +177,7 @@ export default function EditProfileDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Edit Company Profile</DialogTitle>
           <DialogDescription>
@@ -184,25 +185,30 @@ export default function EditProfileDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="flex flex-col items-center mb-4">
-              <div className="mb-2 relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 sm:space-y-6"
+          >
+            <div className="flex flex-col items-center mb-3 sm:mb-4">
+              <div className="mb-2 relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-gray-200">
                 {logoPreview ? (
                   <img
-                    src={logoPreview}
+                    src={logoPreview || "/placeholder.svg"}
                     alt="Company Logo"
-                    className="object-cover"
+                    className="object-cover w-full h-full"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <span className="text-gray-400">Logo</span>
+                    <span className="text-gray-400 text-xs sm:text-sm">
+                      Logo
+                    </span>
                   </div>
                 )}
               </div>
-              <div className="mt-2">
+              <div className="mt-1 sm:mt-2">
                 <label htmlFor="logo-upload" className="cursor-pointer">
-                  <div className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-600">
-                    <Upload size={16} />
+                  <div className="flex items-center gap-1 text-xs sm:text-sm text-blue-500 hover:text-blue-600">
+                    <Upload size={14} className="sm:w-4 sm:h-4" />
                     <span>
                       {companyData.company_icon ? "Change Logo" : "Upload Logo"}
                     </span>
@@ -241,7 +247,7 @@ export default function EditProfileDialog({
                   <FormControl>
                     <Textarea
                       placeholder="Enter company introduction"
-                      className="min-h-[100px]"
+                      className="min-h-[80px] sm:min-h-[100px]"
                       {...field}
                     />
                   </FormControl>
@@ -250,7 +256,7 @@ export default function EditProfileDialog({
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4">
               <FormField
                 control={form.control}
                 name="company_website"
@@ -294,7 +300,7 @@ export default function EditProfileDialog({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4">
               <FormField
                 control={form.control}
                 name="company_area_name"
@@ -369,16 +375,21 @@ export default function EditProfileDialog({
               />
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full sm:w-auto"
+              >
                 {isSubmitting ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>

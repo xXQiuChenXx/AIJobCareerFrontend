@@ -20,12 +20,13 @@ export default function JobCard({
 }: JobCardProps) {
   return (
     <div className="border rounded-lg p-6">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start flex-col md:flex-row">
         <NavLink to={`/careers/details/${job.job_id}`} className="flex-1">
           <h3 className="text-xl font-bold">{job.job_title}</h3>
         </NavLink>
-        <div className="text-lg font-semibold">{`RM ${job.job_salary_min} - RM ${job.job_salary_max}`}</div>
+        <div className="text-lg font-semibold text-muted-foreground md:text-black">{`RM ${job.job_salary_min} - RM ${job.job_salary_max}`}</div>
       </div>
+
       <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3 text-gray-600">
         <div className="flex items-center gap-1.5">
           <Briefcase className="h-4 w-4 text-gray-500" />

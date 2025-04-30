@@ -82,6 +82,7 @@ export default function JobDialog({
   submitLabel,
 }: JobDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  console.log(initialData)
 
   // Initialize the form with job data if editing, or empty values if creating
   const form = useForm<JobFormValues>({
