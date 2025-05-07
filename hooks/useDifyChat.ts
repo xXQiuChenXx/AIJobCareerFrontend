@@ -128,7 +128,7 @@ export function useDifyChat({
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === assistantPlaceholder.id
-                  ? { ...msg, content: "Server busy, please try again later." }
+                  ? { ...msg, content: "Thinking... " }
                   : msg
               )
             );

@@ -199,7 +199,7 @@ const SiteFooter = () => {
             © {new Date().getFullYear()} AI JobCareer. All rights reserved.
           </p>
           <p className="text-center text-sm text-muted-foreground md:text-left">
-            Made with ❤️ for job seekers and employers
+            
           </p>
         </div>
       </div>
