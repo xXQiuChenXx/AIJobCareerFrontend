@@ -52,12 +52,6 @@ export const SiteHeader = () => {
           >
             AIChat
           </CustomNavLink>
-          <CustomNavLink
-            to="plan"
-            className="font-medium text-slate-700 hover:text-slate-900"
-          >
-            Subscription
-          </CustomNavLink>
         </nav>
         <div className="flex items-center gap-4">
           {!isAuthenticated && (
