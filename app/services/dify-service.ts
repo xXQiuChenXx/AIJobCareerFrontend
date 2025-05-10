@@ -154,7 +154,7 @@ export class DifyService {
               }
             }
           }
-          if (!haveChunk) onChunk("Server busy, please try again later.");
+          if (!haveChunk) onChunk("(Thinking...) ");
           haveChunk = false;
         }
       }
