@@ -100,7 +100,7 @@ export function formatSalaryRange(
 
 // Helper to format currency values
 function formatCurrency(value: number): string {
-  return value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value.toString();
+  return value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value.toString();
 }
 
 // Function to extract salary range from filter string
